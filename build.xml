@@ -1,0 +1,39 @@
+<?xml version="1.0" ?>
+<project name="GCPooper" default="compile">
+  
+  <target name="init" >
+    <mkdir dir="build/classes" />
+    <mkdir dir="dist" />
+    <mkdir dir="src/frontend/generated_files" />
+  </target>
+
+  <target name="javacc" >
+    <javacc
+      target="src/frontend/Frontend.jj"
+      outputdirectory="src/frontend/generated_files"
+      javacchome="/usr/share/java/"
+      static="false"
+      ignorecase="true"
+    />
+  </target>
+
+  <target name="compile" depends="init,javacc" >
+    <javac srcdir="src" destdir="build/classes" debug="on" debuglevel="lines,vars,source" source="1.6" includeantruntime="false">
+      <classpath>
+	<pathelement path="build/classes"/>
+      </classpath>
+    </javac>
+  </target>
+  
+  <target name="clean" depends="init" >
+    <delete dir="build" />
+    <delete dir="dist" />
+  </target>
+
+  <target name="archive" depends="compile" >
+    <jar destfile="dist/GCPooper.jar">
+      <fileset dir="build/classes"/>
+    </jar>
+  </target>
+
+</project>
