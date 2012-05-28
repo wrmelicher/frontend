@@ -7,17 +7,7 @@
     <mkdir dir="src/frontend/generated_files" />
   </target>
 
-  <target name="javacc" >
-    <javacc
-      target="src/frontend/Frontend.jj"
-      outputdirectory="src/frontend/generated_files"
-      javacchome="/usr/share/java/"
-      static="false"
-      ignorecase="true"
-    />
-  </target>
-
-  <target name="compile" depends="init,javacc" >
+  <target name="compile" depends="init" >
     <javac srcdir="src" destdir="build/classes" debug="on" debuglevel="lines,vars,source" source="1.6" includeantruntime="false">
       <classpath>
 	<pathelement path="build/classes"/>

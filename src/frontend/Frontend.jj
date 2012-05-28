@@ -4,6 +4,7 @@ PARSER_BEGIN( Frontend )
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.HashMap;
+import java.util.Stack;
 
 public class Frontend {
   String party_one_name;
@@ -13,14 +14,12 @@ public class Frontend {
   ProgramTree tree;
   int line_num;
 
-  Map<String, Variable> global_scope;
-  Map<String, Variable> current_scope;
+  Map<String, Variable> scope;
   
   public ProgramTree read(){
     boolean errors = false;
     tree = new ProgramTree();
-    global_scope = new HashMap<String,Variable>();
-    current_scope = new HashMap<String,Variable>();
+    scope = new HashMap<String,Variable>();
     line_num = 0;
     try {
       file();
@@ -39,7 +38,7 @@ public class Frontend {
     } else if( party.equals( party_two_name ) ){
       return 2;
     } else {
-      throw new CompileException( "Cannot resolve party: "+party, line_num );
+      throw error( "Cannot resolve party: "+party );
     }
     
     return 0;
@@ -50,24 +49,22 @@ public class Frontend {
   }
 
   private Variable getVar( String name ){
-    Variable tmp = current_scope.get( name );
-    return tmp == null ? global_scope.get( name ) : tmp;
+    return scope.get( name );
   }
 
-  private void declareVariable( String name, Type type, boolean is_global ) throws CompileException {
+  private void checkVarName( String name ) throws CompileException {
     Variable alread_defined = getVar( name );
     if( alread_defined != null ){
-      throw new CompileException( "Variable \""+name+"\" already defined", linenum );
-    }
-    if( is_global ){
-      global_scope.put( name, new Variable( type ) );
-    } else {
-      current_scope.put( name, new Variable( type ) );
+      throw error( "Variable \""+name+"\" already defined" );
     }
   }
+  
+  private void defineVariable( String name, Variable v ){
+    scope.put( name, v );
+  }
 
-  private void leave_local_scope(){
-    current_scope.clear();
+  private CompileException error( String mess ){
+    return new CompileException( mess, linenum );
   }
 }
 
@@ -88,10 +85,12 @@ TOKEN: {
     < COMMA : "," > |
     < EQUAL : "=" > |
     < SEMICOLON : ";" > |
+    < COLON : ":" > |
     < TO : "to" > |
     < IF : "if" > |
     < FOR : "for" > |
     < FROM : "from" > |
+    < RETURN : "return" > |
     < PROGRAM : "program" > |
     < INTEGER : ("-")? (["0"-"9"])+ > |
     < IDENTIFIER : ["a"-"z"] ( ["a"-"z"] | ["0"-"9"] )* >
@@ -129,15 +128,16 @@ void InputDeclaration() throws CompileException:
   String var_name;
 }
 {
+  party_num = PartyName()
+    <COLON>
   type = TypeDeclaration()
-    <OPEN_BRACKET>
-    party_num = PartyName()
-    <CLOSE_BRACKET>
-
     var_name = Identifier()  
 
   {
-    
+    checkVarName( var_name );
+    Variable in = new Variable( type );
+    defineVariable( var_name, in );
+    tree.addInputVariable( party_num, in );
   }
   <SEMICOLON>
 }
@@ -146,38 +146,72 @@ Type TypeDeclaration() throws CompileException:
 {
   String typename;
   Type type;
+  boolean is_array;
+  int array_size;
 }
 {
   typename = Identifier()
+    (
+     <OPEN_BRACKET>
+     array_size = IntDigits()
+       {
+	 is_array = true;
+       }
+     <CLOSE_BRACKET>
+     )?
   {
     type = Type.from_name( typename );
     if( type == null ){
-      throw new CompileException( "Type \""+typename+"\" not found", linenum );
+      throw error( "Type \""+typename+"\" not found" );
+    }
+    if( is_array ){
+      if( array_size <= 0 ){
+	throw error( "Arrays must have positive size" );
+      }
+      return new ArrayType( array_size, type );
     }
     return type;
   }
 }
 
-void FunctionDeclaration() throws CompileException:
+void Statement() throws CompileException:
 {
-  Type out_type;
-  String func_name;
-  Map<String, Type> args;
+  Statement s;
 }
 {
-  out_type = TypeDeclaration()
-    func_name = Identifier()
-    args = ArgumentList()
+  ( 
+   s = ForLoop() |
+   s = Expression() |
+   s = Return() |
+   s = VariableCreation()
+    )
+    <SEMICOLON>
+    {
+      tree.addStatement(s);
+    }
+}
 
-  <OPEN_CURLY>
-     ( Expression() )*
-  <CLOSE_CURLY>
+Statement ForLoop() throws CompileException:
+{
+  
+}
+{
+  
+}
+
+Expression Return() throws CompileException:
+{
+  Expression ex;
+}
+{
+  <RETURN>
+    ex = Expression()
   {
-    leave_local_scope();
+    return ex;
   }
 }
 
-void Expression() throws CompileException:
+Statement VariableCreation() throws CompileException:
 {
   
 }
@@ -185,26 +219,20 @@ void Expression() throws CompileException:
   
 }
 
-Map<String,Type> ArgumentList() throws CompileException:
+Expression Expression() throws CompileException:
 {
-  Map<String,Type> args = new TreeMap<String,Type>();
-  String cur_arg;
-  Type cur_type;
+  
 }
 {
-  <OPEN_PAREN>
-  (
-   cur_type = TypeDeclaration()
-   cur_arg = Identifier()
-   {
-     args.put( cur_arg, cur_type );
-   }
-   ( <COMMA> )?
-   )*
-  <CLOSE_PAREN>
-    {
-      return args;
-    }
+  
+}
+
+Variable Constant() throws CompileException:
+{
+  
+}
+{
+  
 }
 
 int PartyName() throws CompileException:
@@ -219,7 +247,8 @@ void ProgramBody() throws CompileException:
 }
 {
   ( InputDeclaration() )*
-  ( FunctionDeclaration() )*
+    ( Statement()
+      <SEMICOLON> )*
 }
 
 String Identifier():
@@ -242,3 +271,47 @@ int IntDigits():
     }
   }
 }
+
+/*
+Map<String,Type> ArgumentList() throws CompileException:
+{
+  Map<String,Type> args = new TreeMap<String,Type>();
+  String cur_arg;
+  Type cur_type;
+}
+{
+  <OPEN_PAREN>
+  (
+   cur_type = TypeDeclaration()
+   cur_arg = Identifier()
+   {
+     args.put( cur_arg, cur_type );
+   }
+   ( <COMMA> )?
+   )*
+  <CLOSE_PAREN>
+    {
+      return args;
+    }
+}
+*//*
+void FunctionDeclaration() throws CompileException:
+{
+  Type out_type;
+  String func_name;
+  Map<String, Type> args;
+}
+{
+  out_type = TypeDeclaration()
+    func_name = Identifier()
+    args = ArgumentList()
+
+  <OPEN_CURLY>
+     ( Statement()
+       <SEMICOLON> )*
+  <CLOSE_CURLY>
+  {
+    leave_local_scope();
+  }
+}
+*/
