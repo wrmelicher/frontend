@@ -5,6 +5,7 @@ import java.math.BigInteger;
 class IntTypeData extends TypeData {
   private BigInteger magnitude;
   private boolean signed;
+  
   public IntTypeData( BigInteger mag, boolean sign ) {
     super( Type.IntType );
     magnitude = mag;
@@ -32,4 +33,5 @@ class IntTypeData extends TypeData {
       return "zextend";
     }
   }
+  
 }

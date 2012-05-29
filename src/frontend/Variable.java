@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.io.PrintStream;
 
 public class Variable {
-  private TypeData type;
   private long id;
   private String high_level_name;
   private long cur_assignment;
@@ -17,7 +16,7 @@ public class Variable {
   }
   
   public Variable( String name, TypeData atype ) {
-    type = atype;
+    super( atype );
     id = ++id_counter;
     high_level_name = name;
     cur_assignment = 0;
@@ -25,22 +24,12 @@ public class Variable {
   }
 
   public static String temp_var_name(){
-    return "temp_var_" + (++id_counter);
+    return Variable.unused_name() + (++id_counter);
   }
   public static String unused_name(){
-    return "poop";
+    return "temp_var_";
   }
   
-  public Type getType() {
-    return getData().getType();
-  }
-
-  public TypeData getData() {
-    return type;
-  }
-  public void setData( TypeData d ){
-    type = d;
-  }
   
   public long getId() {
     return id;
@@ -87,11 +76,5 @@ public class Variable {
   public void compile_assignment( PrintStream os, Variable other, AssignmentExp owner ) throws CompileException {
     os.println( new_name() + " set " + other.cur_name() );
     setData( other.getData() );
-  }
-  public static Variable BooleanVariable( String name ){
-    return new Variable( name, BoolData.INSTANCE );
-  }
-  public static Variable IntVariable( String name, IntTypeData i ){
-    return new Variable( name, i );
   }
 }

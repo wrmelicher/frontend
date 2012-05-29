@@ -11,7 +11,7 @@ public class AssignmentExp extends Expression {
     dest = adest;
     source = asource;
   }
-  public Variable returnVar(){
+  public Value returnVar(){
     return dest;
   }
   public void compile( PrintStream os ) throws CompileException{

@@ -6,7 +6,7 @@ public class VariableExp extends Expression {
     super( line );
     var = v;
   }
-  public Variable returnVar(){
+  public Value returnVar(){
     return var;
   }
   public void compile( PrintStream os ) throws CompileException {
