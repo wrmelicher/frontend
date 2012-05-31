@@ -11,4 +11,6 @@ public abstract class TypeData {
   public abstract int bit_count();
   public abstract boolean supports_extend();
   public abstract String extend_operation();
+  public abstract boolean is_constant();
+  public abstract String constant_name();
 }

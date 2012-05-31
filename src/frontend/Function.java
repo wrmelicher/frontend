@@ -16,19 +16,19 @@ public abstract class Function {
     return func_map.get(s);
   }
   
-  public abstract Variable compile( PrintStream ps, Value[] args, FunctionExp owner ) throws CompileException;
+  public abstract Variable compile( PrintStream ps, Variable[] args, Expression owner ) throws CompileException;
 
   static {
     new IntAddFunction();
     new IntEqualsFunction();
   }
 
-  protected static String padArgToLength( Variable arg, int to ){
+  protected static String padArgToLength( PrintStream ps, Variable arg, int to ){
     if( arg.getData().bit_count() == to ){
       return arg.cur_name();
     }
     String name = Variable.temp_var_name();
-    ps.println( name + " " + args[i].getData().extend_operation() + " " + args[i].cur_name() + " "+ to );
+    ps.println( name + " " + arg.getData().extend_operation() + " " + arg.cur_name() + " "+ to );
     return name;
   }
 
@@ -40,21 +40,24 @@ public abstract class Function {
     return max;
   }
   
-  protected static String[] padArgsToMaxLength( Variable[] args ){
+  protected static String[] padArgsToMaxLength( PrintStream ps, Variable[] args ){
     int max = Function.maxArgLength( args );
     String[] ans = new String[ args.length ];
     for( int i = 0; i < args.length; i++){
-      ans[i] = Function.padArgToLength( args[i], max );
+      ans[i] = Function.padArgToLength( ps, args[i], max );
     }
     return ans;
   }
   
   static class IntAddFunction extends Function {
-    public AddFunction(){
+    public IntAddFunction(){
       super( "+" );
     }
-    public Variable compile( PrintStream ps, Value[] args, Expression owner ) throws CompileException{
+    public Variable compile( PrintStream ps, Variable[] args, Expression owner ) throws CompileException{
       boolean signed = false;
+      if( args.length != 2 ){
+	throw owner.error( "Add function must have 2 arguments" );
+      }
       for( int i = 0; i < args.length; i++){
 	if( !( args[i].getType() == Type.IntType ) ){
 	  throw owner.error( "Add expression must have integer arguments" );
@@ -65,24 +68,26 @@ public abstract class Function {
       }
 
       int length = Function.maxArgLength( args );
-      String[] actual_args = Function.padArgsToMaxLength( args );
+      String[] actual_args = Function.padArgsToMaxLength( ps, args );
       IntTypeData data = new IntTypeData( 0, false );
       for( int i = 0; i < args.length; i++){
 	data = IntTypeData.add( data, (IntTypeData)args[i].getData() );
       }
-      Variable out = new Variable( data );      
-      ps.print( out.cur_name() + " add" );
-      for( int i = 0; i < args.length; i++){
-	ps.print( " "+actual_args[i] );
+      Variable out = new Variable( data );
+      if( !out.getData().is_constant() ){
+	ps.print( out.cur_name() + " add" );
+	for( int i = 0; i < args.length; i++){
+	  ps.print( " "+actual_args[i] );
+	}
+	ps.println();
       }
-      ps.println();
       return out;
     }
   }
 
   static class IntEqualsFunction extends Function {
     public static final String NAME = "==";
-    public EqualsFunction(){
+    public IntEqualsFunction(){
       super(NAME);
     }
     public Variable compile( PrintStream ps, Variable[] args, Expression owner ) throws CompileException{
@@ -99,15 +104,18 @@ public abstract class Function {
 	}
       }
       int length = Function.maxArgLength( args );
-      String[] actual_args = padArgsToMaxLength( args );
+      String[] actual_args = padArgsToMaxLength( ps, args );
 
-      Variable out = new Variable( BoolData.MAYBE );
+      Variable out = new Variable( IntTypeData.equals( (IntTypeData)args[0].getData(), (IntTypeData)args[1].getData() ) );
       String op = "equ";
-      ps.print( out.new_name() + " " + op );
-      for( int i = 0; i < args.length; i++){
-	ps.print( " " + actual_args[i] );
+      if( !out.getData().is_constant() ) {
+	ps.print( out.new_name() + " " + op );
+	for( int i = 0; i < args.length; i++){
+	  ps.print( " " + actual_args[i] );
+	}
+	ps.println();
       }
-      ps.println();
+      return out;
     }
   }
   

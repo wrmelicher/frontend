@@ -10,13 +10,15 @@ public class Variable {
   private long cur_assignment;
   private boolean is_input;
   private static long id_counter = 0;
+  private TypeData type;
+  private boolean is_declared = false;
 
   public Variable( TypeData atype ){
     this( unused_name(), atype );
   }
   
   public Variable( String name, TypeData atype ) {
-    super( atype );
+    type = atype;
     id = ++id_counter;
     high_level_name = name;
     cur_assignment = 0;
@@ -30,12 +32,22 @@ public class Variable {
     return "temp_var_";
   }
   
-  
   public long getId() {
     return id;
   }
   public long getCurAssign() {
     return cur_assignment;
+  }
+
+  public TypeData getData(){
+    return type;
+  }
+  public void setData( TypeData t ){
+    type = t;
+  }
+  
+  public Type getType(){
+    return type.getType();
   }
   
   public boolean equals( Object obj ){
@@ -48,10 +60,16 @@ public class Variable {
   public int hashCode(){
     return (int) id;
   }
+  
   public String debug_name(){
     return high_level_name;
   }
+  
   public String cur_name(){
+    if( getData().is_constant() ){
+      return getData().constant_name();
+    }
+    
     String cur = high_level_name + "_" + id;
     if( is_input && cur_assignment == 0 ){
       return debug_name();
@@ -61,6 +79,7 @@ public class Variable {
     else 
       return cur + "_" + cur_assignment;
   }
+  
   public String new_name(){
     inc_name();
     return cur_name();
@@ -74,7 +93,8 @@ public class Variable {
   }
 
   public void compile_assignment( PrintStream os, Variable other, AssignmentExp owner ) throws CompileException {
+    
     os.println( new_name() + " set " + other.cur_name() );
-    setData( other.getData() );
+    type = other.getData();
   }
 }

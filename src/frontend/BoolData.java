@@ -21,7 +21,7 @@ public class BoolData extends TypeData {
   public String extend_operation() {
     return "";
   }
-  public int possValue(){
+  public int poss_value(){
     return possible_values;
   }
   public static BoolData and( BoolData a, BoolData b ){
@@ -30,6 +30,18 @@ public class BoolData extends TypeData {
     } else {
       return new BoolData( BoolData.MAYBE );
     }
-    
+  }
+  public static BoolData or( BoolData a, BoolData b ){
+    if( a.possible_values == BoolData.TRUE || b.possible_values == BoolData.TRUE ){
+      return new BoolData( BoolData.TRUE );
+    } else {
+      return new BoolData( BoolData.MAYBE );
+    } 
+  }
+  public boolean is_constant(){
+    return possible_values != BoolData.MAYBE;
+  }
+  public String constant_name(){
+    return possible_values == BoolData.FALSE ? "0:1" : "1:1";
   }
 }

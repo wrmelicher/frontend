@@ -8,7 +8,7 @@ public abstract class Expression extends Statement {
     super( linenum );
   }
   
-  public abstract Value returnVar();
+  public abstract Variable returnVar();
   
   public abstract void compile( PrintStream os ) throws CompileException;
   

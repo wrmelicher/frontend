@@ -9,11 +9,11 @@ public class FunctionExp extends Expression {
     func = afunc;
     args = some_args;
   }
-  public Value returnVar(){
+  public Variable returnVar(){
     return outvar;
   }
   public void compile( PrintStream os ) throws CompileException {
-    Value[] vargs = new Value[ args.length ];
+    Variable[] vargs = new Variable[ args.length ];
     for( int i = 0; i < args.length; i++){
       args[i].compile(os);
       vargs[i] = args[i].returnVar();

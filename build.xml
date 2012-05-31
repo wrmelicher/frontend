@@ -4,7 +4,6 @@
   <target name="init" >
     <mkdir dir="build/classes" />
     <mkdir dir="dist" />
-    <mkdir dir="src/frontend/generated_files" />
   </target>
 
   <target name="compile" depends="init" >

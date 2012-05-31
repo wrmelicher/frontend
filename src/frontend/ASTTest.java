@@ -1,9 +1,11 @@
 package frontend;
 
 public class ASTTest {
+
   public static void main( String[] args ) throws CompileException{
     ProgramTree tree = new ProgramTree();
 
+    /*
     // a variable that goes to 8
     Variable a = new IntVariable( "a", new IntTypeData( 7, false ) );
     Variable b = new IntVariable( "b", new IntTypeData( 31, false) );
@@ -24,7 +26,7 @@ public class ASTTest {
     AssignmentExp assign = new AssignmentExp( 4, sum, add );
     
     tree.addStatement( assign );
-
+    */
     tree.compile( System.out );
   }
 }

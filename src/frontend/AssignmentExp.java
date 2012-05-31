@@ -11,7 +11,7 @@ public class AssignmentExp extends Expression {
     dest = adest;
     source = asource;
   }
-  public Value returnVar(){
+  public Variable returnVar(){
     return dest;
   }
   public void compile( PrintStream os ) throws CompileException{
@@ -20,6 +20,6 @@ public class AssignmentExp extends Expression {
     if( !dest.getType().equals( sourceVar.getType() ) ){
       throw error( "Variable \""+dest.debug_name()+"\" is not of type "+sourceVar.getType().name());
     }
-    dest.compile_assignment( os, sourceVar );
+    dest.compile_assignment( os, sourceVar, this );
   }
 }

@@ -21,4 +21,16 @@ public class ArrayData extends TypeData {
   public int bit_count(){
     return size * elem_type.bit_count();
   }
+  public boolean supports_extend(){
+    return false;
+  }
+  public String extend_operation(){
+    return "";
+  }
+  public boolean is_constant() {
+    return false;
+  }
+  public String constant_name() {
+    return "";
+  }
 }

@@ -7,8 +7,8 @@ public class DeclareOutput extends Statement {
     out = var;
   }
   public void compile( PrintStream os ) throws CompileException {
-    
-    os.print(".output "+out.cur_name() );
+    os.println( out.debug_name() + " set " + out.cur_name() );
+    os.print(".output "+out.debug_name() );
     if( out instanceof IntVariable ){
       if( ((IntTypeData) out.getData()).signed() )
 	os.print(" signed");
