@@ -4,9 +4,20 @@
   <target name="init" >
     <mkdir dir="build/classes" />
     <mkdir dir="dist" />
+    <mkdir dir="src/frontend/generated_files" />
+  </target>
+  
+  <target name="javacc" >
+    <javacc
+      target="src/frontend/Parser.jj"
+      outputdirectory="src/frontend/generated_files"
+      javacchome="/usr/share/java/"
+      static="false"
+      ignorecase="true"
+    />
   </target>
 
-  <target name="compile" depends="init" >
+  <target name="compile" depends="init,javacc" >
     <javac srcdir="src" destdir="build/classes" debug="on" debuglevel="lines,vars,source" source="1.6" includeantruntime="false">
       <classpath>
 	<pathelement path="build/classes"/>
@@ -17,6 +28,7 @@
   <target name="clean" depends="init" >
     <delete dir="build" />
     <delete dir="dist" />
+    <delete dir="src/frontend/generated_files" />
   </target>
 
   <target name="archive" depends="compile" >
