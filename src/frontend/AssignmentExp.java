@@ -1,25 +1,31 @@
 package frontend;
 
-import java.io.PrintStream;
-
 public class AssignmentExp extends Expression {
-  private Variable dest;
+  private Expression dest_exp;
+  private AbstractVariable dest;
   private Expression source;
   private String outputName;
-  public AssignmentExp( int linenum, Variable adest, Expression asource ){
-    super( linenum );
-    dest = adest;
+  public AssignmentExp( int linenum, AbstractVariable adest, Expression asource ){
+    this( linenum, new VariableExp( linenum, adest ), asource );
+  }
+  public AssignmentExp( int line, Expression adest, Expression asource ){
+    super( line );
+    dest_exp = adest;
     source = asource;
   }
-  public Variable returnVar(){
+  public AbstractVariable returnVar(){
     return dest;
   }
-  public void compile( PrintStream os ) throws CompileException{
-    source.compile( os );
-    Variable sourceVar = source.returnVar();
-    if( !dest.getType().equals( sourceVar.getType() ) ){
+  public void compile() throws CompileException{
+    dest_exp.compile();
+    dest = dest_exp.returnVar();
+    source.compile();
+    AbstractVariable sourceVar = source.returnVar();
+    if( !sourceVar.getType().satisfies( dest.getType() )  ){
       throw error( "Variable \""+dest.debug_name()+"\" is not of type "+sourceVar.getType().name());
     }
-    dest.compile_assignment( os, sourceVar, this );
+
+    dest.compile_assignment( sourceVar, this );
+
   }
 }

@@ -1,24 +1,29 @@
 package frontend;
 import java.io.PrintStream;
+
+import java.util.List;
+import java.util.LinkedList;
+
 public class FunctionExp extends Expression {
-  private Function func;
-  private Expression[] args;
-  private Variable outvar;
-  public FunctionExp( int line, Function afunc, Expression[] some_args ){
+  private String name;
+  private AbstractVariable outvar;
+  private Expression[] exps;
+  public FunctionExp( int line, String afunc, Expression[] args ){
     super( line );
-    func = afunc;
-    args = some_args;
+    name = afunc;
+    exps = args;
   }
-  public Variable returnVar(){
+  public AbstractVariable returnVar(){
     return outvar;
   }
-  public void compile( PrintStream os ) throws CompileException {
-    Variable[] vargs = new Variable[ args.length ];
-    for( int i = 0; i < args.length; i++){
-      args[i].compile(os);
-      vargs[i] = args[i].returnVar();
+  public void compile() throws CompileException {
+    AbstractVariable[] vargs = new AbstractVariable[ exps.length ];
+    int i = 0;
+    for( Expression e : exps ){
+      e.compile();
+      vargs[i++] = e.returnVar();
     }
-    outvar = func.compile( os, vargs, this );
+    outvar = Function.call( name, vargs, this );
   }
 
 }

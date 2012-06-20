@@ -3,37 +3,36 @@ import java.io.PrintStream;
 
 public class ArrayPositionCompileTime extends ArrayPosition {
   private int pos;
+  private boolean changed = false;
   public ArrayPositionCompileTime( ArrayVariable par, int place ){
     super( par );
     pos = place;
   }
-  public void compile_assignment( PrintStream ps, Variable other, AssignmentExp owner ) throws CompileException {
-    super.compile_assignment( ps, other, owner );
-    // assume that all size adjustments have already been made
-
-    ArrayData parentData = (ArrayData) getParent().getData();
+  public void read_value(){
+    changed = false;
+    validate();
+    getParent().state_index( pos, new_name() );
+    setData( getParent().getData().getElementData() );
+  }
+  public boolean is_changed(){
+    return changed;
+  }
+  
+  @Override
+  public void compile_assignment( AbstractVariable other, Statement owner ) throws CompileException {
+    changed = true;
+    validate();
+    ArrayData parentData = getParent().getData();
     if( pos >= parentData.getSize() ){
       throw owner.error( "Index "+pos+" is greater than array length" );
     }
     if( pos < 0 ){
       throw owner.error( "Cannot access a negative array index" );
     }
-    
-    if( pos == parentData.getSize() - 1 ){
-      String before = Variable.temp_var_name();
-      ps.println( before + " select " + getParent().cur_name() + " 0 " + (parentData.getSize() * pos ) );
-      ps.println( getParent().new_name() + " concat " + other.cur_name() + " " + before );
-    } else if( pos == 0 ) {
-      String after = Variable.temp_var_name();
-      ps.println( after + " select " + getParent().cur_name() + " " + parentData.getElementData().bit_count() + " " + parentData.bit_count() );
-      ps.println( getParent().new_name() + " concat " + other.cur_name() + " " + after );
-    } else {
-      String before = Variable.temp_var_name();
-      String after = Variable.temp_var_name();
-
-      ps.println( before + " select " + getParent().cur_name() + " 0 " + (parentData.getSize() * pos ) );
-      ps.println( after + " select " + getParent().cur_name() + " " + ( parentData.getElementData().bit_count() * ( pos + 1 ))+ " " + parentData.bit_count() );
-      ps.println( getParent().new_name() + " concat " + before + " " + other.cur_name() + " " + after );
+    if( other.getType() != parentData.getType() ){
+      throw owner.error( "Cannot assign type "+other.getType()+" to array of type "+parentData.getType() );
     }
+    super.compile_assignment( other, owner );
+    // assume that all size adjustments have already been made
   }
 }

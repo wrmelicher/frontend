@@ -3,24 +3,31 @@ package frontend;
 import java.io.PrintStream;
 
 public class ArrayAccessExp extends Expression {
-  private Variable index;
+  private Expression index;
   private ArrayVariable arr;
   private ArrayPosition out;
   public ArrayAccessExp( int linenum, ArrayVariable a, int i ){
-    this( linenum, a, new Variable( new IntTypeData( i ) ) );
+    this( linenum, a, new Variable<IntTypeData>( new IntTypeData( i ) ) );
   }
-  public ArrayAccessExp( int linenum, ArrayVariable a, Variable i ){
+  public ArrayAccessExp( int linenum, ArrayVariable a, AbstractVariable<IntTypeData> i ){
+    this( linenum, a, new VariableExp( linenum, i ) );
+  }
+  public ArrayAccessExp( int linenum, ArrayVariable a, Expression ind ){
     super( linenum );
-    index = i;
+    index = ind;
     arr = a;
   }
   
-  public Variable returnVar(){
+  public AbstractVariable returnVar(){
     return out;
   }
   
-  public void compile( PrintStream ps ) throws CompileException {
-    out = arr.at( ps, index, this );
+  public void compile() throws CompileException {
+    index.compile();
+    AbstractVariable ind_var = index.returnVar();
+    if( ind_var.getType() != Type.IntType )
+      throw error("Cannot index variable with non-integer type" );
+    out = arr.at( ind_var );
   }
   
 }

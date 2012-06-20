@@ -23,8 +23,16 @@ public class Type {
   public String name(){
     return name;
   }
+
+  public boolean satisfies( Type t ){
+    if( t == this || t == ANYTYPE )
+      return true;
+    else 
+      return false;
+  }
   
   public static final Type ArrayType = new Type("Array");
   public static final Type IntType = new Type("int");
   public static final Type BoolType = new Type("bool");
+  public static final Type ANYTYPE = new Type("_any");
 }

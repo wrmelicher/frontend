@@ -1,32 +1,36 @@
 package frontend;
 
-public class ASTTest {
+public class ASTTest implements CompilerTest.Compiler {
+  
+  public static void main( String[] args ){
+    CompilerTest.compile( args[0], new ASTTest() );
+  }
 
-  public static void main( String[] args ) throws CompileException{
+  public ProgramTree tree() throws CompileException {
     ProgramTree tree = new ProgramTree();
 
-    /*
-    // a variable that goes to 8
-    Variable a = new IntVariable( "a", new IntTypeData( 7, false ) );
-    Variable b = new IntVariable( "b", new IntTypeData( 31, false) );
-
-    // answer. size doesnt matter
-    Variable sum = new IntVariable( "sum", new IntTypeData( 1, false ) );
+    int size = 4;
+    int int_size = 255;
+    int linenum = 0;
+    Variable<IntTypeData> ind = new Variable<IntTypeData>
+      ("ind", new IntTypeData( size-1, false ) );
     
-    tree.addStatement( new DeclareInputStatement( 1, a, 1 ) );
-    tree.addStatement( new DeclareInputStatement( 2, b, 2 ) );
-
-    tree.addStatement( new DeclareOutput( 3, sum ) );
-
-    FunctionExp add = new FunctionExp( 5, Function.from_name("+"),
-				       new Expression[] {
-					 new VariableExp( 6, a ),
-					 new VariableExp( 7, b )
-				       } );
-    AssignmentExp assign = new AssignmentExp( 4, sum, add );
+    ArrayVariable arr2 = new ArrayVariable
+      ( "arr2", new ArrayData
+	(new IntTypeData( int_size, false ), size) );
     
-    tree.addStatement( assign );
-    */
-    tree.compile( System.out );
+    tree.addStatement( new DeclareInputStatement( linenum++, ind, 1 ) );
+    tree.addStatement( new DeclareInputStatement( linenum++, arr2, 2 ) );
+
+    tree.addStatement( new AssignmentExp
+		       ( linenum++,
+			 arr2.at( ind ),
+			 new VariableExp
+			 ( linenum++,
+			   new Variable<IntTypeData>( new IntTypeData(0) ) ) ) );
+    
+    tree.addStatement( new DeclareOutput( linenum++, arr2 ) );
+    
+    return tree;
   }
 }

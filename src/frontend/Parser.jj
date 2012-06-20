@@ -1,0 +1,604 @@
+PARSER_BEGIN( Parser )
+  package frontend;
+
+import java.util.*;
+import java.io.*;
+
+public class Parser implements CompilerTest.Compiler {
+  private ProgramTree tree;
+  public static int line;
+  private LinkedList< Map<String, AbstractVariable> > env;
+  public ProgramTree tree() {
+    tree = new ProgramTree();
+    env = new LinkedList< Map<String, AbstractVariable> >();
+    push_scope();
+    line = 0;
+    boolean errors = false;
+    try{
+      File();
+    } catch( Exception e ){
+      errors = true;
+      log( e );
+    }
+    if( errors )
+      return null;
+    return tree;
+  }
+
+  public static void main( String[] args ){
+    if( args.length < 1 ){
+      System.out.println("usage: Parser <in-fname> [out-fname]");
+      System.exit(1);
+    }
+    Parser comp;
+    File input_file = new File( args[0] );
+    try{
+      comp = new Parser( new FileInputStream( input_file ) );
+    } catch ( FileNotFoundException e ){
+      System.out.println( e.getMessage() );
+      System.exit(1);
+      comp = null;
+    }
+    if( args.length == 1 )
+      CompilerTest.compile( args[0], comp, System.out );
+    else
+      CompilerTest.compile( args[1], comp );
+  }
+  
+  private void log( Exception e ){
+    ProgramTree.error.println( e.getMessage() );
+  }
+
+  private AbstractVariable from_name( String name ){
+    for( Map<String, AbstractVariable> m : env ){
+      if( m.containsKey( name ) ){
+	return m.get(name);
+      }
+    }
+    return null;
+  }
+  
+  private void bind_variable( String name, AbstractVariable v ) throws CompileException{
+    AbstractVariable test = from_name( name );
+    if( test != null ){
+      throw new CompileException( "Variable "+name+" already defined", line );
+    }
+    Map<String, AbstractVariable> cur_scope = env.peek();
+    cur_scope.put( name, v );
+  }
+  private void push_scope(){
+    env.push( new HashMap<String, AbstractVariable>() );
+  }
+  private void pop_scope(){
+    env.pop();
+  }
+
+  private AbstractVariable var( String name ) throws CompileException {
+    AbstractVariable v = from_name( name );
+    if( v == null ){
+      throw new CompileException( "Variable \""+name+"\" not declared", line ); 
+    }
+    return v;
+  }
+}
+  
+PARSER_END( Parser )
+
+SKIP: { " " | "\t" | "\r" }
+TOKEN: {
+    < COLON : ":" >
+    | < PERIOD : "." >
+    | < COMMA : "," >
+    | < SEMICOLON : ";" >
+    | < OPEN_PAREN : "(" >
+    | < CLOSE_PAREN : ")" >
+    | < OPEN_BRACKET : "[" >
+    | < CLOSE_BRACKET : "]" >
+    | < EQUALS : "=" >
+    | < TO : "to" >
+    | < IF : "if" >
+    | < VAR : "var" >
+    | < END : "end" >
+    | < ELSE : "else" >
+    | < LOOP : "loop" >
+    | < FROM : "from" >
+    | < ARRAY : "array" >
+    | < DEFUN : "defun" >
+    | < PARTY : "party" >
+    | < LENGTH : "length" >
+    | < RETURN : "return" >
+    | < SIGNED : "signed" >
+    | < DEFINPUT : "definput" >
+    | < DEFOUTPUT : "defoutput" >
+    | < MAG : "magnitude" >
+    | < INTEGER : ("-")? ( [ "0"-"9" ] )+ >
+    | < IDENTIFIER : ( ["a"-"z","A"-"Z","_","-","+","-","*"] )+ >
+}
+
+SPECIAL_TOKEN :
+{
+  <SINGLE_LINE_COMMENT: "//" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
+}
+
+SPECIAL_TOKEN :
+{
+  <NEWLINE : "\r\n" | "\r" | "\n" > { Parser.line++; }
+}
+
+SKIP :
+{
+  "/*" : WithinComment
+}
+
+<WithinComment> SKIP :
+{
+  "*/" : DEFAULT
+}
+
+<WithinComment> MORE :
+{
+  <~[]>
+}
+
+void File() throws CompileException:
+{
+  Statement s;
+}
+{
+  ( s = input() <SEMICOLON>
+    { tree.addStatement( s ); } )*
+
+    ( defun() |
+      ( ( s = statement() |
+	  ( s = output() <SEMICOLON> ) )
+	{ tree.addStatement( s ); } )
+      )*
+
+    <EOF>
+}
+
+DeclareInputStatement input() throws CompileException:
+{
+  String name;
+  TypeData type;
+  int party;
+
+  int arr_size = -1;
+  int bit_size = -1;
+}
+{
+  <DEFINPUT>
+    <PARTY>
+    party = integer()
+
+    name = identifier()
+    <COLON>
+    type = type_data()
+  {
+    Variable v;
+    if( type.getType() == Type.ArrayType )
+      v = new ArrayVariable( name, (ArrayData)type );
+    else
+      v = new Variable( name, type );
+    bind_variable( name, v );
+    return new DeclareInputStatement( line, v, party );
+  }
+}
+
+TypeData type_data() throws CompileException:
+{
+  int width = -1;
+  int size = -1;
+  TypeData other = null;
+  boolean signed = false;
+  boolean specified_width = false;
+  Type t;
+}
+{
+  (
+   t = type()
+   ( <MAG>
+     <EQUALS>
+     width = integer()
+     (
+      <SIGNED>
+   { signed = true; }
+    )?
+     { 
+       specified_width = true;
+     }
+     )?
+     {
+       if( t == Type.BoolType && specified_width ){
+	 throw new CompileException( "Cannot specify magnitude for boolean variables", line );
+       }
+       if( t == Type.IntType && !specified_width ){
+	 throw new CompileException( "Must specify magnitude of integer", line);
+       }
+       if( width <= 0 ){
+	 throw new CompileException( "Cannot have integer with bit width less thanor equal to 0", line );
+       }
+       if( t == Type.BoolType )
+	 return new BoolData();
+       else if ( t == Type.IntType )
+	 return new IntTypeData(width,signed);
+     }
+   ) |
+    (
+     <ARRAY>
+     <OPEN_BRACKET>
+     size = integer()
+     <CLOSE_BRACKET>
+     other = type_data()
+       {
+	 if( size <= 0 ){
+	   throw new CompileException( "Cannot create array with size less than or equal to 0", line );
+	 }
+	 return new ArrayData( other, size );
+       }
+     )
+}
+
+DeclareOutput output() throws CompileException:
+{
+  AbstractVariable v;
+}
+{
+  <DEFOUTPUT>
+    v = variable()
+  {
+    return new DeclareOutput( line, v );
+  }
+}
+
+Statement statement() throws CompileException:
+{
+  Statement s;
+}
+{
+  (
+  ( s = expression() <SEMICOLON> ) |
+  ( s = if_exp() ) |
+  ( s = for_loop() ) |
+  ( s = defvar() <SEMICOLON> ) |
+  ( s = return_statement() <SEMICOLON> )
+   )
+    { return s; }
+}
+
+UserFunction.ReturnExpression return_statement() throws CompileException:
+{
+  Expression val;
+}
+{
+  <RETURN>
+    val = expression()
+  {
+    return new UserFunction.ReturnExpression( line, val );
+  }
+}
+
+AssignmentExp defvar() throws CompileException:
+{
+  String name;
+  Expression set;
+}
+{
+  <VAR>
+    name = identifier()
+    <EQUALS>
+  set = expression()
+  {
+    AbstractVariable v = new FunctionArgument( name );
+    bind_variable( name, v );
+    AssignmentExp ret = new AssignmentExp( line, v, set );
+    return ret;
+  }
+}
+
+Expression assignment_or_access( String name ) throws CompileException:
+{
+  AbstractVariable dest = var( name );
+  Expression source = null;
+  Expression dest_exp = null;
+}
+{
+  (
+  (
+   dest_exp = array_access( name )
+   ( <EQUALS>
+     source = expression() )?
+   )
+    |
+    (
+     ( <EQUALS>
+       source = expression() )
+     )
+   )
+  {
+    if( source == null )
+      return dest_exp;
+    else if( dest_exp == null )
+      return new AssignmentExp( line, dest, source );
+    else 
+      return new AssignmentExp( line, dest_exp, source );
+  }
+}
+
+ArrayAccessExp array_access( String id ) throws CompileException:
+{
+  Expression index;
+  AbstractVariable dest = var( id );
+}
+{
+  <OPEN_BRACKET>
+    index = expression()
+    <CLOSE_BRACKET>
+    {
+      if( dest.getType() != Type.ArrayType ){
+	throw new CompileException("Cannot index non-array variable "+id, line);
+      }
+      ArrayVariable arr = ArrayVariable.get_from_abstract_var( dest );
+      return new ArrayAccessExp( line, arr, index );
+    }
+}
+
+
+void defun() throws CompileException:
+{
+  String fun_name;
+  Type type_name;
+  String arg_name;
+  ExpressionContainer c;
+  ArrayList<String> arg_names = new ArrayList<String>();
+  ArrayList<Type> required_types = new ArrayList<Type>();
+  FunctionArgument[] args;
+}
+{
+  <DEFUN>
+    fun_name = identifier()
+
+    <OPEN_PAREN>
+    (
+     type_name = type()
+     arg_name = identifier()
+     {
+       required_types.add( type_name );
+       arg_names.add( arg_name );
+     }
+     (
+      <COMMA>
+      type_name = type()
+      arg_name = identifier()
+	{
+	  required_types.add( type_name );
+	  arg_names.add( arg_name );
+	}
+      )*
+     )?
+  {
+    push_scope();
+    args = new FunctionArgument[ arg_names.size() ];
+    for( int i = 0; i < arg_names.size(); i++){
+      args[i] = new FunctionArgument( arg_names.get( i ) );
+      bind_variable( arg_names.get( i ), args[i] );
+    }
+  }
+    <CLOSE_PAREN>
+    <COLON>
+  {
+    c = new ExpressionContainer( line );
+  }
+    mult_exp( c )
+    <END>
+  {
+    new UserFunction( fun_name, required_types.toArray(new Type[]{}), c, args );
+    pop_scope();
+  }
+}
+
+
+Expression expression() throws CompileException:
+{
+  String id = "";
+  Expression e = null;
+}
+{
+  (
+  (
+  id = identifier()
+    
+  ( e = function_call( id ) |
+    e = assignment_or_access( id ) )?
+   ) |
+    (
+     e = constant()
+     ) |
+    (
+     <OPEN_PAREN>
+     e = expression()
+     <CLOSE_PAREN>
+     ) 
+   ) 
+    {
+      if( e == null ){
+	AbstractVariable val = var( id );
+	e = new VariableExp( line, val );
+      }
+      return e;
+    }
+}
+
+IfExpression if_exp() throws CompileException:
+{
+  Expression cond;
+  ExpressionContainer true_branch = new ExpressionContainer( line );
+  ExpressionContainer false_branch = new ExpressionContainer( line );
+  boolean has_false = false;
+}
+{
+  <IF>
+    cond = expression()
+    <COLON>
+  {
+    push_scope();
+  }
+    mult_exp( true_branch )
+      {
+	pop_scope();
+      }
+
+  ( <END> |
+    (
+     <ELSE>
+     <COLON>
+     {
+       push_scope();
+     }
+     mult_exp( false_branch )
+    {
+      pop_scope();
+      has_false = true;
+    }
+     <END>
+     ) )
+  {
+    if( has_false ){
+      return new IfExpression( line, cond, true_branch, false_branch );
+    } else {
+      return new IfExpression( line, cond, true_branch );
+    }
+  }
+}
+
+FunctionExp function_call( String func_name ) throws CompileException:
+{
+  ArrayList<Expression> arg = new ArrayList<Expression>();
+  Expression temp;
+}
+{
+  <OPEN_PAREN>
+    (
+     temp = expression()
+     
+     {
+       arg.add( temp );
+     }
+     (
+      <COMMA>
+      temp = expression()
+	{
+	  arg.add( temp );
+	}
+      )*
+     )?
+    <CLOSE_PAREN>
+      { 
+	return new FunctionExp( line, func_name, arg.toArray( new Expression[] {} ) );
+      }
+}
+
+ForStatement for_loop()  throws CompileException:
+{
+  String loop_var_name;
+  int from;
+  int to;
+  ForStatement s;
+}
+{
+  <LOOP>
+    loop_var_name = identifier()
+    <FROM>
+    from = integer()
+    <TO>
+    to = integer()
+    <COLON>
+  {
+    s = new ForStatement( line, from, to, loop_var_name );
+    push_scope();
+    bind_variable( loop_var_name, s.getLoopVar() );
+  }
+  mult_exp( s )
+    <END>
+  {
+    pop_scope();
+    return s;
+  }
+}
+
+void mult_exp( ExpressionContainer ans ) throws CompileException:
+{
+  Statement temp;
+}
+{
+  (
+   temp = statement()
+   {
+     ans.addStatement( temp );
+   }
+   )*
+}
+
+AbstractVariable variable() throws CompileException:
+{
+  String name;
+}
+{
+  name = identifier()
+  {
+    return var( name );
+  }
+}
+
+VariableExp constant() throws CompileException:
+{
+  int i;
+}
+{
+  i = integer()
+    {
+      // v is a constant integer
+      Variable v = new Variable<IntTypeData>( new IntTypeData( i ) );
+      return new VariableExp( line, v );
+    }
+       
+}
+
+Type type() throws CompileException:
+{
+  String id;
+}
+{
+  id = identifier()
+  {
+    Type temp_type = Type.from_name( id );
+    if( temp_type == null )
+      throw new CompileException( "Cannot identify type "+temp_type, line );
+    return temp_type;
+  }
+}
+
+String identifier() throws CompileException:
+{ 
+  Token t;
+}
+{
+  (
+  t = <IDENTIFIER>
+   )
+  { return t.image; }
+}
+
+int integer():
+{ Token t; }
+{
+  t = <INTEGER>
+  { 
+    try{
+      return Integer.parseInt( t.image );
+    } catch( NumberFormatException e ){
+      // will never happen
+      return 0;
+    }
+  }
+}
