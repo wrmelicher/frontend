@@ -87,6 +87,7 @@ class IntTypeData extends TypeData {
     return magnitude.intValue();
   }
   public TypeData conditional( TypeData other ){
+    // TODO: allow conditionals of varying types
     assert (other instanceof IntTypeData) : "conditional return types do not match";
     IntTypeData intother = (IntTypeData) other;
     return new IntTypeData( magnitude.max( intother.magnitude ), signed || intother.signed );     

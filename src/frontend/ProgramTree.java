@@ -13,8 +13,8 @@ public class ProgramTree {
   public static PrintStream output = System.out;
   public static PrintStream error = System.err;
 
-  // 1 means function identification debuging
-  public static int DEBUG = 1;
+  // 1 includes function identification debuging
+  public static int DEBUG = 2;
   
   public ProgramTree(){
     statements = new ArrayList<Statement>();

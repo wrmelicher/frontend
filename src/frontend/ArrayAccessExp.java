@@ -4,15 +4,15 @@ import java.io.PrintStream;
 
 public class ArrayAccessExp extends Expression {
   private Expression index;
-  private ArrayVariable arr;
+  private AbstractVariable arr;
   private ArrayPosition out;
-  public ArrayAccessExp( int linenum, ArrayVariable a, int i ){
+  public ArrayAccessExp( int linenum, AbstractVariable a, int i ){
     this( linenum, a, new Variable<IntTypeData>( new IntTypeData( i ) ) );
   }
-  public ArrayAccessExp( int linenum, ArrayVariable a, AbstractVariable<IntTypeData> i ){
+  public ArrayAccessExp( int linenum, AbstractVariable a, AbstractVariable<IntTypeData> i ){
     this( linenum, a, new VariableExp( linenum, i ) );
   }
-  public ArrayAccessExp( int linenum, ArrayVariable a, Expression ind ){
+  public ArrayAccessExp( int linenum, AbstractVariable a, Expression ind ){
     super( linenum );
     index = ind;
     arr = a;
@@ -23,11 +23,15 @@ public class ArrayAccessExp extends Expression {
   }
   
   public void compile() throws CompileException {
+    if( arr.getType() != Type.ArrayType ){
+      throw error("Cannot index non-array variable "+arr.debug_name() );
+    }
+    ArrayVariable arr_real = ArrayVariable.get_from_abstract_var( arr );
     index.compile();
     AbstractVariable ind_var = index.returnVar();
     if( ind_var.getType() != Type.IntType )
       throw error("Cannot index variable with non-integer type" );
-    out = arr.at( ind_var );
+    out = arr_real.at( ind_var );
   }
   
 }

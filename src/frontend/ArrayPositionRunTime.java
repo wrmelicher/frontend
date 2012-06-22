@@ -9,6 +9,10 @@ public class ArrayPositionRunTime extends ArrayPosition {
     index = ind;
   }
   public void read_value() {
+
+    if( ProgramTree.DEBUG >= 2 )
+      ProgramTree.output.println("// begin read secure index of "+getParent().debug_name() );
+    
     getParent().join_indices();
     validate();
     String input = getParent().cur_name();
@@ -35,6 +39,8 @@ public class ArrayPositionRunTime extends ArrayPosition {
       ps.println( control + " trunc " + index.cur_name() + " " + required_control_bits );
     }
     read_helper( input, control, required_control_bits - 1, num_elements );
+    if( ProgramTree.DEBUG >= 2 )
+      ProgramTree.output.println("// end read secure index of "+getParent().debug_name() );
   }
 
   private static int next_power_of_2( int i ){
@@ -75,7 +81,7 @@ public class ArrayPositionRunTime extends ArrayPosition {
     }
 
     PrintStream ps = ProgramTree.output;
-
+    
     // assume that all size adjustments have already been made
     ArrayData parentData = getParent().getData();
     String[] mux_out_names = new String[ parentData.getSize() ];

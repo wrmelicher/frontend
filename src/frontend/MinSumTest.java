@@ -24,7 +24,7 @@ public class MinSumTest implements CompilerTest.Compiler {
     tree.addStatement( new DeclareInputStatement( linenum++, arr1, 1 ) );
     tree.addStatement( new DeclareInputStatement( linenum++, arr2, 2 ) );
     
-    ForStatement for_s = new ForStatement( linenum++, 0, size, "i" );
+    /*ForStatement for_s = new ForStatement( linenum++, 0, size, "i" );
 
     FunctionExp lessthanExp = 
       new FunctionExp( linenum++, "<", new Expression[] {
@@ -47,7 +47,7 @@ public class MinSumTest implements CompilerTest.Compiler {
 
     for_s.addStatement( in_loop );
     tree.addStatement( for_s );
-    
+    */
     tree.addStatement( new DeclareOutput( linenum++, minsum ) );
     
     return tree;

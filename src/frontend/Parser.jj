@@ -12,7 +12,7 @@ public class Parser implements CompilerTest.Compiler {
     tree = new ProgramTree();
     env = new LinkedList< Map<String, AbstractVariable> >();
     push_scope();
-    line = 0;
+    line = 1;
     boolean errors = false;
     try{
       File();
@@ -102,24 +102,25 @@ TOKEN: {
     | < ELSE : "else" >
     | < LOOP : "loop" >
     | < FROM : "from" >
+    | < TRUE : "true" >
+    | < FALSE : "false" >
     | < ARRAY : "array" >
     | < DEFUN : "defun" >
     | < PARTY : "party" >
-    | < LENGTH : "length" >
     | < RETURN : "return" >
     | < SIGNED : "signed" >
     | < DEFINPUT : "definput" >
     | < DEFOUTPUT : "defoutput" >
     | < MAG : "magnitude" >
     | < INTEGER : ("-")? ( [ "0"-"9" ] )+ >
-    | < IDENTIFIER : ( ["a"-"z","A"-"Z","_","-","+","-","*"] )+ >
+    | < IDENTIFIER : ( ["a"-"z","A"-"Z","_","-","+","-","*","<",">"] )+ >
 }
-
+/*
 SPECIAL_TOKEN :
 {
   <SINGLE_LINE_COMMENT: "//" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
 }
-
+*/
 SPECIAL_TOKEN :
 {
   <NEWLINE : "\r\n" | "\r" | "\n" > { Parser.line++; }
@@ -145,12 +146,10 @@ void File() throws CompileException:
   Statement s;
 }
 {
-  ( s = input() <SEMICOLON>
-    { tree.addStatement( s ); } )*
-
     ( defun() |
       ( ( s = statement() |
-	  ( s = output() <SEMICOLON> ) )
+	  ( s = output() <SEMICOLON> ) |
+	  ( s = input() <SEMICOLON> ) )
 	{ tree.addStatement( s ); } )
       )*
 
@@ -289,7 +288,7 @@ AssignmentExp defvar() throws CompileException:
     <EQUALS>
   set = expression()
   {
-    AbstractVariable v = new FunctionArgument( name );
+    AbstractVariable v = new Variable( name, new IntTypeData( 0 ) );
     bind_variable( name, v );
     AssignmentExp ret = new AssignmentExp( line, v, set );
     return ret;
@@ -335,11 +334,7 @@ ArrayAccessExp array_access( String id ) throws CompileException:
     index = expression()
     <CLOSE_BRACKET>
     {
-      if( dest.getType() != Type.ArrayType ){
-	throw new CompileException("Cannot index non-array variable "+id, line);
-      }
-      ArrayVariable arr = ArrayVariable.get_from_abstract_var( dest );
-      return new ArrayAccessExp( line, arr, index );
+      return new ArrayAccessExp( line, dest, index );
     }
 }
 
@@ -501,17 +496,17 @@ FunctionExp function_call( String func_name ) throws CompileException:
 ForStatement for_loop()  throws CompileException:
 {
   String loop_var_name;
-  int from;
-  int to;
+  Expression from;
+  Expression to;
   ForStatement s;
 }
 {
   <LOOP>
     loop_var_name = identifier()
     <FROM>
-    from = integer()
+    from = expression()
     <TO>
-    to = integer()
+    to = expression()
     <COLON>
   {
     s = new ForStatement( line, from, to, loop_var_name );
@@ -555,13 +550,27 @@ VariableExp constant() throws CompileException:
   int i;
 }
 {
+  (
   i = integer()
+  
     {
       // v is a constant integer
       Variable v = new Variable<IntTypeData>( new IntTypeData( i ) );
       return new VariableExp( line, v );
     }
-       
+   ) |
+    (
+     <TRUE>
+     { 
+       return new VariableExp( line, new Variable( new BoolData( BoolData.TRUE ) ) );
+     }
+     ) |
+    (
+     <FALSE>
+     {
+       return new VariableExp( line, new Variable( new BoolData( BoolData.FALSE ) ) );
+     }
+     )
 }
 
 Type type() throws CompileException:

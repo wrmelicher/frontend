@@ -18,6 +18,22 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
   public Variable( T atype ){
     this( unused_name(), atype );
   }
+  public static int get_val_from_var( AbstractVariable v, Statement owner ) throws CompileException {
+    if( v.getType() != Type.IntType ){
+      throw owner.error( "Require integer type" );
+    }
+    if( !v.getData().is_constant() ){
+      throw owner.error( "Require integer constant" );
+    }
+    if( v instanceof FunctionArgument ){
+      return get_val_from_var( ((FunctionArgument) v).getVar(), owner );
+    } 
+    if( v instanceof Variable ){
+      Variable<IntTypeData> d = (Variable<IntTypeData>)v;
+      return d.getData().value();
+    }
+    return -1;
+  }
   
   public Variable( String name, T atype ) {
     type = atype;
@@ -190,15 +206,22 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
   }
 
   public void compile_assignment( AbstractVariable other, Statement owner ) throws CompileException {
+    if( ProgramTree.DEBUG >= 2 ){
+      ProgramTree.output.println("// begin assignment of "+debug_name());
+    }
     if( Expression.cond_scope != null ){
       Expression.cond_scope.register_assignment( this );
     }
-    if( type != null && other.getType() != getType() ){
+    /*if( type != null && other.getType() != getType() ){
       throw owner.error("Cannot assign type "+other.getType().name()+" to variable of type "+getType().name());
-    }
+      }*/
     type = (T)other.getData();
-    String other_name = other.cur_name();
-    if( !other.getData().is_constant() )
+    if( !other.getData().is_constant() ) {
+      String other_name = other.cur_name();
       ProgramTree.output.println( new_name() + " set " + other_name );
+    }
+    if( ProgramTree.DEBUG >= 2 ){
+      ProgramTree.output.println("// end assignment of "+debug_name() );
+    }
   }
 }

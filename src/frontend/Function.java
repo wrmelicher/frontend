@@ -74,7 +74,12 @@ public abstract class Function {
     if( match == null ) {
       throw mess;
     }
-    return match.compile( args, owner );
+    if( ProgramTree.DEBUG >= 2 )
+      ProgramTree.output.println("// calling function "+match.name);
+    AbstractVariable ans = match.compile(args,owner);
+    if( ProgramTree.DEBUG >= 2 )
+      ProgramTree.output.println("// end function "+match.name);
+    return ans;
   }
 
   public AbstractVariable compile( AbstractVariable[] args, Statement owner ) throws CompileException {
@@ -94,6 +99,7 @@ public abstract class Function {
     //new Set();
     new Subtraction();
     new Negate();
+    new Length();
   }
   
   static class AddFunction extends Function {
@@ -193,7 +199,7 @@ public abstract class Function {
   }
 
   static class LessThanFunction extends Function {
-    public static final String NAME = "lessthan";
+    public static final String NAME = "<";
     public LessThanFunction(){
       super(NAME, new Type[] { Type.IntType, Type.IntType }, 2 );
     }
@@ -210,10 +216,8 @@ public abstract class Function {
       if( !out.getData().is_constant() ) {
 	int len = Variable.maxArgLength( args );
 	String[] actual_args = Variable.padArgsToLength( args, len );
-	ps.print( out.new_name() + " " + op );
-	for( int i = 0; i < args.length; i++){
-	  ps.print( " " + actual_args[i] );
-	}
+	ps.print( out.new_name() + " " + op + " ");
+	ps.print( actual_args[1] + " " + actual_args[0] );
 	ps.println();
       }
       return out;
@@ -319,6 +323,16 @@ public abstract class Function {
 	ProgramTree.output.println( out.new_name() + " negate " + args[0].cur_name() );
       }
       return out;
+    }
+  }
+
+  static class Length extends Function {
+    public Length(){
+      super("length", new Type[] {Type.ArrayType }, 1 );
+    }
+    public AbstractVariable compile_func( AbstractVariable[] args, Statement owner ) throws CompileException {
+      ArrayVariable arg = ArrayVariable.get_from_abstract_var( args[0] );
+      return new Variable<IntTypeData>( new IntTypeData( arg.getData().getSize() ) );
     }
   }
 }
