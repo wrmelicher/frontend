@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<project name="GCPooper" default="compile">
+<project name="frontend" default="compile">
   
   <target name="init" >
     <mkdir dir="build/classes" />
@@ -31,7 +31,7 @@
   </target>
 
   <target name="archive" depends="compile" >
-    <jar destfile="dist/GCPooper.jar">
+    <jar destfile="dist/frontend.jar">
       <fileset dir="build/classes"/>
     </jar>
   </target>
