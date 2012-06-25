@@ -94,12 +94,10 @@ public abstract class Function {
     new BoolEqualsFunction();
     new IncFunction();
     new LessThanFunction();
-    //new Conditional();
-    //new ArrayAt();
-    //new Set();
     new Subtraction();
     new Negate();
     new Length();
+    new BitWidth();
   }
   
   static class AddFunction extends Function {
@@ -226,69 +224,7 @@ public abstract class Function {
       return compile_checked( (AbstractVariable<IntTypeData>[]) args, owner );
     }
   }
-  /*
-  static class Conditional extends Function {
-    public static String NAME = "?";
-    public Conditional(){
-      super(NAME, new Type[] { Type.BoolType, Type.ANYTYPE, Type.ANYTYPE }, 3 );
-    }
-    public AbstractVariable compile_func( AbstractVariable[] args, Statement owner ) throws CompileException {
-      if( ! (args[1].getType() == args[2].getType() ) ){
-	throw owner.error("Arguments 2 and 3 must have the same type");
-      }
-      BoolData choseData = (BoolData) args[0].getData();
-      AbstractVariable out;
-      if( choseData.is_constant() ){
-	if( choseData.poss_value() == BoolData.TRUE ){
-	  out = args[1];
-	} else {
-	  out = args[2];
-	}
-      } else {
-	TypeData one = args[1].getData();
-	TypeData two = args[2].getData();
-	
-	out = new Variable( one.conditional( two ) );
-	
-	String[] actual_args = Variable.padArgsToLength( new AbstractVariable[] { args[1], args[2] } , out.getData().bit_count() );
 
-	ProgramTree.output.println( out.new_name() + " chose " + args[0].cur_name() + " " + " " +actual_args[0] + " " + actual_args[1] );
-      }
-      return out;
-    }
-    }
-
-  static class ArrayAt extends Function {
-    public ArrayAt(){
-      super("at", new Type[] { Type.ArrayType, Type.IntType }, 2 );
-    }
-    public AbstractVariable compile_func( AbstractVariable[] args, Statement owner ) throws CompileException {
-      ArrayVariable arr;
-      if( args[0] instanceof ArrayVariable ){
-	arr = (ArrayVariable) args[0];
-      } else {
-	arr = (ArrayVariable) ( (FunctionArgument) args[0] ).getVar();
-      }
-      ArrayAccessExp e = new ArrayAccessExp( owner.getLine(), arr, (AbstractVariable<IntTypeData>) args[2] );
-      e.compile();
-      return e.returnVar();
-    }
-  }
-
-
-
-  static class Set extends Function {
-    public Set(){
-      super("set", new Type[] { Type.ANYTYPE, Type.ANYTYPE }, 2 );
-    }
-    public AbstractVariable compile_func( AbstractVariable[] args, Statement owner ) throws CompileException {
-      AssignmentExp e = new AssignmentExp( owner.getLine(), args[0],
-					   new VariableExp( owner.getLine(), args[1] ) );
-      e.compile();
-      return e.returnVar();
-    }
-  }
-  */
   static class Subtraction extends Function {
     public Subtraction(){
       super("sub", new Type[] { Type.IntType, Type.IntType }, 2 );
@@ -333,6 +269,18 @@ public abstract class Function {
     public AbstractVariable compile_func( AbstractVariable[] args, Statement owner ) throws CompileException {
       ArrayVariable arg = ArrayVariable.get_from_abstract_var( args[0] );
       return new Variable<IntTypeData>( new IntTypeData( arg.getData().getSize() ) );
+    }
+  }
+
+  static class BitWidth extends Function {
+    public static String NAME = "bit_width";
+    public BitWidth(){
+      super(NAME,new Type[] {Type.ANYTYPE}, 1 );
+    }
+    public AbstractVariable compile_func( AbstractVariable[] args, Statement owner ) throws CompileException {
+      AbstractVariable ans = new Variable
+	( new IntTypeData( args[0].getData().bit_count() ) );
+      return ans;
     }
   }
 }

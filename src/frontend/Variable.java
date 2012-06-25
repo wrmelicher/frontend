@@ -53,7 +53,7 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
     return Variable.unused_name() + (++id_counter);
   }
   public static String unused_name(){
-    return "temp_var_";
+    return "unused_name";
   }
   public T getData(){
     return type;

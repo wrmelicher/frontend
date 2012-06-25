@@ -3,6 +3,8 @@ package frontend;
 import java.util.Map;
 import java.util.HashMap;
 
+
+// Types are singleton objects
 public class Type {
   private static Map<String, Type> type_map = new HashMap<String,Type>();
   private String name;

@@ -83,6 +83,15 @@ public class ArrayVariable extends Variable<ArrayData> {
   }
 
   public void join_indices(){
+    join_indices( true );
+  }
+  
+  public void join_indices( boolean invalidate ){
+
+    if( ProgramTree.DEBUG >= 2 ){
+      ProgramTree.output.println("\n//joining indices of array "+debug_name() );
+    }
+    
     ArrayList<String> args = new ArrayList<String>();
     int prev = 0;
     TypeData new_elem_data = getData().getElementData();
@@ -107,11 +116,13 @@ public class ArrayVariable extends Variable<ArrayData> {
       ProgramTree.output.println(temp+" select "+ cur_name() + " " + ( prev * element_size() ) + " " + ( getData().getSize() * element_size() ) );
       args.add( temp );
     }
-    ProgramTree.output.print( new_name() + " concat" );
+    ProgramTree.output.print( new_name() + " concatls" );
     for( String s : args ){
       ProgramTree.output.print( " " + s );
     }
     ProgramTree.output.println();
-    invalidate_indices();
+    ProgramTree.output.println("//ending join indices\n");
+    if( invalidate )
+      invalidate_indices();
   }
 }

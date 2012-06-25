@@ -14,7 +14,7 @@ public class ASTTest implements CompilerTest.Compiler {
     int linenum = 0;
     Variable<IntTypeData> ind = new Variable<IntTypeData>
       ("ind", new IntTypeData( size-1, false ) );
-    
+
     ArrayVariable arr2 = new ArrayVariable
       ( "arr2", new ArrayData
 	(new IntTypeData( int_size, false ), size) );

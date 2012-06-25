@@ -115,12 +115,12 @@ TOKEN: {
     | < INTEGER : ("-")? ( [ "0"-"9" ] )+ >
     | < IDENTIFIER : ( ["a"-"z","A"-"Z","_","-","+","-","*","<",">"] )+ >
 }
-/*
+
 SPECIAL_TOKEN :
 {
-  <SINGLE_LINE_COMMENT: "//" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
+  <SINGLE_LINE_COMMENT: "//" (~["\n","\r"])* >
 }
-*/
+
 SPECIAL_TOKEN :
 {
   <NEWLINE : "\r\n" | "\r" | "\n" > { Parser.line++; }

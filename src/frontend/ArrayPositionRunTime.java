@@ -97,7 +97,7 @@ public class ArrayPositionRunTime extends ArrayPosition {
       mux_out_names[i] = Variable.temp_var_name();
       ps.println( mux_out_names[i]+" chose "+mux_choice.cur_name()+" "+select_name+" " + other_name );
     }
-    ps.print( getParent().new_name() + " concat");
+    ps.print( getParent().new_name() + " concatls");
     for( int i = 0; i < parentData.getSize(); i++){
       ps.print( " "+mux_out_names[i] );
     }
