@@ -4,3 +4,8 @@
 build/
 results/
 dist/
+*.cir
+*.priv
+src/frontend/generated_files/
+*~
+\#*\#
