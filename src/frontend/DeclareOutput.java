@@ -1,16 +1,17 @@
 package frontend;
 import java.io.PrintStream;
 public class DeclareOutput extends Statement {
-  private AbstractVariable out;
+  private AbstractVariable out_abs;
   public DeclareOutput( int line, AbstractVariable var ){
     super( line );
-    out = var;
+    out_abs = var;
   }
 
   public void compile() throws CompileException {
     PrintStream os = ProgramTree.output;
-    os.println( out.debug_name()+"_output set " + out.cur_name() );
-    os.print(".output "+out.debug_name()+"_output" );
+    Variable out = out_abs.var();
+    os.println( out_abs.debug_name()+"_output set " + out.cur_name() );
+    os.print(".output "+out_abs.debug_name()+"_output" );
     if( out.getType() == Type.IntType ){
       if( ((IntTypeData) out.getData()).signed() )
 	os.print(" signed");

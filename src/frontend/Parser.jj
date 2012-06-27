@@ -6,8 +6,11 @@ import java.io.*;
 
 public class Parser implements CompilerTest.Compiler {
   private ProgramTree tree;
-  public static int line;
+  public static int line; // must be public to be accessed by javacc classes
   private LinkedList< Map<String, AbstractVariable> > env;
+
+  private UserFunction defun_scope = null;
+  
   public ProgramTree tree() {
     tree = new ProgramTree();
     env = new LinkedList< Map<String, AbstractVariable> >();
@@ -17,8 +20,8 @@ public class Parser implements CompilerTest.Compiler {
     try{
       File();
     } catch( Exception e ){
-      errors = true;
       log( e );
+      System.exit(1);
     }
     if( errors )
       return null;
@@ -69,6 +72,7 @@ public class Parser implements CompilerTest.Compiler {
   private void push_scope(){
     env.push( new HashMap<String, AbstractVariable>() );
   }
+  
   private void pop_scope(){
     env.pop();
   }
@@ -277,7 +281,7 @@ UserFunction.ReturnExpression return_statement() throws CompileException:
   }
 }
 
-AssignmentExp defvar() throws CompileException:
+DeclareExp defvar() throws CompileException:
 {
   String name;
   Expression set;
@@ -288,9 +292,12 @@ AssignmentExp defvar() throws CompileException:
     <EQUALS>
   set = expression()
   {
-    AbstractVariable v = new Variable( name, new IntTypeData( 0 ) );
+    DummyVariable v = new DummyVariable( name );
     bind_variable( name, v );
-    AssignmentExp ret = new AssignmentExp( line, v, set );
+    DeclareExp ret = new DeclareExp( line, v, set );
+    if( defun_scope != null ){
+      defun_scope.register_defar( v );
+    }
     return ret;
   }
 }
@@ -347,7 +354,7 @@ void defun() throws CompileException:
   ExpressionContainer c;
   ArrayList<String> arg_names = new ArrayList<String>();
   ArrayList<Type> required_types = new ArrayList<Type>();
-  FunctionArgument[] args;
+  DummyVariable[] args;
 }
 {
   <DEFUN>
@@ -373,11 +380,12 @@ void defun() throws CompileException:
      )?
   {
     push_scope();
-    args = new FunctionArgument[ arg_names.size() ];
+    args = new DummyVariable[ arg_names.size() ];
     for( int i = 0; i < arg_names.size(); i++){
-      args[i] = new FunctionArgument( arg_names.get( i ) );
+      args[i] = new DummyVariable( arg_names.get( i ) );
       bind_variable( arg_names.get( i ), args[i] );
     }
+    defun_scope = new UserFunction( fun_name, required_types.toArray(new Type[]{}), args );
   }
     <CLOSE_PAREN>
     <COLON>
@@ -387,7 +395,8 @@ void defun() throws CompileException:
     mult_exp( c )
     <END>
   {
-    new UserFunction( fun_name, required_types.toArray(new Type[]{}), c, args );
+    defun_scope.set_body( c );
+    defun_scope = null;
     pop_scope();
   }
 }

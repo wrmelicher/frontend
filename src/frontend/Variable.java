@@ -5,7 +5,6 @@ import java.io.PrintStream;
 
 public class Variable<T extends TypeData> implements AbstractVariable<T> {
   private long id;
-  private String high_level_name;
   private long cur_assignment;
   private long cur_read_version;
   private boolean is_input;
@@ -13,36 +12,40 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
   private boolean is_declared = false;
   private VariableExp reference = null;
   private Map<Integer, String> lengths;
+
+  private boolean allows_assignemnt = true;
+  
+  private LinkedList< DebugNameRecord > debug_names
+    = new LinkedList< DebugNameRecord >();
   
   private static long id_counter = 0;
+  
   public Variable( T atype ){
     this( unused_name(), atype );
   }
-  public static int get_val_from_var( AbstractVariable v, Statement owner ) throws CompileException {
+  
+  public static int get_val_from_var( AbstractVariable v_abs, Statement owner ) throws CompileException {
+    Variable v = v_abs.var();
     if( v.getType() != Type.IntType ){
       throw owner.error( "Require integer type" );
     }
     if( !v.getData().is_constant() ){
       throw owner.error( "Require integer constant" );
     }
-    if( v instanceof FunctionArgument ){
-      return get_val_from_var( ((FunctionArgument) v).getVar(), owner );
-    } 
-    if( v instanceof Variable ){
-      Variable<IntTypeData> d = (Variable<IntTypeData>)v;
-      return d.getData().value();
-    }
-    return -1;
+    Variable<IntTypeData> d = (Variable<IntTypeData>)v;
+    return d.getData().value();
   }
   
-  public Variable( String name, T atype ) {
+  public Variable( String name, T atype ){
     type = atype;
     id = ++id_counter;
-    high_level_name = name;
+
     cur_assignment = 0;
     cur_read_version = 0;
     is_input = false;
     lengths = new HashMap<Integer, String>();
+
+    set_debug_name( name );
   }
 
   public Variable( String name ){
@@ -50,17 +53,21 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
   }
 
   public static String temp_var_name(){
-    return Variable.unused_name() + (++id_counter);
+    return Variable.unused_name() + "_" + (++id_counter);
   }
+  
   public static String unused_name(){
-    return "unused_name";
+    return "temporary";
   }
+  
   public T getData(){
     return type;
   }
+  
   public void setData( T t ){
     type = t;
   }
+  
   public Type getType(){
     return type.getType();
   }
@@ -76,14 +83,26 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
   }
   
   public String debug_name(){
-    return high_level_name;
+
+    String val = debug_names.peek().name_at;
+    for( Variable.DebugNameRecord dnr : debug_names ){
+      if( dnr.assignment_at < cur_read_version ){
+	val = dnr.name_at;
+      }
+    }
+    return val;
+  }
+  
+  public void set_debug_name( String n ){
+    debug_names.add( new Variable.DebugNameRecord( cur_assignment, n ) );
+
   }
   
   public String cur_name(){
     if( getData().is_constant() ){
       return getData().constant_name();
     }
-    String cur = high_level_name + "_" + id;
+    String cur = debug_name() + "_" + id;
     if( cur_read_version == 0 )
       return cur;
     else 
@@ -120,6 +139,7 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
       return out;
     }
   }
+  
   public String padTo( int i, String name ){
     if( i == getData().bit_count() )
       return cur_name();
@@ -137,7 +157,7 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
     }
   }
   
-  public static int maxArgLength( AbstractVariable[] args ){
+  public static int maxArgLength( Variable[] args ){
     int max = 0;
     for( int i = 0; i < args.length; i++ ){
       max = Math.max( args[i].getData().bit_count(), max );
@@ -145,7 +165,7 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
     return max;
   }
   
-  public static String[] padArgsToLength( AbstractVariable[] args, int len ){
+  public static String[] padArgsToLength( Variable[] args, int len ){
     String[] ans = new String[ args.length ];
     for( int i = 0; i < args.length; i++){
       ans[i] = args[i].padTo( len );
@@ -205,16 +225,33 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
     }
   }
 
-  public void compile_assignment( AbstractVariable other, Statement owner ) throws CompileException {
+
+  public Variable<T> var(){
+    return this;
+  }
+
+  public boolean allows_assignemnt(){
+    return allows_assignemnt;
+  }
+  public void set_allow_assignment( boolean b ){
+    allows_assignemnt = b;
+  }
+
+  public Variable copy( String name ){
+    return new Variable( name, getData() );
+  }
+
+  public void compile_assignment( Variable other, Statement owner ) throws CompileException {
+    
     if( ProgramTree.DEBUG >= 2 ){
       ProgramTree.output.println("// begin assignment of "+debug_name());
     }
     if( Expression.cond_scope != null ){
       Expression.cond_scope.register_assignment( this );
     }
-    /*if( type != null && other.getType() != getType() ){
+    if( type != null && other.getType() != getType() ){
       throw owner.error("Cannot assign type "+other.getType().name()+" to variable of type "+getType().name());
-      }*/
+    }
     type = (T)other.getData();
     if( !other.getData().is_constant() ) {
       String other_name = other.cur_name();
@@ -222,6 +259,15 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
     }
     if( ProgramTree.DEBUG >= 2 ){
       ProgramTree.output.println("// end assignment of "+debug_name() );
+    }
+  }
+
+  private class DebugNameRecord {
+    public long assignment_at;
+    public String name_at;
+    public DebugNameRecord( long i, String s ){
+      assignment_at = i;
+      name_at = s;
     }
   }
 }

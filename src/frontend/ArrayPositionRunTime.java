@@ -3,8 +3,8 @@ import java.io.PrintStream;
 
 import java.lang.Math;
 public class ArrayPositionRunTime extends ArrayPosition {
-  private AbstractVariable<IntTypeData> index;
-  public ArrayPositionRunTime( ArrayVariable par, AbstractVariable<IntTypeData> ind ){
+  private Variable<IntTypeData> index;
+  public ArrayPositionRunTime( ArrayVariable par, Variable<IntTypeData> ind ){
     super( par );
     index = ind;
   }
@@ -74,7 +74,7 @@ public class ArrayPositionRunTime extends ArrayPosition {
   }
 
   @Override
-  public void compile_assignment( AbstractVariable other, Statement owner ) throws CompileException {
+  public void compile_assignment( Variable other, Statement owner ) throws CompileException {
     getParent().join_indices();
     if( Expression.cond_scope != null ){
       Expression.cond_scope.register_assignment( getParent() );
@@ -92,7 +92,7 @@ public class ArrayPositionRunTime extends ArrayPosition {
       String select_name = getParent().state_index( i );
 
       args[1] = new Variable( new IntTypeData( i ) ); 
-      AbstractVariable mux_choice = Function.call( Function.IntEqualsFunction.NAME, args, owner );
+      Variable mux_choice = Function.call( Function.IntEqualsFunction.NAME, args, owner ).var();
       
       mux_out_names[i] = Variable.temp_var_name();
       ps.println( mux_out_names[i]+" chose "+mux_choice.cur_name()+" "+select_name+" " + other_name );

@@ -27,7 +27,7 @@ public class ArrayPositionCompileTime extends ArrayPosition {
   }
   
   @Override
-  public void compile_assignment( AbstractVariable other, Statement owner ) throws CompileException {
+  public void compile_assignment( Variable other, Statement owner ) throws CompileException {
     changed = true;
     validate();
     ArrayData parentData = getParent().getData();

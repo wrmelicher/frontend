@@ -10,37 +10,30 @@ public class ArrayVariable extends Variable<ArrayData> {
   
   public ArrayVariable(String name, ArrayData elem){
     super( name, elem );
+    create_positions();
+  }
+
+  private void create_positions(){
     givenPositions = new ArrayList<ArrayPosition>();
-    given_compile = new ArrayPositionCompileTime[ elem.getSize() ];
-    for( int i = 0; i < elem.getSize(); i++ ){
+    given_compile = new ArrayPositionCompileTime[ getData().getSize() ];
+    for( int i = 0; i < getData().getSize(); i++ ){
       given_compile[i] = new ArrayPositionCompileTime( this, i );
       givenPositions.add( given_compile[i] );
     }
   }
 
   public static ArrayVariable get_from_abstract_var( AbstractVariable v ){
-    assert v.getType() == Type.ArrayType : "Error, value is not an array";
+    assert v.var().getType() == Type.ArrayType : "Error, value is not an array";
 
-    if( v instanceof FunctionArgument ){
-      return get_from_abstract_var( ((FunctionArgument)v).getVar() );
-    } else if( v instanceof ArrayVariable ) {
-      return (ArrayVariable) v;
-    } else {
-      return null;
-    }
-    
+    return (ArrayVariable) v.var();    
   }
-  
-  /*
-  public void compile_assignment( AbstractVariable other, AssignmentExp owner ) throws CompileException {
-    
-    if( other.getType() != getType() ){
-      throw owner.error("Cannot assign type "+other.getType().name()+" to variable of type "+getType().name());
-    }
-    ProgramTree.output.println( new_name() + " set " + other.cur_name() );
-    setData( other.getData() );
+
+  @Override
+  public void compile_assignment( Variable other, Statement owner ) throws CompileException {
+    super.compile_assignment( other, owner );
     invalidate_indices();
-    }*/
+    create_positions();
+  }
   
   public String state_index( int i ) {
     String temp_name = Variable.temp_var_name();
@@ -54,19 +47,18 @@ public class ArrayVariable extends Variable<ArrayData> {
     ProgramTree.output.println( name + " select " + cur_name() + " " + (i) * parentData.getElementData().bit_count() + " " + (i+1) * parentData.getElementData().bit_count() );
   }
   
-  public ArrayPosition at( AbstractVariable<IntTypeData> v ){
-    IntTypeData d = v.getData();
+  public ArrayPosition at( AbstractVariable<IntTypeData> v, Statement owner ) throws CompileException {
+    IntTypeData d = v.var().getData();
     ArrayData parentData = getData();
     ArrayPosition ans; 
     if( d.is_constant() ){
       int i = d.value();
       if( i >= parentData.getSize() || i < 0){
-	// throw owner.error("Array reference out of bounds. Array index: "+i+" Array size: "+parentData.getSize());
-	return null;
+	throw owner.error("Array reference out of bounds. Array index: "+i+" Array size: "+parentData.getSize());
       }
       ans = given_compile[ i ];
     } else {
-      ans = new ArrayPositionRunTime( this, v );
+      ans = new ArrayPositionRunTime( this, v.var() );
       givenPositions.add( ans );
     }
     return ans;
@@ -80,6 +72,10 @@ public class ArrayVariable extends Variable<ArrayData> {
   
   public int element_size(){
     return getData().getElementData().bit_count();
+  }
+
+  @Override public Variable copy( String name ){
+    return new ArrayVariable( name, getData() );
   }
 
   public void join_indices(){

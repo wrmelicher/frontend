@@ -24,8 +24,6 @@ public abstract class Function {
     ls.add( this );
   }
   public static List<Function> from_name( String s ){
-    if( ProgramTree.DEBUG > 1 )
-      ProgramTree.error.println("Accessing function \""+s+"\"");
     List<Function> f = func_map.get(s);
     return f;
   }
@@ -35,7 +33,7 @@ public abstract class Function {
   public int num_args(){
     return required_args;
   }
-  public boolean satisfies( AbstractVariable[] args, Statement owner ) throws CompileException {
+  public boolean satisfies( Variable[] args, Statement owner ) throws CompileException {
     if( required_args == -1 ){
       for( int i = required_types.length; i < args.length; i++ ){
 	if( !args[i].getType().satisfies( required_types[ required_types.length - 1 ] ) ){
@@ -61,9 +59,14 @@ public abstract class Function {
     }
     Function match = null;
     CompileException mess = null;
+    Variable[] real_args = new Variable[ args.length ];
+    for( int i = 0; i < args.length; i++){
+      real_args[i] = args[i].var();
+    }
+
     for( Function f : funcs ){
       try{
-	if( f.satisfies( args, owner ) ){
+	if( f.satisfies( real_args, owner ) ){
 	  match = f;
 	  break;
 	}
@@ -76,17 +79,17 @@ public abstract class Function {
     }
     if( ProgramTree.DEBUG >= 2 )
       ProgramTree.output.println("// calling function "+match.name);
-    AbstractVariable ans = match.compile(args,owner);
+    AbstractVariable ans = match.compile(real_args,owner);
     if( ProgramTree.DEBUG >= 2 )
       ProgramTree.output.println("// end function "+match.name);
     return ans;
   }
 
-  public AbstractVariable compile( AbstractVariable[] args, Statement owner ) throws CompileException {
+  public AbstractVariable compile( Variable[] args, Statement owner ) throws CompileException {
     return compile_func( args, owner );
   }
   
-  public abstract AbstractVariable compile_func( AbstractVariable[] args, Statement owner ) throws CompileException;
+  public abstract AbstractVariable compile_func( Variable[] args, Statement owner ) throws CompileException;
 
   static {
     new AddFunction();
@@ -105,7 +108,7 @@ public abstract class Function {
     public AddFunction(){
       super( NAME, new Type[] { Type.IntType, Type.IntType}, 2 );
     }
-    public AbstractVariable<IntTypeData> compile_checked( AbstractVariable<IntTypeData>[] args, Statement owner ) throws CompileException {
+    public Variable<IntTypeData> compile_checked( Variable<IntTypeData>[] args, Statement owner ) throws CompileException {
      IntTypeData data = new IntTypeData( 0 );
      for( int i = 0; i < args.length; i++){
        data = IntTypeData.add( data, args[i].getData() );
@@ -122,8 +125,8 @@ public abstract class Function {
      }
      return out;
     }
-    public AbstractVariable compile_func( AbstractVariable[] args, Statement owner ) throws CompileException{
-      return compile_checked( (AbstractVariable<IntTypeData>[]) args, owner );
+    public Variable compile_func( Variable[] args, Statement owner ) throws CompileException{
+      return compile_checked( (Variable<IntTypeData>[]) args, owner );
     }
   }
   
@@ -132,11 +135,11 @@ public abstract class Function {
     public IntEqualsFunction(){
       super(NAME, new Type[] { Type.IntType, Type.IntType }, 2 );
     }
-    public AbstractVariable<BoolData> compile_checked( AbstractVariable<IntTypeData>[] args, Statement owner ) throws CompileException {
+    public Variable<BoolData> compile_checked( Variable<IntTypeData>[] args, Statement owner ) throws CompileException {
 
       PrintStream ps = ProgramTree.output;
 
-      AbstractVariable<BoolData> out = new Variable<BoolData>( IntTypeData.equals( args[0].getData(), args[1].getData() ) );
+      Variable<BoolData> out = new Variable<BoolData>( IntTypeData.equals( args[0].getData(), args[1].getData() ) );
       String op = "equ";
       if( !out.getData().is_constant() ) {
 	int len = Variable.maxArgLength( args );
@@ -149,8 +152,8 @@ public abstract class Function {
       }
       return out;
     }
-    public AbstractVariable compile_func( AbstractVariable[] args, Statement owner ) throws CompileException{
-      return compile_checked( (AbstractVariable<IntTypeData>[]) args, owner );
+    public Variable compile_func( Variable[] args, Statement owner ) throws CompileException{
+      return compile_checked( (Variable<IntTypeData>[]) args, owner );
     }
   }
 
@@ -159,11 +162,11 @@ public abstract class Function {
     public BoolEqualsFunction(){
       super(NAME, new Type[] { Type.BoolType, Type.BoolType }, 2 );
     }
-    public AbstractVariable<BoolData> compile_checked( AbstractVariable<BoolData>[] args, Statement owner ) throws CompileException {
+    public Variable<BoolData> compile_checked( Variable<BoolData>[] args, Statement owner ) throws CompileException {
 
       PrintStream ps = ProgramTree.output;
 
-      AbstractVariable<BoolData> out = new Variable<BoolData>( BoolData.equals( args[0].getData(), args[1].getData() ) );
+      Variable<BoolData> out = new Variable<BoolData>( BoolData.equals( args[0].getData(), args[1].getData() ) );
       String op = "equ";
       if( !out.getData().is_constant() ) {
 	String[] actual_args = new String[ 2 ];
@@ -177,20 +180,20 @@ public abstract class Function {
       }
       return out;
     }
-    public AbstractVariable compile_func( AbstractVariable[] args, Statement owner ) throws CompileException{
-      return compile_checked( (AbstractVariable<BoolData>[]) args, owner );
+    public Variable compile_func( Variable[] args, Statement owner ) throws CompileException{
+      return compile_checked( (Variable<BoolData>[]) args, owner );
     }
   }
 
   
   static class IncFunction extends Function {
     public static final String NAME = "inc";
-    private static final AbstractVariable<IntTypeData> one = new Variable<IntTypeData>( new IntTypeData( 1 ) );
+    private static final Variable<IntTypeData> one = new Variable<IntTypeData>( new IntTypeData( 1 ) );
     public IncFunction(){
       super(NAME, new Type[] { Type.IntType }, 1 );
     }
-    public AbstractVariable compile_func( AbstractVariable[] args, Statement owner ) throws CompileException{
-      return Function.call(Function.AddFunction.NAME, new AbstractVariable[] {
+    public AbstractVariable compile_func( Variable[] args, Statement owner ) throws CompileException{
+      return Function.call(Function.AddFunction.NAME, new Variable[] {
 	  one,
 	  args[0] }, owner );
     }
@@ -201,7 +204,7 @@ public abstract class Function {
     public LessThanFunction(){
       super(NAME, new Type[] { Type.IntType, Type.IntType }, 2 );
     }
-    public AbstractVariable<BoolData> compile_checked( AbstractVariable<IntTypeData>[] args, Statement owner ) throws CompileException {
+    public Variable<BoolData> compile_checked( Variable<IntTypeData>[] args, Statement owner ) throws CompileException {
       PrintStream ps = ProgramTree.output;
       boolean signed = false;
       for( int i = 0; i < args.length; i++){
@@ -209,7 +212,7 @@ public abstract class Function {
 	  signed = true;
 	}
       }
-      AbstractVariable<BoolData> out = new Variable<BoolData>( IntTypeData.lessthan( args[0].getData(), args[1].getData() ) );
+      Variable<BoolData> out = new Variable<BoolData>( IntTypeData.lessthan( args[0].getData(), args[1].getData() ) );
       String op = signed ? "lts" : "ltu";
       if( !out.getData().is_constant() ) {
 	int len = Variable.maxArgLength( args );
@@ -220,8 +223,8 @@ public abstract class Function {
       }
       return out;
     }
-    public AbstractVariable compile_func( AbstractVariable[] args, Statement owner ) throws CompileException{
-      return compile_checked( (AbstractVariable<IntTypeData>[]) args, owner );
+    public Variable compile_func( Variable[] args, Statement owner ) throws CompileException{
+      return compile_checked( (Variable<IntTypeData>[]) args, owner );
     }
   }
 
@@ -229,12 +232,12 @@ public abstract class Function {
     public Subtraction(){
       super("sub", new Type[] { Type.IntType, Type.IntType }, 2 );
     }
-    public AbstractVariable compile_func( AbstractVariable[] args, Statement owner ) throws CompileException {
+    public Variable compile_func( Variable[] args, Statement owner ) throws CompileException {
       IntTypeData data = IntTypeData.subtraction
 	( (IntTypeData) args[0].getData(), (IntTypeData) args[1].getData() );
 						 
      PrintStream ps = ProgramTree.output;
-     AbstractVariable<IntTypeData> out = new Variable<IntTypeData>( data );
+     Variable<IntTypeData> out = new Variable<IntTypeData>( data );
      if( !out.getData().is_constant() ){
        String[] actual_args = Variable.padArgsToLength( args, data.bit_count() );
        ps.print( out.new_name() + " sub" );
@@ -251,10 +254,10 @@ public abstract class Function {
     public Negate(){
       super("minus", new Type[] { Type.IntType }, 1 );
     }
-    public AbstractVariable compile_func( AbstractVariable[] args, Statement owner ) throws CompileException {
+    public Variable compile_func( Variable[] args, Statement owner ) throws CompileException {
       // safe cast because types are already checked
       IntTypeData a = IntTypeData.negate( (IntTypeData) args[0].getData() );
-      AbstractVariable out = new Variable( a );
+      Variable out = new Variable( a );
       if( ! a.is_constant() ){
 	ProgramTree.output.println( out.new_name() + " negate " + args[0].cur_name() );
       }
@@ -266,7 +269,7 @@ public abstract class Function {
     public Length(){
       super("length", new Type[] {Type.ArrayType }, 1 );
     }
-    public AbstractVariable compile_func( AbstractVariable[] args, Statement owner ) throws CompileException {
+    public Variable compile_func( Variable[] args, Statement owner ) throws CompileException {
       ArrayVariable arg = ArrayVariable.get_from_abstract_var( args[0] );
       return new Variable<IntTypeData>( new IntTypeData( arg.getData().getSize() ) );
     }
@@ -277,8 +280,8 @@ public abstract class Function {
     public BitWidth(){
       super(NAME,new Type[] {Type.ANYTYPE}, 1 );
     }
-    public AbstractVariable compile_func( AbstractVariable[] args, Statement owner ) throws CompileException {
-      AbstractVariable ans = new Variable
+    public Variable compile_func( Variable[] args, Statement owner ) throws CompileException {
+      Variable ans = new Variable
 	( new IntTypeData( args[0].getData().bit_count() ) );
       return ans;
     }

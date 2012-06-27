@@ -20,12 +20,14 @@ public class AssignmentExp extends Expression {
     dest_exp.compile();
     dest = dest_exp.returnVar();
     source.compile();
-    AbstractVariable sourceVar = source.returnVar();
-    if( !sourceVar.getType().satisfies( dest.getType() )  ){
+    Variable sourceVar = source.returnVar().var();
+    if( !sourceVar.getType().satisfies( dest.var().getType() ) ){
       throw error( "Variable \""+dest.debug_name()+"\" is not of type "+sourceVar.getType().name());
     }
-
-    dest.compile_assignment( sourceVar, this );
+    if( !dest.var().allows_assignemnt() ){
+      throw error( "Cannot assign to variable "+dest.debug_name() );
+    }
+    dest.var().compile_assignment( sourceVar, this );
 
   }
 }

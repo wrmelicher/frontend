@@ -4,7 +4,7 @@ import java.util.List;
 import java.io.PrintStream;
 
 class ForStatement extends ExpressionContainer {
-  private FunctionArgument loop_var;
+  private DummyVariable loop_var;
   private Expression from;
   private Expression to;
   private Expression incExp;
@@ -13,7 +13,7 @@ class ForStatement extends ExpressionContainer {
     super( line );
     from = lower;
     to = upper;
-    loop_var = new FunctionArgument( loop_name );
+    loop_var = new DummyVariable( loop_name );
     
     FunctionExp incFuncExp = new FunctionExp
       ( getLine(), Function.IncFunction.NAME, new Expression[] { new VariableExp( getLine(), loop_var ) } );
@@ -28,13 +28,12 @@ class ForStatement extends ExpressionContainer {
     to.compile();
     int from_val = Variable.get_val_from_var( from.returnVar(), this );
     int to_val = Variable.get_val_from_var( to.returnVar(), this );
-    loop_var.setVar( new Variable( new IntTypeData( from_val ) ) );
+    Variable const_var = new Variable( new IntTypeData( from_val ) );
+    loop_var.push_var( const_var );
     
     for( int i = from_val; i < to_val; i++ ){
       super.compile();
       incExp.compile();
     }
   }
-
-  
 }

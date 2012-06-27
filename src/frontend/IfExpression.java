@@ -10,10 +10,11 @@ public class IfExpression extends Statement {
   private Statement else_form;
   private IfExpression prev;
 
-  private AbstractVariable cond_var;
+  private Variable cond_var;
 
   // holds the read values of the key variable from before the if, and before the else, and after the else statements
-  private Map<AbstractVariable, AssignmentData> dests;
+  private Map<Variable, AssignmentData> dests
+    = new HashMap< Variable, AssignmentData >();
   
   public IfExpression( int line, Expression acond, Statement anif ){
     this( line, acond, anif, null );    
@@ -26,15 +27,15 @@ public class IfExpression extends Statement {
   }
 
   public void register_assignment( AbstractVariable dest ){
-    AssignmentData destlist = dests.get( dest );
+    AssignmentData destlist = dests.get( dest.var() );
     if( destlist == null ){
       destlist = new AssignmentData();
-      dests.put( dest, destlist );
+      dests.put( dest.var(), destlist );
     }
-    destlist.setData( dest, true );
+    destlist.setData( dest.var(), true );
   }
 
-  private void assignment( AbstractVariable dest, String if_name, TypeData if_type, String else_name, TypeData else_type ) throws CompileException {
+  private void assignment( Variable dest, String if_name, TypeData if_type, String else_name, TypeData else_type ) throws CompileException {
     String cond_name = cond_var.cur_name();
     Variable temp = new Variable( if_type.conditional( else_type ) );
     
@@ -45,10 +46,10 @@ public class IfExpression extends Statement {
   
   public void compile() throws CompileException {
 
-    dests = new HashMap< AbstractVariable, AssignmentData >();
+    dests.clear();
     
     cond.compile();
-    cond_var = cond.returnVar();
+    cond_var = cond.returnVar().var();
     if( cond_var.getType() != Type.BoolType ){
       throw error("Expecting a boolean expression");
     }
@@ -67,7 +68,7 @@ public class IfExpression extends Statement {
 
       if_form_branch = true;
       if_form.compile();
-      for( AbstractVariable v : dests.keySet() ){
+      for( Variable v : dests.keySet() ){
 	AssignmentData data = dests.get( v );
 	data.setData( v, false );
 	v.reset_from_snap( data.before_if );
@@ -78,13 +79,13 @@ public class IfExpression extends Statement {
 	else_form.compile();
       }
 
-      for( AbstractVariable v : dests.keySet() ){
+      for( Variable v : dests.keySet() ){
 	AssignmentData data = dests.get( v );
 	data.setData( v, false );
       }
       
       Expression.cond_scope = prev;      
-      for( AbstractVariable v : dests.keySet() ){
+      for( Variable v : dests.keySet() ){
 	Variable.Snapshot first_arg = dests.get( v ).first_mux_arg();
 	Variable.Snapshot second_arg = dests.get( v ).second_mux_arg();
 	int max = Math.max( first_arg.length_at(), second_arg.length_at() );
@@ -104,7 +105,7 @@ public class IfExpression extends Statement {
     private Variable.Snapshot after_else;
     
     public AssignmentData(){}
-    public void setData( AbstractVariable v, boolean before ){
+    public void setData( Variable v, boolean before ){
       Variable.Snapshot sn = v.snapshot();
       if( if_form_branch ){
 	if( before ){

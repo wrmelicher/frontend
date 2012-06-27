@@ -23,15 +23,16 @@ public class ArrayAccessExp extends Expression {
   }
   
   public void compile() throws CompileException {
-    if( arr.getType() != Type.ArrayType ){
+    
+    if( arr.var().getType() != Type.ArrayType ){
       throw error("Cannot index non-array variable "+arr.debug_name() );
     }
     ArrayVariable arr_real = ArrayVariable.get_from_abstract_var( arr );
     index.compile();
-    AbstractVariable ind_var = index.returnVar();
+    Variable ind_var = index.returnVar().var();
     if( ind_var.getType() != Type.IntType )
       throw error("Cannot index variable with non-integer type" );
-    out = arr_real.at( ind_var );
+    out = arr_real.at( ind_var, this );
   }
   
 }
