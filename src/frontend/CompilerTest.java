@@ -1,75 +1,45 @@
 package frontend;
-import java.io.PrintStream;
-import java.io.File;
-import java.util.Scanner;
-import java.util.List;
-import java.io.FileNotFoundException;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
+
+import java.io.*;
 
 public class CompilerTest {
-  private static ProgramTree t;
-  private static String base_name;
-
-  public interface Compiler {
-    public ProgramTree tree() throws CompileException;
+  
+  public static void main( String[] args ){
+    if( args.length < 1 ){
+      System.out.println("usage: CompilerTest <in-fname> [-i]");
+      System.exit(1);
+    }
+    Parser comp;
+    File input_file = new File( args[0] );
+    try{
+      comp = new Parser( new FileInputStream( input_file ) );
+    } catch ( FileNotFoundException e ){
+      System.out.println( e.getMessage() );
+      System.exit(1);
+      comp = null;
+    }
+    ProgramTree t = comp.tree();
+    File output_file = new File( input_file.getParent(), input_file.getName()+".gcil" );
+    PrintStream out;
+    try {
+      out = new PrintStream( output_file );
+    } catch (FileNotFoundException e ){
+      System.out.println( e.getMessage() );
+      System.exit(1);
+      out = null;
+    }
+    compile( t, out );
+    if( args.length >2 && args[1].equals("-i") ){
+      GenerateInputs g = new GenerateInputs( t, input_file );
+      g.inputs();
+    }
   }
   
-  public static void compile( String base, Compiler c, PrintStream out ) {
-    base_name = base;
-    try{
-      t = c.tree();
-    } catch ( CompileException e ){
-      System.err.println( e.getMessage() );
-      System.exit(1);
-    }
-    inputs();
+  public static void compile( ProgramTree tree, PrintStream out ) {
     ProgramTree.output = out;
     try {
-      t.compile();
+      tree.compile();
     } catch ( CompileException e ){
-      System.err.println( e.getMessage() );
-      System.exit(1);
-    }
-  }
-  public static void compile( String base, Compiler c ) {
-    try {
-      compile( base, c, new PrintStream( new File( base + ".cir" ) ) );
-    } catch ( FileNotFoundException e ){
-      System.err.println( e.getMessage() );
-      System.exit(1);
-    }
-  }
-
-  public static void inputs() {
-    try {
-    List<DeclareInputStatement> ls = t.inputs();
-    File client_file = new File( base_name+"_client.priv" );
-    File server_file = new File( base_name+"_server.priv" );
-    Scanner in = new Scanner( System.in );
-    if( client_file.exists() && server_file.exists() ){
-      System.out.println("Input files already exist, overwrite? (y/n):");
-      String yes_no = in.nextLine();
-      Pattern p = Pattern.compile("^yes|no|y|n$", Pattern.CASE_INSENSITIVE);
-      Matcher m = p.matcher( yes_no );
-      while( !m.matches() ){
-	System.out.println("Input files already exist, overwrite? (y/n):");
-	yes_no = in.nextLine();
-	m = p.matcher( yes_no );
-      }
-      if( yes_no.startsWith( "n" ) || yes_no.startsWith( "N" ) ){
-	return;
-      }
-    }
-    PrintStream client_inputs = new PrintStream( client_file );
-    PrintStream server_inputs = new PrintStream( server_file );
-
-    for( DeclareInputStatement d : ls ){
-      d.request_val( d.party() == 1 ? client_inputs : server_inputs, in );
-    }
-    client_inputs.close();
-    server_inputs.close();
-    } catch (FileNotFoundException e ){
       System.err.println( e.getMessage() );
       System.exit(1);
     }

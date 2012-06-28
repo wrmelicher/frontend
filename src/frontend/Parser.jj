@@ -4,7 +4,7 @@ PARSER_BEGIN( Parser )
 import java.util.*;
 import java.io.*;
 
-public class Parser implements CompilerTest.Compiler {
+public class Parser {
   private ProgramTree tree;
   public static int line; // must be public to be accessed by javacc classes
   private LinkedList< Map<String, AbstractVariable> > env;
@@ -26,26 +26,6 @@ public class Parser implements CompilerTest.Compiler {
     if( errors )
       return null;
     return tree;
-  }
-
-  public static void main( String[] args ){
-    if( args.length < 1 ){
-      System.out.println("usage: Parser <in-fname> [out-fname]");
-      System.exit(1);
-    }
-    Parser comp;
-    File input_file = new File( args[0] );
-    try{
-      comp = new Parser( new FileInputStream( input_file ) );
-    } catch ( FileNotFoundException e ){
-      System.out.println( e.getMessage() );
-      System.exit(1);
-      comp = null;
-    }
-    if( args.length == 1 )
-      CompilerTest.compile( args[0], comp, System.out );
-    else
-      CompilerTest.compile( args[1], comp );
   }
   
   private void log( Exception e ){
