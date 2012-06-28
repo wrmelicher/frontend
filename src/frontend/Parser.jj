@@ -117,7 +117,7 @@ TOKEN: {
     | < DEFOUTPUT : "defoutput" >
     | < MAG : "magnitude" >
     | < INTEGER : ("-")? ( [ "0"-"9" ] )+ >
-    | < IDENTIFIER : ( ["a"-"z","A"-"Z","_","-","+","-","*","<",">"] )+ >
+    | < IDENTIFIER : ( ["a"-"z","A"-"Z","_","+","-","*","<",">"] )+ >
 }
 
 SPECIAL_TOKEN :

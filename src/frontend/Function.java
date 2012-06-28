@@ -97,6 +97,7 @@ public abstract class Function {
     new BoolEqualsFunction();
     new IncFunction();
     new LessThanFunction();
+    new GreaterThanFunction();
     new Subtraction();
     new Negate();
     new Length();
@@ -228,9 +229,21 @@ public abstract class Function {
     }
   }
 
+  static class GreaterThanFunction extends Function {
+    public static final String NAME = ">";
+    public GreaterThanFunction(){
+      super( NAME, new Type[] { Type.IntType, Type.IntType }, 2 );
+    }
+    public AbstractVariable compile_func( Variable[] args, Statement owner ) throws CompileException{
+      return Function.call( Function.LessThanFunction.NAME,
+			    new Variable[] { args[1], args[0] },
+			    owner );
+    }
+  }
+
   static class Subtraction extends Function {
     public Subtraction(){
-      super("sub", new Type[] { Type.IntType, Type.IntType }, 2 );
+      super("-", new Type[] { Type.IntType, Type.IntType }, 2 );
     }
     public Variable compile_func( Variable[] args, Statement owner ) throws CompileException {
       IntTypeData data = IntTypeData.subtraction
@@ -251,8 +264,9 @@ public abstract class Function {
   }
 
   static class Negate extends Function {
+    public static final String NAME = "-";
     public Negate(){
-      super("minus", new Type[] { Type.IntType }, 1 );
+      super("-", new Type[] { Type.IntType }, 1 );
     }
     public Variable compile_func( Variable[] args, Statement owner ) throws CompileException {
       // safe cast because types are already checked
@@ -286,4 +300,6 @@ public abstract class Function {
       return ans;
     }
   }
+
+
 }

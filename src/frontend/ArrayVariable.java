@@ -12,7 +12,7 @@ public class ArrayVariable extends Variable<ArrayData> {
     super( name, elem );
     create_positions();
   }
-
+  
   private void create_positions(){
     givenPositions = new ArrayList<ArrayPosition>();
     given_compile = new ArrayPositionCompileTime[ getData().getSize() ];
@@ -21,15 +21,15 @@ public class ArrayVariable extends Variable<ArrayData> {
       givenPositions.add( given_compile[i] );
     }
   }
-
+  
   public static ArrayVariable get_from_abstract_var( AbstractVariable v ){
     assert v.var().getType() == Type.ArrayType : "Error, value is not an array";
-
+    
     return (ArrayVariable) v.var();    
   }
-
+  
   @Override
-  public void compile_assignment( Variable other, Statement owner ) throws CompileException {
+    public void compile_assignment( Variable other, Statement owner ) throws CompileException {
     super.compile_assignment( other, owner );
     invalidate_indices();
     create_positions();
@@ -73,17 +73,17 @@ public class ArrayVariable extends Variable<ArrayData> {
   public int element_size(){
     return getData().getElementData().bit_count();
   }
-
+  
   @Override public Variable copy( String name ){
     return new ArrayVariable( name, getData() );
   }
-
+  
   public void join_indices(){
     join_indices( true );
   }
   
   public void join_indices( boolean invalidate ){
-
+    
     if( ProgramTree.DEBUG >= 2 ){
       ProgramTree.output.println("\n//joining indices of array "+debug_name() );
     }
@@ -94,6 +94,7 @@ public class ArrayVariable extends Variable<ArrayData> {
     for( ArrayPositionCompileTime p : given_compile ){
       new_elem_data = new_elem_data.conditional( p.getData() );
     }
+    boolean any_changed = false;
     for( int i = 0; i < getData().getSize(); i++ ){
       if( given_compile[i].is_changed() && given_compile[i].is_valid() ){
 	if( prev != i ) {
@@ -105,18 +106,21 @@ public class ArrayVariable extends Variable<ArrayData> {
 	String changed_add = given_compile[i].padTo( new_elem_data.bit_count() );
 	given_compile[i].setData( new_elem_data );
 	args.add( changed_add );
+	any_changed = true;
       }
     }
-    if( prev != getData().getSize() ){
-      String temp = Variable.temp_var_name();
-      ProgramTree.output.println(temp+" select "+ cur_name() + " " + ( prev * element_size() ) + " " + ( getData().getSize() * element_size() ) );
-      args.add( temp );
+    if( any_changed ){
+      if( prev != getData().getSize() ){
+	String temp = Variable.temp_var_name();
+	ProgramTree.output.println(temp+" select "+ cur_name() + " " + ( prev * element_size() ) + " " + ( getData().getSize() * element_size() ) );
+	args.add( temp );
+      }
+      ProgramTree.output.print( new_name() + " concatls" );
+      for( String s : args ){
+	ProgramTree.output.print( " " + s );
+      }
+      ProgramTree.output.println();
     }
-    ProgramTree.output.print( new_name() + " concatls" );
-    for( String s : args ){
-      ProgramTree.output.print( " " + s );
-    }
-    ProgramTree.output.println();
     ProgramTree.output.println("//ending join indices\n");
     if( invalidate )
       invalidate_indices();
