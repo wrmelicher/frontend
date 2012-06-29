@@ -92,9 +92,22 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
     }
     return val;
   }
+
+  private static String escape_chars( String in ){
+    String ans = "";
+    for( int i = 0; i < in.length(); i++){
+      if( Character.isLetterOrDigit( in.charAt( i ) ) ){
+	ans += in.charAt(i);
+      } else {
+	ans += "_";
+      }
+    }
+    return ans;
+  }
   
   public void set_debug_name( String n ){
-    debug_names.add( new Variable.DebugNameRecord( cur_assignment, n ) );
+    
+    debug_names.add( new Variable.DebugNameRecord( cur_assignment, escape_chars(n) ) );
 
   }
   

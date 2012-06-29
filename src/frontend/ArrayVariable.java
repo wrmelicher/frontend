@@ -12,6 +12,10 @@ public class ArrayVariable extends Variable<ArrayData> {
     super( name, elem );
     create_positions();
   }
+  public ArrayVariable( ArrayData elem ){
+    super( elem );
+    create_positions();
+  }
   
   private void create_positions(){
     givenPositions = new ArrayList<ArrayPosition>();

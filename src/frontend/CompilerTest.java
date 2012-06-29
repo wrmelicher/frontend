@@ -9,15 +9,20 @@ public class CompilerTest {
       System.out.println("usage: CompilerTest <in-fname> [-i]");
       System.exit(1);
     }
-    Parser comp;
     File input_file = new File( args[0] );
+    InputStream in;
     try{
-      comp = new Parser( new FileInputStream( input_file ) );
+      if( args[0].equals("-") ){
+	in = System.in;
+      } else {
+	in = new FileInputStream( input_file );
+      }
     } catch ( FileNotFoundException e ){
       System.out.println( e.getMessage() );
       System.exit(1);
-      comp = null;
+      in = null;
     }
+    Parser comp = new Parser( in );
     ProgramTree t = comp.tree();
     File output_file = new File( input_file.getParent(), input_file.getName()+".gcil" );
     PrintStream out;

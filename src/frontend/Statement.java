@@ -2,7 +2,7 @@ package frontend;
 
 
 
-abstract class Statement {
+public abstract class Statement {
   private int linenum;
   public Statement( int line ){
     linenum = line;

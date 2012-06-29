@@ -2,6 +2,7 @@ package frontend;
 
 import java.util.List;
 import java.io.PrintStream;
+import frontend.functions.IncFunction;
 
 class ForStatement extends ExpressionContainer {
   private DummyVariable loop_var;
@@ -16,7 +17,7 @@ class ForStatement extends ExpressionContainer {
     loop_var = new DummyVariable( loop_name );
     
     FunctionExp incFuncExp = new FunctionExp
-      ( getLine(), Function.IncFunction.NAME, new Expression[] { new VariableExp( getLine(), loop_var ) } );
+      ( getLine(), IncFunction.NAME, new Expression[] { new VariableExp( getLine(), loop_var ) } );
     incExp = new AssignmentExp( getLine(), loop_var, incFuncExp );
   }
   public AbstractVariable getLoopVar(){

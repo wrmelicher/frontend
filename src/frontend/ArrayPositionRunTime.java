@@ -2,6 +2,8 @@ package frontend;
 import java.io.PrintStream;
 
 import java.lang.Math;
+import frontend.functions.IntEqualsFunction;
+
 public class ArrayPositionRunTime extends ArrayPosition {
   private Variable<IntTypeData> index;
   public ArrayPositionRunTime( ArrayVariable par, Variable<IntTypeData> ind ){
@@ -92,7 +94,7 @@ public class ArrayPositionRunTime extends ArrayPosition {
       String select_name = getParent().state_index( i );
 
       args[1] = new Variable( new IntTypeData( i ) ); 
-      Variable mux_choice = Function.call( Function.IntEqualsFunction.NAME, args, owner ).var();
+      Variable mux_choice = Function.call( IntEqualsFunction.NAME, args, owner ).var();
       
       mux_out_names[i] = Variable.temp_var_name();
       ps.println( mux_out_names[i]+" chose "+mux_choice.cur_name()+" "+select_name+" " + other_name );

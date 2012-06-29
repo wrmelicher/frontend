@@ -3,7 +3,7 @@ package frontend;
 import java.math.BigInteger;
 import java.util.Scanner;
 
-class IntTypeData extends TypeData {
+public class IntTypeData extends TypeData {
   private BigInteger magnitude;
   private boolean signed;
   private boolean is_const;
