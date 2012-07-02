@@ -34,7 +34,8 @@ public class CompilerTest {
       out = null;
     }
     compile( t, out );
-    if( args.length >2 && args[1].equals("-i") ){
+    if( args.length >= 2 && args[1].equals("-i") ){
+      // TODO: make this a real flag
       GenerateInputs g = new GenerateInputs( t, input_file );
       g.inputs();
     }

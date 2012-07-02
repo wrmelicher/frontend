@@ -45,6 +45,10 @@ public class UserFunction extends Function {
     for( int i = 0; i < func_args.length; i++){
       func_args[i].push_var( args[i] );
     }
+
+    for( DummyVariable v : declared ){
+      v.start_func();
+    }
     
     UserFunction prev = caller;
     caller = this;
@@ -58,7 +62,7 @@ public class UserFunction extends Function {
     Variable ans = return_var.var();
     
     for( DummyVariable v : declared ){
-      v.pop_var();
+      v.exit_func();
     }
 
     ret_assigned = prev_ret;

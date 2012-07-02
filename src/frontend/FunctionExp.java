@@ -8,7 +8,10 @@ public class FunctionExp extends Expression {
   private String name;
   private AbstractVariable outvar;
   private Expression[] exps;
-  public FunctionExp( int line, String afunc, Expression[] args ){
+  public FunctionExp
+    ( int line,
+      String afunc,
+      Expression[] args ){
     super( line );
     name = afunc;
     exps = args;
@@ -17,7 +20,8 @@ public class FunctionExp extends Expression {
     return outvar;
   }
   public void compile() throws CompileException {
-    AbstractVariable[] vargs = new AbstractVariable[ exps.length ];
+    AbstractVariable[] vargs =
+      new AbstractVariable[ exps.length ];
     int i = 0;
     for( Expression e : exps ){
       e.compile();
