@@ -71,7 +71,6 @@ PARSER_END( Parser )
 SKIP: { " " | "\t" | "\r" }
 TOKEN: {
     < COLON : ":" >
-    | < PERIOD : "." >
     | < COMMA : "," >
     | < SEMICOLON : ";" >
     | < OPEN_PAREN : "(" >
@@ -403,7 +402,7 @@ Expression expression() throws CompileException:
      e = expression()
      <CLOSE_PAREN>
      ) 
-   ) 
+   )
     {
       if( e == null ){
 	AbstractVariable val = var( id );
