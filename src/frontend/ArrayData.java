@@ -15,6 +15,10 @@ public class ArrayData extends TypeData {
     return size;
   }
 
+  public ArrayData new_elem_data( TypeData d ){
+    return new ArrayData( d, size );
+  }
+  
   public TypeData getElementData(){
     return elem_type;
   }

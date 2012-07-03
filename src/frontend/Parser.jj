@@ -385,6 +385,7 @@ Expression expression() throws CompileException:
 {
   String id = "";
   Expression e = null;
+  List<Expression> lit_arr = new LinkedList<Expression>();
 }
 {
   (
@@ -394,14 +395,32 @@ Expression expression() throws CompileException:
   ( e = function_call( id ) |
     e = assignment_or_access( id ) )?
    ) |
-    (
-     e = constant()
-     ) |
-    (
-     <OPEN_PAREN>
-     e = expression()
-     <CLOSE_PAREN>
-     ) 
+  (
+   e = constant()
+   ) |
+  (
+   <OPEN_PAREN>
+   e = expression()
+   <CLOSE_PAREN>
+   ) |
+  (
+   <OPEN_BRACKET>
+   e = expression()
+     {
+       lit_arr.add( e );
+     }
+   (
+    <COMMA>
+    e = expression()
+      {
+	lit_arr.add( e );
+      }
+    )*
+   <CLOSE_BRACKET>
+     {
+       e = new LiteralArrayExp( line, lit_arr );
+     }
+   )
    )
     {
       if( e == null ){

@@ -10,7 +10,7 @@ public class ArrayPositionRunTime extends ArrayPosition {
     super( par );
     index = ind;
   }
-  public void read_value() {
+  public void read_value(){
 
     if( ProgramTree.DEBUG >= 2 )
       ProgramTree.output.println("// begin read secure index of "+getParent().debug_name() );

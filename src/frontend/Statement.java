@@ -16,4 +16,10 @@ public abstract class Statement {
   public int getLine(){
     return linenum;
   }
+  public static class LineNumberProvider extends Statement {
+    public LineNumberProvider( int line ){
+      super( line );
+    }
+    public void compile() throws CompileException {}
+  }
 }

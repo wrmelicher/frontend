@@ -16,6 +16,24 @@ public class ArrayVariable extends Variable<ArrayData> {
     super( elem );
     create_positions();
   }
+
+  public static ArrayVariable literal( List<AbstractVariable> cons_vars, Statement owner ) throws CompileException {
+    int len = cons_vars.size();
+    Variable first = cons_vars.get(0).var();
+    Type t = first.getType();
+    for( AbstractVariable v : cons_vars ){
+      if( t != v.var().getType() ){
+	throw owner.error( "All elements of array must have the same type" );
+      }
+    }
+    ArrayVariable ans = new ArrayVariable( new ArrayData( first.getData(), len ) );
+    int i = 0;
+    for( AbstractVariable index : cons_vars ){
+      ans.at( i++ ).compile_assignment( index.var(), owner );
+    }
+    ans.join_indices();
+    return ans;
+  }
   
   private void create_positions(){
     givenPositions = new ArrayList<ArrayPosition>();
@@ -60,12 +78,15 @@ public class ArrayVariable extends Variable<ArrayData> {
       if( i >= parentData.getSize() || i < 0){
 	throw owner.error("Array reference out of bounds. Array index: "+i+" Array size: "+parentData.getSize());
       }
-      ans = given_compile[ i ];
+      ans = at( i );
     } else {
       ans = new ArrayPositionRunTime( this, v.var() );
       givenPositions.add( ans );
     }
     return ans;
+  }
+  private ArrayPosition at( int i ){
+    return given_compile[ i ];
   }
   
   public void invalidate_indices(){
@@ -98,6 +119,7 @@ public class ArrayVariable extends Variable<ArrayData> {
     for( ArrayPositionCompileTime p : given_compile ){
       new_elem_data = new_elem_data.conditional( p.getData() );
     }
+    setData( getData().new_elem_data( new_elem_data ) );
     boolean any_changed = false;
     for( int i = 0; i < getData().getSize(); i++ ){
       if( given_compile[i].is_changed() && given_compile[i].is_valid() ){

@@ -117,6 +117,7 @@ public class IntTypeData extends TypeData {
     IntTypeData intother = (IntTypeData) other;
     return new IntTypeData( magnitude.max( intother.magnitude ), signed || intother.signed );     
   }
+  
   public BigInteger user_input( String debug_name, int party, Scanner in ) {
     System.out.print( getType().name() + " " + debug_name + " of party " + party + " value (between "+ ( signed() ? magnitude.negate() : BigInteger.ZERO ) + " and " + magnitude + "): ");
     System.out.println();
