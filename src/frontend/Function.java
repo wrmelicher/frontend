@@ -105,7 +105,9 @@ public abstract class Function {
     new BitWidth();
     new BoolOr();
     new BoolAnd();
-
+    new OrFunction();
+    new AndFunction();
+    new XorFunction();
   }
   
 }

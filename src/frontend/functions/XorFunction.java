@@ -3,15 +3,15 @@ package frontend.functions;
 import java.io.PrintStream;
 import frontend.*;
 
-public class AddFunction extends BinaryInt {
-  public static final String NAME = "+";
-  public AddFunction(){
+public class XorFunction extends BinaryInt {
+  public static final String NAME = "xor";
+  public XorFunction(){
     super( NAME );
   }
   public String op(){
-    return "add";
+    return "xor";
   }
   public TypeData data_type( IntTypeData a, IntTypeData b ){
-    return IntTypeData.add( a, b );
+    return IntTypeData.xor( a, b );
   }
 }

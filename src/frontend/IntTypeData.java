@@ -2,6 +2,7 @@ package frontend;
 
 import java.math.BigInteger;
 import java.util.Scanner;
+import java.lang.Math;
 
 public class IntTypeData extends TypeData {
   private BigInteger magnitude;
@@ -65,6 +66,30 @@ public class IntTypeData extends TypeData {
       return new BoolData( a.magnitude.compareTo( b.magnitude ) < 0 ? BoolData.TRUE : BoolData.FALSE );
     } else {
       return new BoolData( BoolData.MAYBE );
+    }
+  }
+  public static IntTypeData and( IntTypeData a, IntTypeData b ){
+    if( a.is_constant() && b. is_constant() ){
+      return new IntTypeData( a.magnitude.and( b.magnitude ) );
+    } else {
+      int len = Math.max( a.bit_count(), b.bit_count() );
+      return new IntTypeData( TWO.pow( len+1 ).subtract( BigInteger.ONE ), false );
+    }
+  }
+  public static IntTypeData or( IntTypeData a, IntTypeData b ){
+    if( a.is_constant() && b. is_constant() ){
+      return new IntTypeData( a.magnitude.or( b.magnitude ) );
+    } else {
+      int len = Math.max( a.bit_count(), b.bit_count() );
+      return new IntTypeData( TWO.pow( len+1 ).subtract( BigInteger.ONE ), false );
+    }
+  }
+  public static IntTypeData xor( IntTypeData a, IntTypeData b ){
+    if( a.is_constant() && b. is_constant() ){
+      return new IntTypeData( a.magnitude.or( b.magnitude ) );
+    } else {
+      int len = Math.max( a.bit_count(), b.bit_count() );
+      return new IntTypeData( TWO.pow( len+1 ).subtract( BigInteger.ONE ), false );
     }
   }
   public String extend_operation(){

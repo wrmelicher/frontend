@@ -3,15 +3,15 @@ package frontend.functions;
 import java.io.PrintStream;
 import frontend.*;
 
-public class AddFunction extends BinaryInt {
-  public static final String NAME = "+";
-  public AddFunction(){
+public class AndFunction extends BinaryInt {
+  public static final String NAME = "and";
+  public AndFunction(){
     super( NAME );
   }
   public String op(){
-    return "add";
+    return "and";
   }
   public TypeData data_type( IntTypeData a, IntTypeData b ){
-    return IntTypeData.add( a, b );
+    return IntTypeData.and( a, b );
   }
 }
