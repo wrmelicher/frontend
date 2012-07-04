@@ -7,7 +7,7 @@ public class IncFunction extends Function {
   private static final Variable<IntTypeData> ONE =
     new Variable<IntTypeData>( new IntTypeData( 1 ) );
   public IncFunction(){
-    super(NAME, new Type[] { Type.IntType }, 1 );
+    super(NAME, new Type[] { Type.IntType } );
   }
   public AbstractVariable compile_func
     ( Variable[] args,

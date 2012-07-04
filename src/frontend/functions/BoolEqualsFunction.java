@@ -1,7 +1,7 @@
 package frontend.functions;
 import frontend.*;
 public class BoolEqualsFunction extends BinaryBool {
-  public static final String NAME = "==";
+  public static final String NAME = "equals";
   public BoolEqualsFunction(){
     super(NAME);
   }

@@ -19,7 +19,7 @@ public class UserFunction extends Function {
       Type[] types,
       ExpressionContainer c,
       DummyVariable[] an_arr ){
-    super( name, types, types.length );
+    super( name, types );
     exps = c;
     func_args = an_arr;
     return_var = new DummyVariable( name );
@@ -34,6 +34,11 @@ public class UserFunction extends Function {
 
   public void set_body( ExpressionContainer c ){
     exps = c;
+  }
+
+  public boolean has_side_effects(){
+    // TODO
+    return true;
   }
   
   public AbstractVariable compile_func

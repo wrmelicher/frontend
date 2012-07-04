@@ -2,7 +2,6 @@ package frontend;
 
 public class AssignmentExp extends Expression {
   private Expression dest_exp;
-  private AbstractVariable dest;
   private Expression source;
   private String outputName;
   public AssignmentExp( int linenum, AbstractVariable adest, Expression asource ){
@@ -13,12 +12,18 @@ public class AssignmentExp extends Expression {
     dest_exp = adest;
     source = asource;
   }
-  public AbstractVariable returnVar(){
-    return dest;
+
+  public boolean has_side_effects(){
+    return true;
   }
-  public void compile() throws CompileException{
+
+  public ExpSignature sig(){
+    return null;
+  }
+  
+  public void compile_exp() throws CompileException{
     dest_exp.compile();
-    dest = dest_exp.returnVar();
+    AbstractVariable dest = dest_exp.returnVar();
     source.compile();
     Variable sourceVar = source.returnVar().var();
     if( !sourceVar.getType().satisfies( dest.var().getType() ) ){
@@ -28,6 +33,7 @@ public class AssignmentExp extends Expression {
       throw error( "Cannot assign to variable "+dest.debug_name() );
     }
     dest.var().compile_assignment( sourceVar, this );
-
+    
+    set_ret( dest.var() );
   }
 }

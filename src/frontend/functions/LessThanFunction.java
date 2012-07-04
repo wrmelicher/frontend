@@ -6,7 +6,7 @@ import frontend.*;
 public class LessThanFunction extends Function {
   public static final String NAME = "<";
   public LessThanFunction(){
-    super(NAME, new Type[] { Type.IntType, Type.IntType }, 2 );
+    super(NAME, new Type[] { Type.IntType, Type.IntType } );
   }
   public Variable<BoolData> compile_checked( Variable<IntTypeData>[] args, Statement owner ) throws CompileException {
     PrintStream ps = ProgramTree.output;

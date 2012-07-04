@@ -6,7 +6,7 @@ import java.io.PrintStream;
 public abstract class BinaryBool extends Function {
   
   public BinaryBool(String name){
-    super( name, new Type[] {Type.BoolType, Type.BoolType}, 2 );
+    super( name, new Type[] {Type.BoolType, Type.BoolType} );
   }
   
   protected abstract String op();

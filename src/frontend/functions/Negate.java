@@ -5,7 +5,7 @@ import frontend.*;
 public class Negate extends Function {
   public static final String NAME = "-";
   public Negate(){
-    super("-", new Type[] { Type.IntType }, 1 );
+    super("-", new Type[] { Type.IntType } );
   }
   public Variable compile_func( Variable[] args, Statement owner ) throws CompileException {
     // safe cast because types are already checked

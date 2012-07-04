@@ -5,20 +5,37 @@ import java.util.LinkedList;
 
 public class LiteralArrayExp extends Expression {
   private List<Expression> exps;
-  private ArrayVariable out;
-  public LiteralArrayExp( int line, List<Expression> vals ){
+  public LiteralArrayExp
+    ( int line,
+      List<Expression> vals ){
     super( line );
     exps = vals;
+    for( Expression e : vals ){
+      e.setParent( this );
+    }
   }
-  public void compile() throws CompileException {
-    List<AbstractVariable> vars = new LinkedList<AbstractVariable>();
+
+  public boolean has_side_effects(){
+    return false;
+  }
+
+  public ExpSignature sig(){
+    ExpSignature ans = new ExpSignature
+      ( ExpSignature.ExpressionType.LITERALARRAY );
+
+    for( Expression e : exps ){
+      ans.depends( e );
+    }
+    return ans;
+  }
+  
+  public void compile_exp() throws CompileException {
+    List<AbstractVariable> vars
+      = new LinkedList<AbstractVariable>();
     for( Expression e : exps ){
       e.compile();
       vars.add( e.returnVar() );
     }
-    out = ArrayVariable.literal( vars, this );
-  }
-  public AbstractVariable returnVar(){
-    return out;
+    set_ret( ArrayVariable.literal( vars, this ) );
   }
 }

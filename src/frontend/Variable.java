@@ -13,11 +13,19 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
   private VariableExp reference = null;
   private Map<Integer, String> lengths;
 
+  private String starting_name = null;
+
   private boolean allows_assignemnt = true;
   
   private LinkedList< DebugNameRecord > debug_names
     = new LinkedList< DebugNameRecord >();
-  
+
+  private ArrayList< Set<String> > equivalent_names
+    = new ArrayList< Set<String> >();
+
+  private List<VariableExp> parents
+    = new LinkedList<VariableExp>();
+
   private static long id_counter = 0;
   
   public Variable( T atype ){
@@ -46,6 +54,8 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
     lengths = new HashMap<Integer, String>();
 
     set_debug_name( name );
+    equivalent_names.add( new TreeSet<String>() );
+    add_equivalent_name( cur_name() );
   }
 
   public Variable( String name ){
@@ -115,6 +125,9 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
     if( getData().is_constant() ){
       return getData().constant_name();
     }
+    if( starting_name != null && cur_read_version == 0 ){
+      return starting_name;
+    }
     String cur = debug_name() + "_" + id;
     if( cur_read_version == 0 )
       return cur;
@@ -125,7 +138,13 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
   public String new_name(){
     inc_name();
     lengths.clear();
-    return cur_name();
+    String ans = cur_name();
+    equivalent_names.add( new TreeSet<String>() );
+    return ans;
+  }
+
+  public void add_equivalent_name( String n ){
+    equivalent_names.get( (int)cur_read_version ).add( n );
   }
 
   private void inc_name(){
@@ -211,10 +230,14 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
     return new Snapshot( this );
   }
 
-  public class Snapshot {
+  public class Snapshot implements
+    ExpSignature.signatured {
     public Long read;
     public T data;
+
+    private Variable.Snapshot temp;
     private Variable<T> owner;
+    
     public Snapshot(Variable<T> own){
       owner = own;
       read = cur_read_version;
@@ -230,10 +253,36 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
       return data.bit_count();
     }
     public String padTo( int i ){
-      Variable.Snapshot temp = owner.snapshot();
+      String ans = owner_at().padTo( i );
+      reset_owner();
+      return ans;
+    }
+
+    public Variable<T> owner_at(){
+      temp = owner.snapshot();
       owner.reset_from_snap( this );
-      String ans = owner.padTo( i );
+      return owner;
+    }
+    public void reset_owner(){
       owner.reset_from_snap( temp );
+    }
+
+    public Variable copy(){
+      owner_at();
+      Variable<T> ans = new Variable( owner().getData() );
+      ans.starting_name = owner().cur_name();
+      reset_owner();
+      return ans;
+    }
+    
+    public boolean matches( ExpSignature.signatured sig ){
+      if( ! (sig instanceof Variable.Snapshot ) ){
+	return false;
+      }
+      Variable.Snapshot other = (Variable.Snapshot) sig;
+      boolean ans = owner_at().equivalent( other.owner_at() );
+      reset_owner();
+      other.reset_owner();
       return ans;
     }
   }
@@ -241,6 +290,12 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
 
   public Variable<T> var(){
     return this;
+  }
+
+  public boolean equivalent( AbstractVariable other ){
+    // TODO make this keep track of assignments
+    return equivalent_names.get( (int)cur_read_version )
+      .contains( other.var().cur_name() );
   }
 
   public boolean allows_assignemnt(){
@@ -252,6 +307,14 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
 
   public Variable copy( String name ){
     return new Variable( name, getData() );
+  }
+
+  public void set_changed( VariableExp v ){
+    parents.add( v );
+  }
+
+  public void remove_changed( VariableExp v ){
+    parents.remove( v );
   }
 
   public void compile_assignment( Variable other, Statement owner ) throws CompileException {
@@ -266,12 +329,17 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
       throw owner.error("Cannot assign type "+other.getType().name()+" to variable of type "+getType().name());
     }
     type = (T)other.getData();
+    String other_name = other.cur_name();
     if( !other.getData().is_constant() ) {
-      String other_name = other.cur_name();
       ProgramTree.output.println( new_name() + " set " + other_name );
     }
+    add_equivalent_name( other_name );
+    other.add_equivalent_name( cur_name() );
     if( ProgramTree.DEBUG >= 2 ){
       ProgramTree.output.println("// end assignment of "+debug_name() );
+    }
+    for( VariableExp e : parents ){
+      e.set_changed();
     }
   }
 

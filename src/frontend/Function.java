@@ -9,15 +9,18 @@ import java.util.LinkedList;
 
 import frontend.functions.*;
 
-public abstract class Function {
-  private static Map<String, List<Function> > func_map = new HashMap<String, List<Function> >();
+public abstract class Function
+  implements ExpSignature.signatured {
+  
+  private static Map<String, List<Function> > func_map
+    = new HashMap<String, List<Function> >();
   private String name;
   private Type[] required_types;
-  private int required_args;
-  public Function( String aname, Type[] required, int argnum ){
+
+  public Function( String aname, Type[] required ){
     name = aname;
     required_types = required;
-    required_args = argnum;
+
     List<Function> ls = func_map.get( name );
     if( ls == null ){
       ls = new LinkedList<Function>();
@@ -33,42 +36,30 @@ public abstract class Function {
     return required_types;
   }
   public int num_args(){
-    return required_args;
+    return required_types.length;
   }
-  public boolean satisfies( Variable[] args, Statement owner ) throws CompileException {
-    if( required_args == -1 ){
-      for( int i = required_types.length; i < args.length; i++ ){
-	if( !args[i].getType().satisfies( required_types[ required_types.length - 1 ] ) ){
-	  throw owner.error( "argument "+i+" must be of type "+required_types[ required_types.length - 1].name() );
-	}
-      }
-    } else {
-      if( args.length != required_args )
-	throw owner.error( name+" function must have "+required_args+" arguments");
-    }
-    for( int i = 0; i < required_types.length; i++ ){
-      if( !args[i].getType().satisfies( required_types[i] ) ){
-	throw owner.error( "argument "+i+" must be of type "+required_types[i].name() );
-      }
-    }
+  public boolean satisfies( int num_args, Statement owner )
+    throws CompileException {
+    if( num_args != required_types.length )
+      throw owner.error
+	( name+" function must have "+num_args()+" arguments");
     return true;
   }
 
-  public static AbstractVariable call( String name, AbstractVariable[] args, Statement owner ) throws CompileException {
+  public static Function match
+    ( String name,
+      int num_args,
+      Statement owner ) throws CompileException {
     List<Function> funcs = Function.from_name( name );
     if( funcs == null ){
       throw owner.error("Cannot identify function \""+name+"\"");
     }
     Function match = null;
     CompileException mess = null;
-    Variable[] real_args = new Variable[ args.length ];
-    for( int i = 0; i < args.length; i++){
-      real_args[i] = args[i].var();
-    }
 
     for( Function f : funcs ){
-      try{
-	if( f.satisfies( real_args, owner ) ){
+      try{ 
+	if( f.satisfies( num_args, owner ) ){
 	  match = f;
 	  break;
 	}
@@ -79,19 +70,64 @@ public abstract class Function {
     if( match == null ) {
       throw mess;
     }
+    return match;
+  }
+
+  public static AbstractVariable call
+    ( String fname,
+      AbstractVariable[] args,
+      Statement owner ) throws CompileException {
+    Function f = Function.match( fname, args.length, owner );
+    return Function.call( f, args, owner );
+  }
+
+  public static AbstractVariable call
+    ( Function f,
+      AbstractVariable[] args,
+      Statement owner ) throws CompileException {
+    Variable[] real_args = new Variable[ args.length ];
+    
+    for( int i = 0; i < args.length; i++){
+      real_args[i] = args[i].var();
+    }
+    
     if( ProgramTree.DEBUG >= 2 )
-      ProgramTree.output.println("// calling function "+match.name);
-    AbstractVariable ans = match.compile(real_args,owner);
+      ProgramTree.output.println("// calling function "+f.name);
+
+    for( int i = 0; i < f.required_types.length; i++ ){
+      if( !real_args[i].getType().satisfies( f.required_types[i] ) ){
+	throw owner.error( "argument "+i+" must be of type "
+			   +f.required_types[i].name() );
+      }
+    }
+    
+    AbstractVariable ans = f.compile(real_args,owner);
     if( ProgramTree.DEBUG >= 2 )
-      ProgramTree.output.println("// end function "+match.name);
+      ProgramTree.output.println("// end function "+f.name);
     return ans;
   }
 
-  public AbstractVariable compile( Variable[] args, Statement owner ) throws CompileException {
+  public AbstractVariable compile
+    ( Variable[] args,
+      Statement owner ) throws CompileException {
     return compile_func( args, owner );
   }
   
-  public abstract AbstractVariable compile_func( Variable[] args, Statement owner ) throws CompileException;
+  public abstract AbstractVariable compile_func
+    ( Variable[] args,
+      Statement owner ) throws CompileException;
+  public boolean has_side_effects() {
+    return false;
+  }
+  public boolean matches( ExpSignature.signatured other ){
+    if( !( other instanceof Function ) ){
+      return false;
+    }
+    Function fother = (Function) other;
+
+    return this == other;
+    
+  }
 
   static {
     new AddFunction();

@@ -8,6 +8,7 @@ public class DeclareExp extends Statement {
     dest = var;
     source = first;
   }
+  
   public void compile() throws CompileException {
     source.compile();
     Variable first = source.returnVar().var();

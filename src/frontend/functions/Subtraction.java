@@ -5,7 +5,7 @@ import frontend.*;
 
 public class Subtraction extends Function {
   public Subtraction(){
-    super("-", new Type[] { Type.IntType, Type.IntType }, 2 );
+    super("-", new Type[] { Type.IntType, Type.IntType } );
   }
   public Variable compile_func( Variable[] args, Statement owner ) throws CompileException {
     IntTypeData data = IntTypeData.subtraction
