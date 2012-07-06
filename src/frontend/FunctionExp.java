@@ -16,22 +16,20 @@ public class FunctionExp extends Expression {
     name = aname;
     exps = args;
     for( Expression e : args ){
-      e.setParent( this );
+      add_child( e );
     }
   }
   @Override
   public ExpSignature sig() throws CompileException {
-    ExpSignature ans = new ExpSignature
-      ( ExpSignature.ExpressionType.FUNCTION );
-
+    ExpSignature ans = super.sig();
     ans.depends( func() );
-    for( Expression e : exps ){
-      ans.depends( e );
-    }
-
     return ans;
   }
 
+  protected ExpSignature.ExpressionType type(){
+    return ExpSignature.ExpressionType.FUNCTION;
+  }
+  
   @Override
   public boolean has_side_effects(){
     try{

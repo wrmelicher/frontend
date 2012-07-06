@@ -2,20 +2,17 @@ package frontend;
 
 import java.util.*;
 
-public class ExpSignature {
-  public interface signatured {
-    public boolean matches( signatured other )
-      throws CompileException;
-  }
+public class ExpSignature implements Signatured {
   
-  private List<signatured> signs
-    = new ArrayList<signatured>();
+  private List<Signatured> signs
+    = new ArrayList<Signatured>();
 
   public enum ExpressionType {
     ARRAYACCESS,
     FUNCTION,
     VARIABLE,
-    LITERALARRAY
+    LITERALARRAY,
+    ASSIGNMENT
   }
 
   private ExpressionType exp_type;
@@ -24,12 +21,23 @@ public class ExpSignature {
     exp_type = type;
   }
   
-  public void depends( signatured s ){
+  public void depends( Signatured s ){
     signs.add( s );
   }
+
+  public void depends( Expression e ){
+    try{
+      signs.add( e.sig() );
+    } catch (CompileException ex ){
+      System.out.println(ex.getMessage());
+    }
+  }
   
-  public boolean equals( ExpSignature other )
-    throws CompileException{
+  public boolean matches( Signatured sig ) throws CompileException{
+    if( !(sig instanceof ExpSignature) ){
+      return false;
+    }
+    ExpSignature other = (ExpSignature) sig;
     if( exp_type != other.exp_type ){
       return false;
     }

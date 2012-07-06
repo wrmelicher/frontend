@@ -2,7 +2,7 @@ package frontend;
 
 import java.io.PrintStream;
 
-public class ArrayAccessExp extends Expression {
+public class ArrayAccessExp extends Expression implements Changer {
   private Expression index;
   private AbstractVariable arr;
   public ArrayAccessExp( int linenum, AbstractVariable a, int i ){
@@ -15,11 +15,13 @@ public class ArrayAccessExp extends Expression {
     super( linenum );
     index = ind;
     arr = a;
-    index.setParent( this );
+    arr.notify_changes( this );
+    add_child( index );
   }
-  
+  protected ExpSignature.ExpressionType type(){
+    return ExpSignature.ExpressionType.ARRAYACCESS;
+  }  
   public void compile_exp() throws CompileException {
-    
     if( arr.var().getType() != Type.ArrayType ){
       throw error("Cannot index non-array variable "+arr.debug_name() );
     }
@@ -30,15 +32,12 @@ public class ArrayAccessExp extends Expression {
       throw error("Cannot index variable with non-integer type" );
     set_ret( arr_real.at( ind_var, this ) );
   }
-
   public boolean has_side_effects(){
     return false;
   }
-
-  public ExpSignature sig(){
-    ExpSignature ans = new ExpSignature( ExpSignature.ExpressionType.ARRAYACCESS );
+  public ExpSignature sig() throws CompileException {
+    ExpSignature ans = super.sig();
     ans.depends( arr.var().snapshot() );
-    ans.depends( index );
     return ans;
   }
   

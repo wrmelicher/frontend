@@ -17,7 +17,11 @@ public class DeclareOutput extends Statement {
 	os.print(" signed");
       else
 	os.print(" unsigned");
+    } else if( out.getType() == Type.ArrayType ){
+      ArrayVariable out_arr = (ArrayVariable) out.var();
+      out_arr.join_indices();
     }
+    
     os.println();
   }
 }

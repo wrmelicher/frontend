@@ -23,6 +23,7 @@ public abstract class ArrayPosition extends Variable {
   
   public void invalidate(){
     is_valid = false;
+    notify_all();
   }
   public void validate(){
     is_valid = true;

@@ -81,7 +81,7 @@ public class ArrayPositionRunTime extends ArrayPosition {
     if( Expression.cond_scope != null ){
       Expression.cond_scope.register_assignment( getParent() );
     }
-
+    notify_all();
     PrintStream ps = ProgramTree.output;
     
     // assume that all size adjustments have already been made

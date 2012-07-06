@@ -10,7 +10,7 @@ import java.util.LinkedList;
 import frontend.functions.*;
 
 public abstract class Function
-  implements ExpSignature.signatured {
+  implements Signatured {
   
   private static Map<String, List<Function> > func_map
     = new HashMap<String, List<Function> >();
@@ -119,7 +119,7 @@ public abstract class Function
   public boolean has_side_effects() {
     return false;
   }
-  public boolean matches( ExpSignature.signatured other ){
+  public boolean matches( Signatured other ){
     if( !( other instanceof Function ) ){
       return false;
     }
@@ -144,6 +144,7 @@ public abstract class Function
     new OrFunction();
     new AndFunction();
     new XorFunction();
+    new IncFunction();
   }
   
 }

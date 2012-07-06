@@ -4,7 +4,7 @@ import java.io.PrintStream;
 import java.util.List;
 import java.util.ArrayList;
 
-public class ArrayVariable extends Variable<ArrayData> {
+public class ArrayVariable extends Variable<ArrayData> implements Changer {
   private List<ArrayPosition> givenPositions;
   private ArrayPositionCompileTime[] given_compile;
   
@@ -15,6 +15,10 @@ public class ArrayVariable extends Variable<ArrayData> {
   public ArrayVariable( ArrayData elem ){
     super( elem );
     create_positions();
+  }
+
+  public void set_changed(){
+    notify_all();
   }
 
   public static ArrayVariable literal( List<AbstractVariable> cons_vars, Statement owner ) throws CompileException {
@@ -41,6 +45,7 @@ public class ArrayVariable extends Variable<ArrayData> {
     for( int i = 0; i < getData().getSize(); i++ ){
       given_compile[i] = new ArrayPositionCompileTime( this, i );
       givenPositions.add( given_compile[i] );
+      given_compile[i].notify_changes( this );
     }
   }
   
@@ -52,6 +57,8 @@ public class ArrayVariable extends Variable<ArrayData> {
   
   @Override
     public void compile_assignment( Variable other, Statement owner ) throws CompileException {
+    join_indices();
+    ((ArrayVariable) other).join_indices();
     super.compile_assignment( other, owner );
     invalidate_indices();
     create_positions();
@@ -82,6 +89,7 @@ public class ArrayVariable extends Variable<ArrayData> {
     } else {
       ans = new ArrayPositionRunTime( this, v.var() );
       givenPositions.add( ans );
+      ans.notify_changes( this );
     }
     return ans;
   }
@@ -98,7 +106,7 @@ public class ArrayVariable extends Variable<ArrayData> {
   public int element_size(){
     return getData().getElementData().bit_count();
   }
-  
+
   @Override public Variable copy( String name ){
     return new ArrayVariable( name, getData() );
   }
@@ -109,9 +117,8 @@ public class ArrayVariable extends Variable<ArrayData> {
   
   public void join_indices( boolean invalidate ){
     
-    if( ProgramTree.DEBUG >= 2 ){
-      ProgramTree.output.println("\n//joining indices of array "+debug_name() );
-    }
+    if( ProgramTree.DEBUG >= 2 )
+      ProgramTree.output.println("//joining indices of array "+debug_name() );
     
     ArrayList<String> args = new ArrayList<String>();
     int prev = 0;
@@ -147,8 +154,31 @@ public class ArrayVariable extends Variable<ArrayData> {
       }
       ProgramTree.output.println();
     }
-    ProgramTree.output.println("//ending join indices\n");
+    if( ProgramTree.DEBUG >= 2 )
+      ProgramTree.output.println("//ending join indices\n");
     if( invalidate )
       invalidate_indices();
+  }
+
+  public Variable.Snapshot snapshot(){
+    return new ArraySnapshot( this );
+  }
+
+  private class ArraySnapshot extends Variable.Snapshot {
+    public ArraySnapshot( ArrayVariable v ){
+      super( v );
+    }
+    @Override public boolean matches( Signatured sig ){
+      if( !( sig instanceof ArraySnapshot ) ){
+	return false;
+      }
+      ArraySnapshot other = (ArraySnapshot) sig;
+      boolean ans = super.matches( other );
+      for( ArrayPositionCompileTime a : given_compile ){
+	if( a.is_changed() )
+	  return false;
+      }
+      return ans;
+    }
   }
 }

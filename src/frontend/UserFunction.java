@@ -7,12 +7,14 @@ public class UserFunction extends Function {
   private ExpressionContainer exps;
   private DummyVariable[] func_args;
   private DummyVariable return_var;
-
-  private static UserFunction caller = null;
   private boolean ret_assigned = false;
+  private boolean side_effects = false;
 
   private List<DummyVariable> declared =
     new LinkedList<DummyVariable>();
+  
+  private static UserFunction caller = null;
+  private static int call_depth = 0;
   
   public UserFunction
     ( String name,
@@ -20,7 +22,7 @@ public class UserFunction extends Function {
       ExpressionContainer c,
       DummyVariable[] an_arr ){
     super( name, types );
-    exps = c;
+    set_body( c );
     func_args = an_arr;
     return_var = new DummyVariable( name );
   }
@@ -34,16 +36,47 @@ public class UserFunction extends Function {
 
   public void set_body( ExpressionContainer c ){
     exps = c;
+    if( exps != null )
+      side_effects = has_side_effects_helper( exps );
   }
 
   public boolean has_side_effects(){
-    // TODO
-    return true;
+    return side_effects;
+  }
+
+  public boolean has_side_effects_helper( Statement s ){
+    if( s instanceof AssignmentExp ){
+      AssignmentExp ass = (AssignmentExp)s;
+      AbstractVariable dest = ass.dest();
+      if( dest != null ){
+	if( dest.call_depth() == 0 ) // assignment to a global variable
+	  return true;
+	for( DummyVariable v : func_args ){
+	  // assignment to an argument of this function
+	  if( v == dest ){
+	    return true;
+	  }
+	}
+      }
+    }
+    for( Statement child : s.children() ){
+      if( has_side_effects_helper(child) ){
+	return true;
+      }
+    }
+    return false;
+  }
+
+  public static int call_depth(){
+    return call_depth;
   }
   
   public AbstractVariable compile_func
     ( Variable[] args,
       Statement owner ) throws CompileException {
+
+    UserFunction.call_depth++;
+    
     boolean prev_ret = ret_assigned;
     ret_assigned = false;
     
@@ -71,6 +104,8 @@ public class UserFunction extends Function {
     }
 
     ret_assigned = prev_ret;
+
+    UserFunction.call_depth--;
     
     return ans;
   }

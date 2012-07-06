@@ -14,7 +14,7 @@ public class ProgramTree {
   public static PrintStream error = System.err;
 
   // 1 includes function identification debuging
-  public static int DEBUG = 2;
+  public static int DEBUG = 0;
   
   public ProgramTree(){
     statements = new ArrayList<Statement>();

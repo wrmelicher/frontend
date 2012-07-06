@@ -4,14 +4,12 @@ import java.util.List;
 import java.util.LinkedList;
 
 public class LiteralArrayExp extends Expression {
-  private List<Expression> exps;
   public LiteralArrayExp
     ( int line,
       List<Expression> vals ){
     super( line );
-    exps = vals;
     for( Expression e : vals ){
-      e.setParent( this );
+      add_child( e );
     }
   }
 
@@ -19,20 +17,15 @@ public class LiteralArrayExp extends Expression {
     return false;
   }
 
-  public ExpSignature sig(){
-    ExpSignature ans = new ExpSignature
-      ( ExpSignature.ExpressionType.LITERALARRAY );
-
-    for( Expression e : exps ){
-      ans.depends( e );
-    }
-    return ans;
+  protected ExpSignature.ExpressionType type(){
+    return ExpSignature.ExpressionType.LITERALARRAY;
   }
   
   public void compile_exp() throws CompileException {
     List<AbstractVariable> vars
       = new LinkedList<AbstractVariable>();
-    for( Expression e : exps ){
+    for( Statement s : children() ){
+      Expression e = (Expression)s;
       e.compile();
       vars.add( e.returnVar() );
     }

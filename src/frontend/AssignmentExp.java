@@ -11,14 +11,24 @@ public class AssignmentExp extends Expression {
     super( line );
     dest_exp = adest;
     source = asource;
+    add_child( dest_exp );
+    add_child( source );
+  }
+
+  public AbstractVariable dest(){
+    // returns dest if the dest_expression can be evaluated at compile time
+    if( dest_exp instanceof VariableExp ){
+      return ((VariableExp)dest_exp).var();
+    }
+    return null;
   }
 
   public boolean has_side_effects(){
     return true;
   }
 
-  public ExpSignature sig(){
-    return null;
+  protected ExpSignature.ExpressionType type(){
+    return ExpSignature.ExpressionType.ASSIGNMENT;
   }
   
   public void compile_exp() throws CompileException{
@@ -28,9 +38,6 @@ public class AssignmentExp extends Expression {
     Variable sourceVar = source.returnVar().var();
     if( !sourceVar.getType().satisfies( dest.var().getType() ) ){
       throw error( "Variable \""+dest.debug_name()+"\" is not of type "+sourceVar.getType().name());
-    }
-    if( !dest.var().allows_assignemnt() ){
-      throw error( "Cannot assign to variable "+dest.debug_name() );
     }
     dest.var().compile_assignment( sourceVar, this );
     

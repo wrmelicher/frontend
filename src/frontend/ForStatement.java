@@ -19,6 +19,10 @@ class ForStatement extends ExpressionContainer {
     FunctionExp incFuncExp = new FunctionExp
       ( getLine(), IncFunction.NAME, new Expression[] { new VariableExp( getLine(), loop_var ) } );
     incExp = new AssignmentExp( getLine(), loop_var, incFuncExp );
+
+    add_child( from );
+    add_child( to );
+    add_child( incExp );
   }
   public AbstractVariable getLoopVar(){
     // TODO: do not allow assignment to the loop variable
@@ -31,7 +35,6 @@ class ForStatement extends ExpressionContainer {
     int to_val = Variable.get_val_from_var( to.returnVar(), this );
     Variable const_var = new Variable( new IntTypeData( from_val ) );
     loop_var.push_var( const_var );
-    
     for( int i = from_val; i < to_val; i++ ){
       super.compile();
       incExp.compile();

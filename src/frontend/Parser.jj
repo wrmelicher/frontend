@@ -12,6 +12,7 @@ public class Parser {
   private UserFunction defun_scope = null;
   
   public ProgramTree tree() {
+    
     tree = new ProgramTree();
     env = new LinkedList< Map<String, AbstractVariable> >();
     push_scope();
@@ -19,7 +20,10 @@ public class Parser {
     boolean errors = false;
     try{
       File();
-    } catch( Exception e ){
+    } catch( CompileException e ){
+      log( e );
+      System.exit(1);
+    } catch ( ParseException e ){
       log( e );
       System.exit(1);
     }
@@ -536,7 +540,7 @@ void mult_exp( ExpressionContainer ans ) throws CompileException:
   (
    temp = statement()
    {
-     ans.addStatement( temp );
+     ans.add_statement( temp );
    }
    )*
 }

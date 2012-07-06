@@ -24,6 +24,10 @@ public class IfExpression extends Statement {
     cond = acond;
     if_form = anif;
     else_form = anelse;
+    add_child( cond );
+    add_child( if_form );
+    if( else_form != null )
+      add_child( else_form );
   }
 
   public void register_assignment( AbstractVariable dest ){

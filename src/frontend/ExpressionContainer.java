@@ -9,8 +9,9 @@ public class ExpressionContainer extends Statement {
     super( line );
     statements = new LinkedList<Statement>();
   }
-  public void addStatement( Statement s ){
+  public void add_statement( Statement s ){
     statements.add( s );
+    add_child( s );
   }
   public List<Statement> statements(){
     return statements;
