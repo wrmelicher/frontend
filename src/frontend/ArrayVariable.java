@@ -21,7 +21,10 @@ public class ArrayVariable extends Variable<ArrayData> implements Changer {
     notify_all();
   }
 
-  public static ArrayVariable literal( List<AbstractVariable> cons_vars, Statement owner ) throws CompileException {
+  public static ArrayVariable literal
+    ( List<AbstractVariable> cons_vars,
+      Statement owner ) throws CompileException {
+    
     int len = cons_vars.size();
     Variable first = cons_vars.get(0).var();
     Type t = first.getType();

@@ -18,15 +18,23 @@ public abstract class Expression extends Statement {
   private static List<SigPair> sigs =
     new LinkedList<SigPair>();
 
+  private Variable.Snapshot get_sig( ExpSignature sig ){
+    for( SigPair pair : sigs ){
+      if( pair.key.matches( s ) ){
+	return pair.val;
+      }
+    }
+    return null;
+  }
+  
   public void compile() throws CompileException {
     ExpSignature s = null;
     if( !has_side_effects() ){
       s = signature();
-      for( SigPair pair : sigs ){
-	if( pair.key.matches( s ) ){
-	  set_ret( pair.val.copy() );
-	  return;
-	}
+      Variable.Snapshot ret_val = get_sig(s);
+      if( ret_val != null ){
+	set_ret( ret_val );
+	return;
       }
     }
     compile_exp();

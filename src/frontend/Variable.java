@@ -24,8 +24,8 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
     = new LinkedList< DebugNameRecord >();
 
   private static long id_counter = 0;
-  private static Map<String, Set<String> > equivalent_names
-    = new HashMap<String, Set<String> >();
+  private static Map<String, UnionSet > equivalent_names
+    = new HashMap<String, UnionSet >();
   
   public Variable( T atype ){
     this( unused_name(), atype );
@@ -136,29 +136,6 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
     lengths.clear();
     String ans = cur_name();
     return ans;
-  }
-
-  private static void add_equivalent_name( String one, String two ){
-    Set<String> eq_one = Variable.equivalent_names.get(one);
-    Set<String> eq_two = Variable.equivalent_names.get(two);
-    if( eq_one == null && eq_two == null ){
-      eq_one = new HashSet<String>();
-      eq_one.add(one);
-      eq_one.add(two);
-      Variable.equivalent_names.put(one,eq_one);
-      Variable.equivalent_names.put(two,eq_one);
-    } else if( eq_one == null ){
-      eq_two.add( one );
-      Variable.equivalent_names.put(one,eq_two);
-    } else if( eq_two == null ){
-      eq_one.add( two );
-      Variable.equivalent_names.put(two,eq_one);
-    } else {
-      eq_one.addAll( eq_two );
-      for( String s : eq_two ){
-	Variable.equivalent_names.put(s,eq_one);
-      }
-    }
   }
 
   private void inc_name(){
@@ -280,14 +257,20 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
 	return false;
       }
       Variable.Snapshot other = (Variable.Snapshot) sig;
-      String other_name = other.owner_at().cur_name();
-      other.reset_owner();
+      String other_name = other.name_at();
       boolean ans = owner_at().equivalent( other_name );
       reset_owner();
       return ans;
     }
+    public int hashCode(){
+      String my_name = name_at();
+      UnionSet my_set = Variable.equivalent_names.get( my_name );
+      if( my_set != null ){
+	return my_set.hashCode();
+      }
+      return my_name.hashCode();
+    }
   }
-
 
   public Variable<T> var(){
     return this;
@@ -297,9 +280,27 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
     String name = cur_name();
     Set<String> eq = Variable.equivalent_names.get( name );
     boolean ans = eq == null ? false : eq.contains(other);
+
+    if( ProgramTree.DEBUG >= 3 )
+      System.out.println("Comparing "+name+" to "+other);
+    
     return ans || name.equals( other );
   }
 
+  private static void add_equivalent_name( String one, String two ){
+    UnionSet eq_one = Variable.equivalent_names.get(one);
+    UnionSet eq_two = Variable.equivalent_names.get(two);
+    if( eq_one == null && eq_two == null ){
+      eq_one = new UnionSet(one,two)
+    } else if( eq_one == null ){
+      eq_two.add_str( one );
+    } else if( eq_two == null ){
+      eq_one.add_str( two );
+    } else {
+      UnionSet.merge( eq_one, eq_two );
+    }
+  }
+  
   public Variable copy( String name ){
     return new Variable( name, getData() );
   }
@@ -316,7 +317,6 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
     for( Changer c : notifiers ){
       c.set_changed();
     }
-
   }
 
   public int call_depth(){
@@ -324,7 +324,6 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
   }
 
   public void compile_assignment( Variable other, Statement owner ) throws CompileException {
-    
     if( ProgramTree.DEBUG >= 2 ){
       ProgramTree.output.println("// begin assignment of "+debug_name());
     }
@@ -346,12 +345,36 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
     }
   }
 
-  private class DebugNameRecord {
+  private static class DebugNameRecord {
     public long assignment_at;
     public String name_at;
     public DebugNameRecord( long i, String s ){
       assignment_at = i;
       name_at = s;
+    }
+  }
+  
+  private static class UnionSet {
+    private Set<String> str_set;
+    private String identifier;
+    public UnionSet( String a, String b ){
+      str_set = new HashSet<String>();
+      identifier = a;
+      add_str(a);
+      add_str(b);
+    }
+    public void add_str( String b ){
+      str_set.add(b);
+      Variable.equivalent_names.put( b, this );
+    }
+    public static void merge( UnionSet a, UnionSet b ){
+      a.str_set.addAll(b);
+      for( String s : b.str_set ){
+	Variable.equivalent_names.put(s,a);
+      }
+    }
+    public int hashCode(){
+      return identifier.hashCode();
     }
   }
 }

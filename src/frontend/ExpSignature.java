@@ -29,8 +29,23 @@ public class ExpSignature implements Signatured {
     try{
       signs.add( e.sig() );
     } catch (CompileException ex ){
-      System.out.println(ex.getMessage());
+      ProgramTree.error.println(ex.getMessage());
     }
+  }
+
+  public int hashCode(){
+    int accum = exp_type * 19;
+    for( Signatured s : signs ){
+      accum += s.hashCode();
+    }
+    return accum;
+  }
+
+  public boolean equals( Object o ){
+    if( !( o instanceof Signatured ) ){
+      return false;
+    }
+    return matches( (Signatured) o );
   }
   
   public boolean matches( Signatured sig ) throws CompileException{

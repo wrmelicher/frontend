@@ -384,12 +384,13 @@ void defun() throws CompileException:
   }
 }
 
-
 Expression expression() throws CompileException:
 {
   String id = "";
   Expression e = null;
+  Expression e2 = null;
   List<Expression> lit_arr = new LinkedList<Expression>();
+  
 }
 {
   (
@@ -431,6 +432,17 @@ Expression expression() throws CompileException:
 	AbstractVariable val = var( id );
 	e = new VariableExp( line, val );
       }
+    }
+  (
+  (
+   id = identifier()
+   e2 = expression()
+   {
+     return new FunctionExp( line, id, new Expression[] { e, e2 } );
+   }
+   )?
+   ) 
+    {
       return e;
     }
 }
