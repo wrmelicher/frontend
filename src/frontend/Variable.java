@@ -278,7 +278,7 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
 
   private boolean equivalent( String other ){
     String name = cur_name();
-    Set<String> eq = Variable.equivalent_names.get( name );
+    UnionSet eq = Variable.equivalent_names.get( name );
     boolean ans = eq == null ? false : eq.contains(other);
 
     if( ProgramTree.DEBUG >= 3 )
@@ -291,7 +291,7 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
     UnionSet eq_one = Variable.equivalent_names.get(one);
     UnionSet eq_two = Variable.equivalent_names.get(two);
     if( eq_one == null && eq_two == null ){
-      eq_one = new UnionSet(one,two)
+      eq_one = new UnionSet(one,two);
     } else if( eq_one == null ){
       eq_two.add_str( one );
     } else if( eq_two == null ){
@@ -336,8 +336,9 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
     type = (T)other.getData();
     if( !other.getData().is_constant() ) {
       String other_name = other.cur_name();
-      ProgramTree.output.println( new_name() + " set " + other_name );
-      Variable.add_equivalent_name( cur_name(), other_name );
+      String new_name = new_name();
+      ProgramTree.output.println( new_name + " set " + other_name );
+      Variable.add_equivalent_name( new_name, other_name );
     }
     notify_all();
     if( ProgramTree.DEBUG >= 2 ){
@@ -368,13 +369,17 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
       Variable.equivalent_names.put( b, this );
     }
     public static void merge( UnionSet a, UnionSet b ){
-      a.str_set.addAll(b);
+      a.str_set.addAll(b.str_set);
       for( String s : b.str_set ){
 	Variable.equivalent_names.put(s,a);
       }
+      // TODO: may cause error with hash table if id is changed
     }
     public int hashCode(){
       return identifier.hashCode();
+    }
+    public boolean contains( String s ){
+      return str_set.contains(s);
     }
   }
 }

@@ -34,7 +34,7 @@ public class ExpSignature implements Signatured {
   }
 
   public int hashCode(){
-    int accum = exp_type * 19;
+    int accum = exp_type.ordinal() * 19;
     for( Signatured s : signs ){
       accum += s.hashCode();
     }
@@ -45,7 +45,12 @@ public class ExpSignature implements Signatured {
     if( !( o instanceof Signatured ) ){
       return false;
     }
-    return matches( (Signatured) o );
+    try{
+      return matches( (Signatured) o );
+    } catch (CompileException ex){
+      ProgramTree.error.println(ex.getMessage());
+    }
+    return false;
   }
   
   public boolean matches( Signatured sig ) throws CompileException{

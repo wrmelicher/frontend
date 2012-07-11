@@ -15,16 +15,15 @@ public abstract class Expression extends Statement {
   }
 
   // TODO: don't store in a linked list
-  private static List<SigPair> sigs =
-    new LinkedList<SigPair>();
+  private static Map<ExpSignature,Variable.Snapshot> sigs =
+    new HashMap<ExpSignature,Variable.Snapshot>();
 
   private Variable.Snapshot get_sig( ExpSignature sig ){
-    for( SigPair pair : sigs ){
-      if( pair.key.matches( s ) ){
-	return pair.val;
-      }
-    }
-    return null;
+    return sigs.get(sig);
+  }
+
+  private void put_sig( ExpSignature sig, Variable.Snapshot out ){
+    sigs.put(sig,out);
   }
   
   public void compile() throws CompileException {
@@ -33,7 +32,7 @@ public abstract class Expression extends Statement {
       s = signature();
       Variable.Snapshot ret_val = get_sig(s);
       if( ret_val != null ){
-	set_ret( ret_val );
+	set_ret( ret_val.copy() );
 	return;
       }
     }
@@ -41,10 +40,8 @@ public abstract class Expression extends Statement {
     if( s == null ){
       s = signature();
     }
-    sigs.add( new SigPair( s, out ) );
+    put_sig( s, out.var().snapshot() );
   }
-
-  // TODO: don't recompute signature everytime
 
   public ExpSignature signature() throws CompileException{
     if( has_changed() || sig == null ){
@@ -73,14 +70,5 @@ public abstract class Expression extends Statement {
 
   public void set_ret( AbstractVariable o ){
     out = o;
-  }
-
-  private static class SigPair {
-    ExpSignature key;
-    Variable.Snapshot val;
-    public SigPair( ExpSignature s, AbstractVariable v ){
-      key = s;
-      val = v.var().snapshot();
-    }
   }
 }
