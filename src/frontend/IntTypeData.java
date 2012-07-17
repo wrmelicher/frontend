@@ -72,8 +72,22 @@ public class IntTypeData extends TypeData {
     if( a.is_constant() && b. is_constant() ){
       return new IntTypeData( a.magnitude.and( b.magnitude ) );
     } else {
-      int len = Math.max( a.bit_count(), b.bit_count() );
-      return new IntTypeData( TWO.pow( len+1 ).subtract( BigInteger.ONE ), false );
+      int len = Math.min( a.bit_count(), b.bit_count() );
+      return new IntTypeData( BigInteger.ONE.shiftLeft( len ).subtract( BigInteger.ONE ), a.signed || b.signed );
+    }
+  }
+  public static IntTypeData shift_left( IntTypeData a, int by ){
+    if(a.is_constant()){
+      return new IntTypeData(a.magnitude.shiftLeft(by));
+    } else {
+      return new IntTypeData(a.magnitude.shiftLeft(by), a.signed );
+    }
+  }
+  public static IntTypeData shift_right( IntTypeData a, int by ){
+    if(a.is_constant()){
+      return new IntTypeData(a.magnitude.shiftRight(by));
+    } else {
+      return new IntTypeData(a.magnitude.shiftRight(by), a.signed );
     }
   }
   public static IntTypeData or( IntTypeData a, IntTypeData b ){
@@ -81,7 +95,7 @@ public class IntTypeData extends TypeData {
       return new IntTypeData( a.magnitude.or( b.magnitude ) );
     } else {
       int len = Math.max( a.bit_count(), b.bit_count() );
-      return new IntTypeData( TWO.pow( len+1 ).subtract( BigInteger.ONE ), false );
+      return new IntTypeData( BigInteger.ONE.shiftLeft( len ).subtract( BigInteger.ONE ), a.signed || b.signed );
     }
   }
   public static IntTypeData xor( IntTypeData a, IntTypeData b ){
@@ -89,7 +103,20 @@ public class IntTypeData extends TypeData {
       return new IntTypeData( a.magnitude.or( b.magnitude ) );
     } else {
       int len = Math.max( a.bit_count(), b.bit_count() );
-      return new IntTypeData( TWO.pow( len+1 ).subtract( BigInteger.ONE ), false );
+      return new IntTypeData( BigInteger.ONE.shiftLeft( len ).subtract( BigInteger.ONE ), a.signed||b.signed );
+    }
+  }
+
+  public static IntTypeData select( IntTypeData a, int from, int to ){
+    if( a.is_constant() ){
+      return new IntTypeData
+	( a.magnitude.and
+	  ( BigInteger.ONE.shiftLeft
+	    (to-from).subtract(BigInteger.ONE).shiftLeft(from) ) );
+    } else {
+      return new IntTypeData
+	( BigInteger.ONE.shiftLeft( to - from )
+	  .subtract( BigInteger.ONE ), a.signed );
     }
   }
   public String extend_operation(){

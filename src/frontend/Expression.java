@@ -40,7 +40,8 @@ public abstract class Expression extends Statement {
     if( s == null ){
       s = signature();
     }
-    put_sig( s, out.var().snapshot() );
+    if( !has_side_effects() )
+      put_sig( s, out.var().snapshot() );
   }
 
   public ExpSignature signature() throws CompileException{

@@ -8,6 +8,7 @@ public class DummyVariable<T extends TypeData>
   private String debug;
 
   private boolean assigned = false;
+  private String other_debug;
 
   private LinkedList<Variable<T> > values
     = new LinkedList<Variable<T> >();
@@ -35,6 +36,8 @@ public class DummyVariable<T extends TypeData>
     Variable v = values.pop();
     v.remove_notifier( this );
     set_changed();
+    v.set_debug_name( other_debug
+ );
     return v;
   }
 
@@ -69,7 +72,9 @@ public class DummyVariable<T extends TypeData>
     assigned = true;
     values.push( a.var() );
     a.var().notify_changes( this );
+    other_debug = a.var().debug_name();
     a.var().set_debug_name( debug );
+    
     set_changed();
   }
 }

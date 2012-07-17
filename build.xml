@@ -20,6 +20,7 @@
     <javac srcdir="src" destdir="build/classes" debug="on" debuglevel="lines,vars,source" source="1.6" includeantruntime="false">
       <classpath>
 	<pathelement path="build/classes"/>
+	<pathelement path="ext_libs/commons-cli-1.2.jar"/>
       </classpath>
     </javac>
   </target>

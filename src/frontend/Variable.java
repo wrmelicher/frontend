@@ -280,10 +280,6 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
     String name = cur_name();
     UnionSet eq = Variable.equivalent_names.get( name );
     boolean ans = eq == null ? false : eq.contains(other);
-
-    if( ProgramTree.DEBUG >= 3 )
-      System.out.println("Comparing "+name+" to "+other);
-    
     return ans || name.equals( other );
   }
 
@@ -297,6 +293,7 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
     } else if( eq_two == null ){
       eq_one.add_str( two );
     } else {
+      // I don't think this happens
       UnionSet.merge( eq_one, eq_two );
     }
   }

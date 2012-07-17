@@ -3,6 +3,7 @@ PARSER_BEGIN( Parser )
 
 import java.util.*;
 import java.io.*;
+import java.math.BigInteger;
 
 public class Parser {
   private ProgramTree tree;
@@ -68,6 +69,16 @@ public class Parser {
     }
     return v;
   }
+
+  private Expression defvar( String name, Expression set ) throws CompileException {
+    DummyVariable v = new DummyVariable( name );
+    bind_variable( name, v );
+    DeclareExp ret = new DeclareExp( line, v, set );
+    if( defun_scope != null ){
+      defun_scope.register_defar( v );
+    }
+    return ret;
+  }
 }
   
 PARSER_END( Parser )
@@ -100,7 +111,8 @@ TOKEN: {
     | < DEFOUTPUT : "defoutput" >
     | < MAG : "magnitude" >
     | < INTEGER : ("-")? ( [ "0"-"9" ] )+ >
-    | < IDENTIFIER : ( ["a"-"z","A"-"Z","_","+","-","*","<",">","="] )+ >
+    | < HEX_INT : ("-")? "0x" ( [ "0"-"9","a"-"f","A"-"F"] )+ >
+    | < IDENTIFIER : ( ["a"-"z","A"-"Z","_","+","-","*","<",">","=","&","|","^"] )+ >
 }
 
 SPECIAL_TOKEN :
@@ -264,7 +276,7 @@ UserFunction.ReturnExpression return_statement() throws CompileException:
   }
 }
 
-DeclareExp defvar() throws CompileException:
+Expression defvar() throws CompileException:
 {
   String name;
   Expression set;
@@ -275,43 +287,35 @@ DeclareExp defvar() throws CompileException:
     <EQUALS>
   set = expression()
   {
-    DummyVariable v = new DummyVariable( name );
-    bind_variable( name, v );
-    DeclareExp ret = new DeclareExp( line, v, set );
-    if( defun_scope != null ){
-      defun_scope.register_defar( v );
-    }
-    return ret;
+    return defvar(name,set);
   }
 }
 
 Expression assignment_or_access( String name ) throws CompileException:
 {
-  AbstractVariable dest = var( name );
   Expression source = null;
   Expression dest_exp = null;
 }
 {
-  (
-  (
-   dest_exp = array_access( name )
-   ( <EQUALS>
-     source = expression() )?
-   )
-    |
-    (
-     ( <EQUALS>
-       source = expression() )
-     )
-   )
-  {
-    if( source == null )
-      return dest_exp;
-    else if( dest_exp == null )
-      return new AssignmentExp( line, dest, source );
-    else 
-      return new AssignmentExp( line, dest_exp, source );
-  }
+  ( ( dest_exp = array_access( name )
+      ( <EQUALS>
+	source = expression() )? ) |
+    ( ( <EQUALS>
+	source = expression() ) ) )
+    {
+      if( source == null ){
+	return dest_exp;
+      } else if( dest_exp == null ){
+	AbstractVariable dest = from_name(name);
+	if( dest == null ){
+	  return defvar( name, source );
+	} else {
+	  return new AssignmentExp( line, dest, source );
+	}
+      } else {
+	return new AssignmentExp( line, dest_exp, source );
+      }
+    }
 }
 
 ArrayAccessExp array_access( String id ) throws CompileException:
@@ -393,55 +397,42 @@ Expression expression() throws CompileException:
   
 }
 {
-  (
-  (
-  id = identifier()
+  ( ( id = identifier() 
+      ( e = function_call( id ) |
+	e = assignment_or_access( id ) )? ) |
     
-  ( e = function_call( id ) |
-    e = assignment_or_access( id ) )?
-   ) |
-  (
-   e = constant()
-   ) |
-  (
-   <OPEN_PAREN>
-   e = expression()
-   <CLOSE_PAREN>
-   ) |
-  (
-   <OPEN_BRACKET>
-   e = expression()
-     {
-       lit_arr.add( e );
-     }
-   (
-    <COMMA>
-    e = expression()
+    ( e = constant() ) |
+    
+    ( <OPEN_PAREN>
+      e = expression()
+      <CLOSE_PAREN> ) |
+    
+    ( <OPEN_BRACKET>
+      e = expression()
       {
 	lit_arr.add( e );
       }
-    )*
-   <CLOSE_BRACKET>
-     {
-       e = new LiteralArrayExp( line, lit_arr );
-     }
-   )
-   )
+      ( <COMMA>
+	e = expression()
+	{
+	  lit_arr.add( e );
+	} )*
+      <CLOSE_BRACKET>
+      {
+	e = new LiteralArrayExp( line, lit_arr );
+      } ) )
+    
     {
       if( e == null ){
 	AbstractVariable val = var( id );
 	e = new VariableExp( line, val );
       }
     }
-  (
-  (
-   id = identifier()
-   e2 = expression()
+  ( ( id = identifier()
+      e2 = expression()
    {
      return new FunctionExp( line, id, new Expression[] { e, e2 } );
-   }
-   )?
-   ) 
+   } )? )
     {
       return e;
     }
@@ -496,24 +487,20 @@ FunctionExp function_call( String func_name ) throws CompileException:
 }
 {
   <OPEN_PAREN>
-    (
-     temp = expression()
-     
-     {
-       arg.add( temp );
-     }
-     (
-      <COMMA>
-      temp = expression()
-	{
-	  arg.add( temp );
-	}
-      )*
-     )?
-    <CLOSE_PAREN>
-      { 
-	return new FunctionExp( line, func_name, arg.toArray( new Expression[] {} ) );
+    ( temp = expression()
+      {
+	arg.add( temp );
       }
+     ( <COMMA>
+       temp = expression()
+       {
+	 arg.add( temp );
+       } )* )?
+  <CLOSE_PAREN>
+    { 
+      return new FunctionExp
+	( line, func_name, arg.toArray( new Expression[] {} ) );
+    }
 }
 
 ForStatement for_loop()  throws CompileException:
@@ -570,11 +557,11 @@ AbstractVariable variable() throws CompileException:
 
 VariableExp constant() throws CompileException:
 {
-  int i;
+  BigInteger i;
 }
 {
   (
-  i = integer()
+  i = big_integer()
   
     {
       // v is a constant integer
@@ -632,5 +619,27 @@ int integer():
       // will never happen
       return 0;
     }
+  }
+}
+
+BigInteger big_integer():
+{
+  Token t;
+  BigInteger ans;
+  boolean hex = false;
+}
+{
+  (
+  ( t = <INTEGER>
+   { hex = false; } ) |
+  ( t = <HEX_INT> 
+    { hex = true; }  ) )
+  {
+    try{
+      ans = new BigInteger(t.image, hex ? 16 : 10);
+    } catch (NumberFormatException e ){
+      ans = BigInteger.ZERO;
+    }
+    return ans;
   }
 }

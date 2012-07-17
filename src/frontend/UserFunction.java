@@ -97,7 +97,8 @@ public class UserFunction extends Function {
       func_args[i].pop_var();
     }
 
-    Variable ans = return_var.var();
+    Variable ans = ret_assigned ? return_var.var() :
+      new Variable( new IntTypeData( 0 ) );
     
     for( DummyVariable v : declared ){
       v.exit_func();

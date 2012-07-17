@@ -16,7 +16,7 @@ public abstract class TypeData {
   }
   public abstract boolean is_constant();
   public abstract String constant_name();
-
+  
 
   public abstract TypeData conditional( TypeData other );
   public abstract BigInteger user_input( String debug_name, int party, Scanner in );

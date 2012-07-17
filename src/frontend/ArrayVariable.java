@@ -24,7 +24,6 @@ public class ArrayVariable extends Variable<ArrayData> implements Changer {
   public static ArrayVariable literal
     ( List<AbstractVariable> cons_vars,
       Statement owner ) throws CompileException {
-    
     int len = cons_vars.size();
     Variable first = cons_vars.get(0).var();
     Type t = first.getType();

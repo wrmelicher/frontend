@@ -35,6 +35,14 @@ public class BoolData extends TypeData {
       return new BoolData( BoolData.MAYBE );
     } 
   }
+  public static BoolData not(BoolData a){
+    if( a.is_constant() ){
+      return new BoolData( a.poss_value() == BoolData.TRUE ? BoolData.FALSE : BoolData.TRUE );
+    } else {
+      return new BoolData( BoolData.MAYBE );
+    }
+    
+  }
   public static BoolData equals( BoolData a, BoolData b ){
     if( a.is_constant() && b.is_constant() ){
       return new BoolData( a.poss_value() == b.poss_value() ? BoolData.TRUE : BoolData.FALSE );

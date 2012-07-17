@@ -4,7 +4,7 @@ import java.io.PrintStream;
 import frontend.*;
 
 public class XorFunction extends BinaryInt {
-  public static final String NAME = "xor";
+  public static final String NAME = "^";
   public XorFunction(){
     super( NAME );
   }

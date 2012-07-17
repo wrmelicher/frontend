@@ -145,6 +145,11 @@ public abstract class Function
     new AndFunction();
     new XorFunction();
     new IncFunction();
+    new ShiftLeft();
+    new ShiftRight();
+    new Truncate();
+    new Select();
+    new NotFunction();
   }
   
 }

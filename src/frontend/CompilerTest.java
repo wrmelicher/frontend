@@ -1,16 +1,65 @@
 package frontend;
 
 import java.io.*;
+import org.apache.commons.cli.*;
 
 public class CompilerTest {
+  private static final String DEBUG_STR = "d";
+  public static Option debug_level_option(){
+    OptionBuilder.withArgName(DEBUG_STR);
+    OptionBuilder.withLongOpt("d");
+    OptionBuilder.isRequired(false);
+    OptionBuilder.withDescription("The debug level of the compiler. A higher number prints out more");
+    OptionBuilder.hasArg(true);
+    return OptionBuilder.create();
+  }
+
+  private static final String INPUT_STR = "i";
+  public static Option input_level_option(){
+    OptionBuilder.withLongOpt("i");
+
+    OptionBuilder.isRequired(false);
+    OptionBuilder.withDescription("Will generate the input files for the circuit file");
+    OptionBuilder.hasArg(false);
+    return OptionBuilder.create();
+  }
+
+  private static Options opts = new Options();
+
+  private static void usage(){
+    HelpFormatter hf = new HelpFormatter();
+    hf.printHelp("options: ",opts);
+  }
   
-  public static void main( String[] args ){
-    
-    if( args.length < 1 ){
-      System.out.println("usage: CompilerTest <in-fname> [-i]");
+  public static void main( String[] args ) {
+    opts.addOption(debug_level_option());
+    opts.addOption(input_level_option());
+    CommandLineParser cmd = new PosixParser();
+    CommandLine line;
+
+    try {
+      line = cmd.parse(opts,args,false);
+      String d = line.getOptionValue(DEBUG_STR,"0");
+      ProgramTree.DEBUG = Integer.parseInt(d);
+    } catch( org.apache.commons.cli.ParseException e ){
+      System.out.println(e.getMessage());
+      usage();
       System.exit(1);
+      line = null;
+    } catch( NumberFormatException e ){
+      System.out.println(e.getMessage());
+      usage();
+      System.exit(1);
+      line = null;
     }
-    File input_file = new File( args[0] );
+    boolean input = line.hasOption(INPUT_STR);
+
+    String[] left_args = line.getArgs();
+    if(left_args.length != 1){
+      System.out.println("requires file name");
+      usage();
+    }
+    File input_file = new File( left_args[0] );
     InputStream in;
     try{
       if( args[0].equals("-") ){
@@ -23,12 +72,11 @@ public class CompilerTest {
       System.exit(1);
       in = null;
     }
-
+    
     Parser comp = new Parser( in );
-
     ProgramTree t = comp.tree();
-
-    File output_file = new File( input_file.getParent(), input_file.getName()+".gcil" );
+    File output_file = new File( input_file.getParent(),
+				 input_file.getName()+".gcil" );
     PrintStream out;
     try {
       out = new PrintStream( output_file );
@@ -37,8 +85,7 @@ public class CompilerTest {
       System.exit(1);
       out = null;
     }
-    if( args.length >= 2 && args[1].equals("-i") ){
-      // TODO: make this a real flag
+    if(input){
       GenerateInputs g = new GenerateInputs( t, input_file );
       g.inputs();
     }

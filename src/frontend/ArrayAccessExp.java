@@ -5,9 +5,11 @@ import java.io.PrintStream;
 public class ArrayAccessExp extends Expression implements Changer {
   private Expression index;
   private AbstractVariable arr;
+  private boolean side_effects = false;
   public ArrayAccessExp( int linenum, AbstractVariable a, int i ){
     this( linenum, a, new Variable<IntTypeData>( new IntTypeData( i ) ) );
   }
+  
   public ArrayAccessExp( int linenum, AbstractVariable a, AbstractVariable<IntTypeData> i ){
     this( linenum, a, new VariableExp( linenum, i ) );
   }
@@ -20,7 +22,16 @@ public class ArrayAccessExp extends Expression implements Changer {
   }
   protected ExpSignature.ExpressionType type(){
     return ExpSignature.ExpressionType.ARRAYACCESS;
-  }  
+  }
+
+  public void set_side_effects(){
+    side_effects = true;
+  }
+
+  public AbstractVariable arr_var(){
+    return arr;
+  }
+  
   public void compile_exp() throws CompileException {
     if( arr.var().getType() != Type.ArrayType ){
       throw error("Cannot index non-array variable "+arr.debug_name() );
@@ -33,12 +44,11 @@ public class ArrayAccessExp extends Expression implements Changer {
     set_ret( arr_real.at( ind_var, this ) );
   }
   public boolean has_side_effects(){
-    return false;
+    return side_effects;
   }
   public ExpSignature sig() throws CompileException {
     ExpSignature ans = super.sig();
     ans.depends( arr.var().snapshot() );
     return ans;
   }
-  
 }

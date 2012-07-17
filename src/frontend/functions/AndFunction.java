@@ -4,7 +4,7 @@ import java.io.PrintStream;
 import frontend.*;
 
 public class AndFunction extends BinaryInt {
-  public static final String NAME = "and";
+  public static final String NAME = "&";
   public AndFunction(){
     super( NAME );
   }

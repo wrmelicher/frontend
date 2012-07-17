@@ -10,6 +10,9 @@ public class AssignmentExp extends Expression {
   public AssignmentExp( int line, Expression adest, Expression asource ){
     super( line );
     dest_exp = adest;
+    if(dest_exp instanceof ArrayAccessExp ){
+      ((ArrayAccessExp)dest_exp).set_side_effects();
+    }
     source = asource;
     add_child( dest_exp );
     add_child( source );
@@ -19,6 +22,9 @@ public class AssignmentExp extends Expression {
     // returns dest if the dest_expression can be evaluated at compile time
     if( dest_exp instanceof VariableExp ){
       return ((VariableExp)dest_exp).var();
+    }
+    if( dest_exp instanceof ArrayAccessExp ){
+      return ((ArrayAccessExp)dest_exp).arr_var();
     }
     return null;
   }
@@ -39,6 +45,7 @@ public class AssignmentExp extends Expression {
     if( !sourceVar.getType().satisfies( dest.var().getType() ) ){
       throw error( "Variable \""+dest.debug_name()+"\" is not of type "+sourceVar.getType().name());
     }
+
     dest.var().compile_assignment( sourceVar, this );
     
     set_ret( dest.var() );

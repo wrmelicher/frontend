@@ -4,7 +4,7 @@ import java.io.PrintStream;
 import frontend.*;
 
 public class OrFunction extends BinaryInt {
-  public static final String NAME = "or";
+  public static final String NAME = "|";
   public OrFunction(){
     super( NAME );
   }

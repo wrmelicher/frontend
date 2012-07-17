@@ -1,5 +1,4 @@
 package frontend;
-import java.io.PrintStream;
 
 public class ArrayPositionCompileTime extends ArrayPosition {
   private int pos;
@@ -15,19 +14,15 @@ public class ArrayPositionCompileTime extends ArrayPosition {
     getParent().state_index( pos, new_name() );
     setData( getParent().getData().getElementData() );
   }
-
-  public String new_name(){
-    validate();
-    return super.new_name();
-  }
-  
   
   public boolean is_changed(){
     return changed;
   }
   
   @Override
-  public void compile_assignment( Variable other, Statement owner ) throws CompileException {
+  public void compile_assignment
+    ( Variable other,
+      Statement owner ) throws CompileException {
     changed = true;
     validate();
     ArrayData parentData = getParent().getData();
@@ -38,7 +33,10 @@ public class ArrayPositionCompileTime extends ArrayPosition {
       throw owner.error( "Cannot access a negative array index" );
     }
     if( other.getType() != parentData.getElementData().getType() ){
-      throw owner.error( "Cannot assign type "+other.getType().name()+" to array of type "+parentData.getElementData().getType().name() );
+      throw owner.error( "Cannot assign type "
+			 +other.getType().name()+
+			 " to array of type "
+			 +parentData.getElementData().getType().name() );
     }
     super.compile_assignment( other, owner );
     // assume that all size adjustments have already been made
