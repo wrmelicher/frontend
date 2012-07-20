@@ -1,0 +1,17 @@
+definput party 1 arr_a: array[4] int magnitude = 12;
+
+defun max( Array arr, int start ):
+  var max = arr[start];
+  var ans = start;
+  loop index from +(start,1) to length( arr ):
+    if <( max, arr[index] ):
+      max = arr[index];
+      ans = index;
+    end
+  end
+  return ans;
+end
+
+var out = max( arr_a, 0 );
+
+defoutput out;

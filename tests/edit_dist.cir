@@ -1,0 +1,11 @@
+definput party 1 a_arr: array[4000] int magnitude = 255;
+definput party 2 b_arr: array[4000] int magnitude = 255;
+
+accum = 0;
+loop i from 0 to length(a_arr):
+  if !( a_arr[i] == b_arr[i] ):
+    accum = accum + 1;
+  end
+end
+
+defoutput accum;

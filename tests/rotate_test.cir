@@ -1,0 +1,13 @@
+definput party 1 arr_in: array[4] int magnitude = 15;
+
+defun rotate_left_one_arr( Array arr, int start, int stop ):
+  var temp = arr[start];
+  loop i from start to stop:
+    arr[i] = arr[ i + 1 ];
+  end
+  arr[stop] = temp;
+end
+
+rotate_left_one_arr( arr_in, 0, 3 );
+
+defoutput arr_in;

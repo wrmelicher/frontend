@@ -1,0 +1,50 @@
+.input a_1 1 16
+.input b_6 2 16
+a_access_2_1 select a_1 0 4
+temp_var_16 zextend a_access_2_1 5
+b_access_7_1 select b_6 0 4
+temp_var_17 zextend b_access_7_1 5
+temp_var__15 add temp_var_16 temp_var_17
+temp_var__15_1 set temp_var__15
+temp_var__13_1 set temp_var__15_1
+temp_var_19 zextend 0:1 5
+temp_var__18_1 ltu temp_var__13_1 temp_var_19
+temp_var__12_1 set temp_var__13_1
+temp_var_20 zextend 0:1 5
+temp_var__21_1 chose temp_var__18_1 temp_var__12_1 temp_var_20
+temp_var__12_2 set temp_var__21_1
+a_access_3_1 select a_1 4 8
+temp_var_24 zextend a_access_3_1 5
+b_access_8_1 select b_6 4 8
+temp_var_25 zextend b_access_8_1 5
+temp_var__23 add temp_var_24 temp_var_25
+temp_var__15_2 set temp_var__23
+temp_var__13_2 set temp_var__15_2
+temp_var__26_1 ltu temp_var__13_2 temp_var__12_2
+temp_var__12_3 set temp_var__13_2
+temp_var__27_1 chose temp_var__26_1 temp_var__12_3 temp_var__12_2
+temp_var__12_4 set temp_var__27_1
+a_access_4_1 select a_1 8 12
+temp_var_30 zextend a_access_4_1 5
+b_access_9_1 select b_6 8 12
+temp_var_31 zextend b_access_9_1 5
+temp_var__29 add temp_var_30 temp_var_31
+temp_var__15_3 set temp_var__29
+temp_var__13_3 set temp_var__15_3
+temp_var__32_1 ltu temp_var__13_3 temp_var__12_4
+temp_var__12_5 set temp_var__13_3
+temp_var__33_1 chose temp_var__32_1 temp_var__12_5 temp_var__12_4
+temp_var__12_6 set temp_var__33_1
+a_access_5_1 select a_1 12 16
+temp_var_36 zextend a_access_5_1 5
+b_access_10_1 select b_6 12 16
+temp_var_37 zextend b_access_10_1 5
+temp_var__35 add temp_var_36 temp_var_37
+temp_var__15_4 set temp_var__35
+temp_var__13_4 set temp_var__15_4
+temp_var__38_1 ltu temp_var__13_4 temp_var__12_6
+temp_var__12_7 set temp_var__13_4
+temp_var__39_1 chose temp_var__38_1 temp_var__12_7 temp_var__12_6
+temp_var__12_8 set temp_var__39_1
+min_output set temp_var__12_8
+.output min_output unsigned

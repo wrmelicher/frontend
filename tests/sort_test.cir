@@ -1,0 +1,174 @@
+.input arr_a_1 1 16
+.input ind_6 2 2
+arr_a_access_2_1 select arr_a_1 0 4
+max_7_1 set arr_a_access_2_1
+arr_a_access_3_1 select arr_a_1 4 8
+temp_var__20_1 ltu arr_a_access_3_1 max_7_1
+max_7_2 set arr_a_access_3_1
+temp_var__21_1 chose temp_var__20_1 max_7_2 max_7_1
+max_7_3 set temp_var__21_1
+temp_var_22 zextend 0:1 1
+temp_var__23_1 chose temp_var__20_1 1:1 temp_var_22
+ans_8_1 set temp_var__23_1
+arr_a_access_4_1 select arr_a_1 8 12
+temp_var__25_1 ltu arr_a_access_4_1 max_7_3
+max_7_4 set arr_a_access_4_1
+temp_var__26_1 chose temp_var__25_1 max_7_4 max_7_3
+max_7_5 set temp_var__26_1
+temp_var_27 zextend ans_8_1 2
+temp_var__28_1 chose temp_var__25_1 2:2 temp_var_27
+ans_8_2 set temp_var__28_1
+arr_a_access_5_1 select arr_a_1 12 16
+temp_var__30_1 ltu arr_a_access_5_1 max_7_5
+max_7_6 set arr_a_access_5_1
+temp_var__31_1 chose temp_var__30_1 max_7_6 max_7_5
+max_7_7 set temp_var__31_1
+temp_var__32_1 chose temp_var__30_1 3:2 ans_8_2
+ans_8_3 set temp_var__32_1
+ans_8_4 set ans_8_3
+temp_13_1 set ans_8_4
+temp_11_1 set arr_a_access_2_1
+temp_var_35 select arr_a_1 4 16
+arr_a_1_1 concat arr_a_access_2_1 temp_var_35
+temp_var_36 zextend arr_a_1_1 16
+temp_var_37 select temp_13_1 1 2
+temp_var_38 select temp_var_36 0 8
+temp_var_39 select temp_var_36 8 16
+temp_var_40 chose temp_var_37 temp_var_38 temp_var_39
+temp_var_41 select temp_13_1 0 1
+temp_var_42 select temp_var_40 0 4
+temp_var_43 select temp_var_40 4 8
+arr_a_access_34_1 chose temp_var_41 temp_var_42 temp_var_43
+arr_a_access_2_2 set arr_a_access_34_1
+temp_var_45 select arr_a_1_1 4 16
+arr_a_1_2 concat arr_a_access_2_2 temp_var_45
+temp_var_46 select arr_a_1_2 0 4
+temp_var_49 zextend 0:1 2
+temp_var__48_1 equ temp_13_1 temp_var_49
+temp_var_50 chose temp_var__48_1 temp_var_46 temp_11_1
+temp_var_51 select arr_a_1_2 4 8
+temp_var_54 zextend 1:1 2
+temp_var__53_1 equ temp_13_1 temp_var_54
+temp_var_55 chose temp_var__53_1 temp_var_51 temp_11_1
+temp_var_56 select arr_a_1_2 8 12
+temp_var__58_1 equ temp_13_1 2:2
+temp_var_59 chose temp_var__58_1 temp_var_56 temp_11_1
+temp_var_60 select arr_a_1_2 12 16
+temp_var__62_1 equ temp_13_1 3:2
+temp_var_63 chose temp_var__62_1 temp_var_60 temp_11_1
+arr_a_1_3 concat temp_var_50 temp_var_55 temp_var_59 temp_var_63
+arr_a_access_3_2 select arr_a_1_3 4 8
+max_7_8 set arr_a_access_3_2
+arr_a_access_4_2 select arr_a_1_3 8 12
+temp_var__68_1 ltu arr_a_access_4_2 max_7_8
+max_7_9 set arr_a_access_4_2
+temp_var__69_1 chose temp_var__68_1 max_7_9 max_7_8
+max_7_10 set temp_var__69_1
+temp_var_70 zextend 1:1 2
+temp_var__71_1 chose temp_var__68_1 2:2 temp_var_70
+ans_8_5 set temp_var__71_1
+arr_a_access_5_2 select arr_a_1_3 12 16
+temp_var__73_1 ltu arr_a_access_5_2 max_7_10
+max_7_11 set arr_a_access_5_2
+temp_var__74_1 chose temp_var__73_1 max_7_11 max_7_10
+max_7_12 set temp_var__74_1
+temp_var__75_1 chose temp_var__73_1 3:2 ans_8_5
+ans_8_6 set temp_var__75_1
+ans_8_7 set ans_8_6
+temp_13_2 set ans_8_7
+temp_11_2 set arr_a_access_3_2
+temp_var_78 select arr_a_1_3 0 4
+temp_var_79 select arr_a_1_3 8 16
+arr_a_1_4 concat temp_var_78 arr_a_access_3_2 temp_var_79
+temp_var_80 zextend arr_a_1_4 16
+temp_var_81 select temp_13_2 1 2
+temp_var_82 select temp_var_80 0 8
+temp_var_83 select temp_var_80 8 16
+temp_var_84 chose temp_var_81 temp_var_82 temp_var_83
+temp_var_85 select temp_13_2 0 1
+temp_var_86 select temp_var_84 0 4
+temp_var_87 select temp_var_84 4 8
+arr_a_access_77_1 chose temp_var_85 temp_var_86 temp_var_87
+arr_a_access_3_3 set arr_a_access_77_1
+temp_var_89 select arr_a_1_4 0 4
+temp_var_90 select arr_a_1_4 8 16
+arr_a_1_5 concat temp_var_89 arr_a_access_3_3 temp_var_90
+temp_var_91 select arr_a_1_5 0 4
+temp_var_94 zextend 0:1 2
+temp_var__93_1 equ temp_13_2 temp_var_94
+temp_var_95 chose temp_var__93_1 temp_var_91 temp_11_2
+temp_var_96 select arr_a_1_5 4 8
+temp_var_99 zextend 1:1 2
+temp_var__98_1 equ temp_13_2 temp_var_99
+temp_var_100 chose temp_var__98_1 temp_var_96 temp_11_2
+temp_var_101 select arr_a_1_5 8 12
+temp_var__103_1 equ temp_13_2 2:2
+temp_var_104 chose temp_var__103_1 temp_var_101 temp_11_2
+temp_var_105 select arr_a_1_5 12 16
+temp_var__107_1 equ temp_13_2 3:2
+temp_var_108 chose temp_var__107_1 temp_var_105 temp_11_2
+arr_a_1_6 concat temp_var_95 temp_var_100 temp_var_104 temp_var_108
+arr_a_access_4_3 select arr_a_1_6 8 12
+max_7_13 set arr_a_access_4_3
+arr_a_access_5_3 select arr_a_1_6 12 16
+temp_var__113_1 ltu arr_a_access_5_3 max_7_13
+max_7_14 set arr_a_access_5_3
+temp_var__114_1 chose temp_var__113_1 max_7_14 max_7_13
+max_7_15 set temp_var__114_1
+temp_var__115_1 chose temp_var__113_1 3:2 2:2
+ans_8_8 set temp_var__115_1
+ans_8_9 set ans_8_8
+temp_13_3 set ans_8_9
+temp_11_3 set arr_a_access_4_3
+temp_var_118 select arr_a_1_6 0 8
+temp_var_119 select arr_a_1_6 12 16
+arr_a_1_7 concat temp_var_118 arr_a_access_4_3 temp_var_119
+temp_var_120 zextend arr_a_1_7 16
+temp_var_121 select temp_13_3 1 2
+temp_var_122 select temp_var_120 0 8
+temp_var_123 select temp_var_120 8 16
+temp_var_124 chose temp_var_121 temp_var_122 temp_var_123
+temp_var_125 select temp_13_3 0 1
+temp_var_126 select temp_var_124 0 4
+temp_var_127 select temp_var_124 4 8
+arr_a_access_117_1 chose temp_var_125 temp_var_126 temp_var_127
+arr_a_access_4_4 set arr_a_access_117_1
+temp_var_129 select arr_a_1_7 0 8
+temp_var_130 select arr_a_1_7 12 16
+arr_a_1_8 concat temp_var_129 arr_a_access_4_4 temp_var_130
+temp_var_131 select arr_a_1_8 0 4
+temp_var_134 zextend 0:1 2
+temp_var__133_1 equ temp_13_3 temp_var_134
+temp_var_135 chose temp_var__133_1 temp_var_131 temp_11_3
+temp_var_136 select arr_a_1_8 4 8
+temp_var_139 zextend 1:1 2
+temp_var__138_1 equ temp_13_3 temp_var_139
+temp_var_140 chose temp_var__138_1 temp_var_136 temp_11_3
+temp_var_141 select arr_a_1_8 8 12
+temp_var__143_1 equ temp_13_3 2:2
+temp_var_144 chose temp_var__143_1 temp_var_141 temp_11_3
+temp_var_145 select arr_a_1_8 12 16
+temp_var__147_1 equ temp_13_3 3:2
+temp_var_148 chose temp_var__147_1 temp_var_145 temp_11_3
+arr_a_1_9 concat temp_var_135 temp_var_140 temp_var_144 temp_var_148
+arr_a_access_5_4 select arr_a_1_9 12 16
+max_7_16 set arr_a_access_5_4
+temp_11_4 set arr_a_access_5_4
+arr_a_access_5_5 set arr_a_access_5_4
+arr_a_access_5_6 set temp_11_4
+temp_var_155 select arr_a_1_9 0 12
+arr_a_1_10 concat temp_var_155 arr_a_access_5_6
+temp_var_156 zextend arr_a_1_10 16
+temp_var_157 select ind_6 1 2
+temp_var_158 select temp_var_156 0 8
+temp_var_159 select temp_var_156 8 16
+temp_var_160 chose temp_var_157 temp_var_158 temp_var_159
+temp_var_161 select ind_6 0 1
+temp_var_162 select temp_var_160 0 4
+temp_var_163 select temp_var_160 4 8
+arr_a_access_154_1 chose temp_var_161 temp_var_162 temp_var_163
+out_14_1 set arr_a_access_154_1
+arr_a_output set arr_a_1_10
+.output arr_a_output
+out_output set out_14_1
+.output out_output unsigned

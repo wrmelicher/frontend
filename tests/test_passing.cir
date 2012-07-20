@@ -1,0 +1,11 @@
+definput party 1 val: int magnitude = 63;
+defun set_val( int i ):
+  var ret = i;
+  ret = +( ret, i );
+  i = ret;
+  return ret;
+end
+var out = set_val( val );
+
+defoutput val;
+defoutput out;

@@ -1,0 +1,20 @@
+// array input
+definput party 1 one: array[4] int magnitude = 63;
+
+var sumx = 0;
+
+/* computes the sum of the array
+   from the given position recusively */
+defun sum( Array arr, int pos ):
+  var accum = 0;
+  if <( pos, length( arr ) ):
+    accum = arr[pos];
+    accum = +( accum, sum(arr,+(pos,1)) );
+    sumx = +(sumx, sum( arr, +(pos,1)));
+  end
+  return accum;
+end
+
+var out = sum( one, 0 );
+defoutput out;
+defoutput sumx;

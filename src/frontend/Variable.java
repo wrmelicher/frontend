@@ -83,6 +83,7 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
   public int hashCode(){
     return (int) id;
   }
+  
   public boolean equals( Object other ){
     if( other instanceof Variable ){
       return ((Variable) other).id == id;

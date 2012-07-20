@@ -1,0 +1,25 @@
+definput party 1 a: int magnitude = 31;
+definput party 2 b: int magnitude = 31;
+
+var temp = 0;
+
+defun side_effect( int temp_a, int temp_b ):
+  temp = +( temp, 1 );
+  return +( +( temp_a, temp_b ), temp );
+end
+
+var store = [0, 0, 0, 0];
+
+loop i from 0 to length(store):
+  store[i] = side_effect(a,b);
+end
+
+var out_a = store[0];
+var out_b = store[1];
+var out_c = store[2];
+var out_d = store[3];
+
+defoutput out_a;
+defoutput out_b;
+defoutput out_c;
+defoutput out_d;

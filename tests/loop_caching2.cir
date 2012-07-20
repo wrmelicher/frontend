@@ -1,0 +1,19 @@
+definput party 1 a: int magnitude = 31;
+definput party 2 b: int magnitude = 31;
+
+defun test( int r, int s ):
+  var temp = +(r,1);
+  temp = +(temp,s);
+  return temp;
+end
+
+var accum = 0;
+var accum_a = 0;
+
+loop i from 1 to 4:
+  accum = +( accum, test(a, -(i,1) ) );
+  accum_a = +( accum_a, test(a,i) );
+end
+
+defoutput accum_a;
+defoutput accum;

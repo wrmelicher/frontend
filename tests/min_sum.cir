@@ -1,0 +1,30 @@
+.input arr1 1 20
+.input arr2 2 20
+temp_var__6_1 select arr1 0 5
+temp_var__7_1 select arr2 0 5
+temp_var__8_1 ltu temp_var__6_1 temp_var__7_1
+temp_var_13 zextend 0:0 5
+temp_var__12 add temp_var__11 temp_var_13
+minsum_3_1 set temp_var__12
+temp_var__15_1 select arr1 5 10
+temp_var__16_1 select arr2 5 10
+temp_var__17_1 ltu temp_var__15_1 temp_var__16_1
+temp_var_22 zextend temp_var__20 6
+temp_var_23 zextend minsum_3_1 6
+temp_var__21 add temp_var_22 temp_var_23
+minsum_3_2 set temp_var__21
+temp_var__25_1 select arr1 10 15
+temp_var__26_1 select arr2 10 15
+temp_var__27_1 ltu temp_var__25_1 temp_var__26_1
+temp_var_32 zextend temp_var__30 7
+temp_var_33 zextend minsum_3_2 7
+temp_var__31 add temp_var_32 temp_var_33
+minsum_3_3 set temp_var__31
+temp_var__35_1 select arr1 15 20
+temp_var__36_1 select arr2 15 20
+temp_var__37_1 ltu temp_var__35_1 temp_var__36_1
+temp_var_42 zextend temp_var__40 7
+temp_var__41 add temp_var_42 minsum_3_3
+minsum_3_4 set temp_var__41
+minsum_output set minsum_3_4
+.output minsum_output unsigned

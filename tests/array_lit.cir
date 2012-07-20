@@ -1,0 +1,7 @@
+definput party 1 one: int magnitude = 3;
+
+var arr = [ 1, 2, 3, 4 ];
+
+var out = arr[ one ];
+
+defoutput out;

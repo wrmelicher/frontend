@@ -1,0 +1,36 @@
+// defines an input array, arr_a, of length 4 holding integers to 15 
+definput party 1 arr_a: array[4] int magnitude = 15;
+
+// defines an integer, ind, holds up to 3 
+definput party 2 ind: int magnitude = 3;
+
+// returns the index of the maximum value in an array
+defun max( Array arr, int start ):
+  var max = arr[start];
+  var ans = start;
+  loop index from +(start,1) to length( arr ):
+    if <( max, arr[index] ):
+      max = arr[index];
+      ans = index;
+    end
+  end
+  return ans;
+end
+
+// swaps two indexes in an array
+defun swap( Array arr, int a, int b ):
+  var temp = arr[a];
+  arr[a] = arr[b];
+  arr[b] = temp;
+end
+
+defun sort( Array arr ):
+  loop pos from 0 to length( arr ):
+    var max_pos = max( arr, pos );
+    swap( arr, pos, max_pos );
+  end
+end
+
+sort( arr_a );
+
+defoutput arr_a;

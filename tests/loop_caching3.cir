@@ -1,0 +1,13 @@
+definput party 1 a: int magnitude = 31;
+definput party 2 b: int magnitude = 31;
+
+var accum = 0;
+var minus_one = 0;
+
+loop i from 0 to 4:
+  accum = +(accum, +(a,i) );
+  minus_one = +( minus_one, +(a, -(i,1) ) );
+end
+
+defoutput accum;
+defoutput minus_one;

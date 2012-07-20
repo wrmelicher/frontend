@@ -1,0 +1,15 @@
+definput party 1 a: int magnitude = 63;
+definput party 2 b: int magnitude = 63;
+
+var temp = a;
+
+loop i from 0 to 80:
+  a = +(+(a,1),+(a,2));
+end
+
+loop i from 0 to 80:
+  temp = +(+(temp,1),+(temp,2));
+end
+
+defoutput a;
+defoutput temp;

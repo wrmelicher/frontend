@@ -1,0 +1,47 @@
+/* returns the index of the maximum value in an array */
+defun max( Array arr, int start ):
+  var max = arr[start];
+  var ans = start;
+  loop index from +(start,1) to length( arr ):
+    if <( max, arr[index] ):
+      max = arr[index];
+      ans = index;
+    end
+  end
+  return ans;
+end
+
+/* swaps two indexes in an array */
+defun swap( Array arr, int a, int b ):
+  var temp = arr[a];
+  arr[a] = arr[b];
+  arr[b] = temp;
+end
+
+definput party 1 arr_a: array[4] int magnitude = 15;
+definput party 2 ind: int magnitude = 3;
+
+
+var max_ind = max( arr_a, 0 );
+
+/* try to swap 0 and max 
+var temp_max = arr_a[max_ind];
+
+arr_a[max_ind] = arr_a[0];
+
+var temp_post_swap = arr_a[max_ind];
+
+arr_a[0] = temp_max;
+
+var temp_zero = arr_a[0];
+*/
+
+swap( arr_a, 0, max_ind );
+
+var zero_loc = arr_a[0];
+var temp_max = arr_a[ max_ind ];
+
+defoutput zero_loc;
+defoutput temp_max;
+defoutput arr_a;
+defoutput max_ind;

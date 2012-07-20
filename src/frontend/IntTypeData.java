@@ -30,6 +30,9 @@ public class IntTypeData extends TypeData {
     this( new BigInteger( mag+"" ), sign );
   }
   public int bit_count(){
+    if( magnitude.equals(BigInteger.ZERO) ){
+      return 1;
+    }
     return signed ? magnitude.bitLength()+1 :  magnitude.bitLength();
   }
   public boolean signed(){
@@ -100,7 +103,7 @@ public class IntTypeData extends TypeData {
   }
   public static IntTypeData xor( IntTypeData a, IntTypeData b ){
     if( a.is_constant() && b. is_constant() ){
-      return new IntTypeData( a.magnitude.or( b.magnitude ) );
+      return new IntTypeData( a.magnitude.xor( b.magnitude ) );
     } else {
       int len = Math.max( a.bit_count(), b.bit_count() );
       return new IntTypeData( BigInteger.ONE.shiftLeft( len ).subtract( BigInteger.ONE ), a.signed||b.signed );
@@ -108,15 +111,19 @@ public class IntTypeData extends TypeData {
   }
 
   public static IntTypeData select( IntTypeData a, int from, int to ){
+    if( a.bit_count() <= from ){
+      return new IntTypeData( BigInteger.ZERO );
+    }
     if( a.is_constant() ){
       return new IntTypeData
 	( a.magnitude.and
 	  ( BigInteger.ONE.shiftLeft
 	    (to-from).subtract(BigInteger.ONE).shiftLeft(from) ) );
     } else {
-      return new IntTypeData
-	( BigInteger.ONE.shiftLeft( to - from )
-	  .subtract( BigInteger.ONE ), a.signed );
+      BigInteger range = BigInteger.ONE.shiftLeft( to - from )
+	.subtract( BigInteger.ONE );
+      
+      return new IntTypeData( range, a.signed );
     }
   }
   public String extend_operation(){
@@ -131,8 +138,6 @@ public class IntTypeData extends TypeData {
     return is_const;
   }
   public String constant_name(){
-    if( magnitude.compareTo( BigInteger.ZERO ) == 0 )
-      return magnitude+":"+1;
     return magnitude+":"+bit_count();
   }
   public int value(){

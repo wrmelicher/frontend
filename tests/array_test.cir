@@ -1,0 +1,8 @@
+definput party 1 one: array[4] int magnitude = 3;
+definput party 2 two: int magnitude = 3;
+
+var copy = one;
+copy[two] = two;
+var test = copy[two];
+
+defoutput test;

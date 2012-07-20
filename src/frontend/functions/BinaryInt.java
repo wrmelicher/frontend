@@ -13,8 +13,22 @@ public abstract class BinaryInt extends Function {
     ( IntTypeData a, IntTypeData b ) throws CompileException;
   
   public abstract String op();
+  
   public boolean pad_to(){
     return true;
+  }
+
+  public String[] actual_args( Variable<IntTypeData>[] args, int size ){
+    String[] ans;
+    if( pad_to() ){
+      ans = Variable.padArgsToLength( args, size );
+    } else {
+      ans = new String[args.length];
+      for( int i = 0; i < args.length; i++ ){
+	ans[i]=args[i].cur_name();
+      }
+    }
+    return ans;
   }
   
   public Variable compile_checked
@@ -26,15 +40,7 @@ public abstract class BinaryInt extends Function {
     PrintStream ps = ProgramTree.output;
     Variable out = new Variable( data );
     if( !out.getData().is_constant() ){
-      String[] actual_args;
-      if( pad_to() ){
-	actual_args = Variable.padArgsToLength( args, data.bit_count() );
-      } else {
-	actual_args = new String[args.length];
-	for( int i = 0; i < args.length; i++ ){
-	  actual_args[i]=args[i].cur_name();
-	}
-      }
+      String[] actual_args = actual_args( args, data.bit_count() );
       ps.print( out.cur_name() + " " + op() );
       for( int i = 0; i < args.length; i++){
 	ps.print( " "+actual_args[i] );

@@ -1,0 +1,6 @@
+definput party 1 a: int magnitude = 63;
+definput party 2 b: int magnitude = 31;
+
+var poop = and( a, b );
+
+defoutput poop;

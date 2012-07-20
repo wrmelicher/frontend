@@ -10,13 +10,13 @@ public abstract class ArrayPosition extends Variable {
     parent = par;
   }
 
-  public String cur_name(){
+  /*  public String cur_name(){
     if( !is_valid ){
       read_value();
     }
     return super.cur_name();
-
-  }
+    }*/
+  
   public boolean is_valid(){
     return is_valid;
   }
