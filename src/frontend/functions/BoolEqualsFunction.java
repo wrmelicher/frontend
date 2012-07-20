@@ -9,6 +9,6 @@ public class BoolEqualsFunction extends BinaryBool {
     return "equ";
   }
   protected BoolData data_out( BoolData a, BoolData b ){
-    return BoolData.equals( a, b );
+    return BoolData.equals_op( a, b );
   }
 }

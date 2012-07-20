@@ -636,7 +636,10 @@ BigInteger big_integer():
     { hex = true; }  ) )
   {
     try{
-      ans = new BigInteger(t.image, hex ? 16 : 10);
+      String im_str = t.image;
+      if( hex )
+	im_str = im_str.replaceAll("0x","");
+      ans = new BigInteger(im_str, hex ? 16 : 10);
     } catch (NumberFormatException e ){
       ans = BigInteger.ZERO;
     }

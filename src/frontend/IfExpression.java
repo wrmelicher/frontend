@@ -43,7 +43,7 @@ public class IfExpression extends Statement {
     String cond_name = cond_var.cur_name();
     Variable temp = new Variable( if_type.conditional( else_type ) );
     
-    ProgramTree.output.println( temp.new_name() + " chose " + cond_name + " " + if_name + " " + else_name );
+    ProgramTree.output.println( temp.new_name() + " chose " + cond_name + " " + else_name + " " + if_name );
     
     dest.compile_assignment( temp, this );
   }

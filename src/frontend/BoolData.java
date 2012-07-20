@@ -43,7 +43,7 @@ public class BoolData extends TypeData {
     }
     
   }
-  public static BoolData equals( BoolData a, BoolData b ){
+  public static BoolData equals_op( BoolData a, BoolData b ){
     if( a.is_constant() && b.is_constant() ){
       return new BoolData( a.poss_value() == b.poss_value() ? BoolData.TRUE : BoolData.FALSE );
     } else {

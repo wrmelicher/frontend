@@ -57,7 +57,7 @@ public class IntTypeData extends TypeData {
     }
     return new IntTypeData( a.magnitude.add( b.magnitude ), true );
   }
-  public static BoolData equals( IntTypeData a, IntTypeData b ){
+  public static BoolData equals_op( IntTypeData a, IntTypeData b ){
     if( a.is_constant() && b.is_constant() ){
       return new BoolData( a.magnitude.compareTo( b.magnitude ) == 0 ? BoolData.TRUE : BoolData.FALSE );
     } else {
@@ -118,12 +118,11 @@ public class IntTypeData extends TypeData {
       return new IntTypeData
 	( a.magnitude.and
 	  ( BigInteger.ONE.shiftLeft
-	    (to-from).subtract(BigInteger.ONE).shiftLeft(from) ) );
+	    (to-from).subtract(BigInteger.ONE).shiftLeft(from) ).shiftRight(from) );
     } else {
-      BigInteger range = BigInteger.ONE.shiftLeft( to - from )
-	.subtract( BigInteger.ONE );
+      BigInteger range = BigInteger.ONE.shiftLeft( to - from ).subtract( BigInteger.ONE );
       
-      return new IntTypeData( range, a.signed );
+      return new IntTypeData( range, false );
     }
   }
   public String extend_operation(){

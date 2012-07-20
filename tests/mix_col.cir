@@ -1,21 +1,22 @@
 definput party 1 a_vec: array[4] int magnitude = 255;
 
 defun gf_mult( int a, int b ):
+  a_copy = a;
+  b_copy = b;
   p = 0;
-  loop i from 0 to bit_width(b):
-    if select( b, 0, 1 ) equals 0:
-      p = p ^ a;
+  loop i from 0 to bit_width(b_copy):
+    if select( b_copy, 0, 1 ) equals 0:
+      p = p ^ a_copy;
     end
-    b = b >> 1;
-    carry = select( a, 7, 8 );
-    a = trunc( a << 1, 8 );
+    b_copy = b_copy >> 1;
+    carry = select( a_copy, 7, 8 );
+    a_copy = trunc( a_copy << 1, 8 );
     if carry equals 1:
-       a = a ^ 0x1b;
+       a_copy = a_copy ^ 0x1b;
     end
   end
   return p;
 end    
-
 
 mix_cols =
 [ 2, 3, 1, 1,

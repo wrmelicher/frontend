@@ -12,6 +12,6 @@ public class IntEqualsFunction extends BinaryInt {
     return "equ";
   }
   public TypeData data_type( IntTypeData a, IntTypeData b ){
-    return IntTypeData.equals( a, b );
+    return IntTypeData.equals_op( a, b );
   }
 }
