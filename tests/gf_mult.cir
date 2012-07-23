@@ -20,7 +20,5 @@ defun gf_mult( int a, int b ):
 end    
     
 out = gf_mult(a_in,b_in);
-out_two = gf_mult(255,2);
 
 defoutput out;
-defoutput out_two;

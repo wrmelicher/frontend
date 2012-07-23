@@ -20,7 +20,7 @@ public class CompilerTest {
 
     OptionBuilder.isRequired(false);
     OptionBuilder.withDescription("Will generate the input files for the circuit file");
-    OptionBuilder.hasArg(false);
+    OptionBuilder.hasOptionalArg();
     return OptionBuilder.create();
   }
 
@@ -36,10 +36,14 @@ public class CompilerTest {
     opts.addOption(input_level_option());
     CommandLineParser cmd = new PosixParser();
     CommandLine line;
-
+    boolean rnd = false;
     try {
       line = cmd.parse(opts,args,false);
       String d = line.getOptionValue(DEBUG_STR,"0");
+      String r = line.getOptionValue(INPUT_STR,"");
+      if( r.equals("random") ){
+	rnd = true;
+      }
       ProgramTree.DEBUG = Integer.parseInt(d);
     } catch( org.apache.commons.cli.ParseException e ){
       System.out.println(e.getMessage());
@@ -86,7 +90,7 @@ public class CompilerTest {
       out = null;
     }
     if(input){
-      GenerateInputs g = new GenerateInputs( t, input_file );
+      GenerateInputs g = new GenerateInputs( t, input_file, rnd );
       g.inputs();
     }
     compile( t, out );

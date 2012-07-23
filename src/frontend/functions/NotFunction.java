@@ -10,7 +10,7 @@ public class NotFunction extends Function {
   }
   public Variable compile_func( Variable[] args, Statement owner ) throws CompileException {
     // safe cast because types are already checked
-    IntTypeData a = IntTypeData.xor( (IntTypeData) args[0].getData(), new IntTypeData(BigInteger.ZERO) );
+    IntTypeData a = IntTypeData.not( (IntTypeData) args[0].getData() );
     Variable out = new Variable( a );
     if( ! a.is_constant() ){
       ProgramTree.output.println( out.new_name() + " not " + args[0].cur_name() );

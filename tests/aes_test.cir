@@ -1,7 +1,7 @@
-//definput party 1 key: array[16] int magnitude = 255;
-//definput party 2 text: array[16] int magnitude = 255;
-definput party 1 a_in: int magnitude = 255;
-definput party 2 b_in: int magnitude = 255;
+definput party 1 key: array[16] int magnitude = 255;
+definput party 2 text: array[16] int magnitude = 255;
+//definput party 1 a_in: int magnitude = 255;
+//definput party 2 b_in: int magnitude = 255;
 
 defun rotate_left_one_arr( Array arr, int start, int stop ):
   var temp = arr[start];
@@ -35,7 +35,7 @@ mix_cols =
   1, 1, 2, 3,
   3, 1, 1, 2 ];
 
-defun mix_cols( Array a ): // a must be of size 4
+defun mix_column( Array a ): // a must be of size 4
   out = zeros(4);
   loop row from 0 to 4:
     temp = 0;
@@ -47,12 +47,33 @@ defun mix_cols( Array a ): // a must be of size 4
   return out;
 end
 
+defun mix_cols( Array state ):
+  loop col from 0 to 4:
+    column = zeros(4);
+    loop row from 0 to 4:
+      column[row] = state[ (row << 2) + col ];
+    end
+    column = mix_column( column );
+    loop row from 0 to 4:
+      state[ (row << 2) + col ] = column[row];
+    end
+  end
+end
+    
 defun add_round_key( Array subkey, Array state ):
   out = zeros( length(subkey) );
   loop i from 0 to length(subkey):
     out[i] = subkey[i] ^ state[i];
   end
   return out;
+end
+
+defun rcon( int i ):
+  accum = 0x8d;
+  loop index from 0 to i:
+    accum = gf_mult( 2, accum );
+  end
+  return accum;
 end
 
 defun at( int i, int bit ):
@@ -181,6 +202,7 @@ defun s_box( int x ):
   s2 = ~( t55 ^ t67 );
 
   return s7 cat s6 cat s5 cat s4 cat s3 cat s2 cat s1 cat s0;
+//  return s0 cat s1 cat s2 cat s3 cat s4 cat s5 cat s6 cat s7;
 end
 
 defun subbytes( Array state ):
@@ -189,10 +211,25 @@ defun subbytes( Array state ):
   end
 end
 
-out = s_box( a_in );
-out_2 = s_box( b_in );
-out_cons = s_box( 0x9a );
+defun key_schedule_core( Array word, int i ):
+  out = word;
+  rotate_left_one_arr( out, 0, 3 );
+  loop index from 0 to 4:
+    out[index] = s_box( out[index] );
+  end
+  out[0] = out[0] ^ rcon( i );
+  return out;
+end
 
-defoutput out_2;
-defoutput out;
-defoutput out_cons;
+text = add_round_key( key, text );
+
+loop i from 0 to 10:
+  subbytes( text );
+  loop row from 0 to 4:
+    rotate_left_one_arr( text, row << 2, (row << 2) + 3 );
+  end
+  mix_cols( text );
+  add_round_key( key, text );
+end
+
+defoutput text;

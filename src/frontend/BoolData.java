@@ -41,8 +41,8 @@ public class BoolData extends TypeData {
     } else {
       return new BoolData( BoolData.MAYBE );
     }
-    
   }
+  
   public static BoolData equals_op( BoolData a, BoolData b ){
     if( a.is_constant() && b.is_constant() ){
       return new BoolData( a.poss_value() == b.poss_value() ? BoolData.TRUE : BoolData.FALSE );
@@ -65,4 +65,5 @@ public class BoolData extends TypeData {
     System.out.println();
     return b ? BigInteger.ONE :  BigInteger.ZERO;
   }
+
 }

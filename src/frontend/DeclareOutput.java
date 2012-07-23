@@ -11,7 +11,7 @@ public class DeclareOutput extends Statement {
     PrintStream os = ProgramTree.output;
     Variable out = out_abs.var();
     if( out.getType() == Type.ArrayType ){
-      ArrayVariable out_arr = (ArrayVariable) out.var();
+      ArrayVariable out_arr = (ArrayVariable) out;
       out_arr.join_indices();
     }
     os.println( out_abs.debug_name()+"_output set " + out.cur_name() );

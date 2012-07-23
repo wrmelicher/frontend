@@ -11,10 +11,18 @@ import java.util.List;
 public class GenerateInputs {
   private ProgramTree t;
   private File input_file;
-  public GenerateInputs( ProgramTree tree, File i ){
+  private boolean random;
+  
+  public GenerateInputs( ProgramTree tree, File i, boolean rnd ){
     t = tree;
     input_file = i;
+    random = rnd;
   }
+  
+  public GenerateInputs( ProgramTree tree, File i ){
+    this( tree, i, false );
+  }
+  
   public void inputs() {
     try {
       List<DeclareInputStatement> ls = t.inputs();
@@ -37,10 +45,14 @@ public class GenerateInputs {
       }
       PrintStream client_inputs = new PrintStream( client_file );
       PrintStream server_inputs = new PrintStream( server_file );
+
+      if( !random )
+	for( DeclareInputStatement d : ls )
+	  d.request_val( d.party() == 1 ? client_inputs : server_inputs, in );
+      else
+	for( DeclareInputStatement d : ls )
+	  d.request_val( d.party() == 1 ? client_inputs : server_inputs );
       
-      for( DeclareInputStatement d : ls ){
-	d.request_val( d.party() == 1 ? client_inputs : server_inputs, in );
-      }
       client_inputs.close();
       server_inputs.close();
     } catch (FileNotFoundException e ){

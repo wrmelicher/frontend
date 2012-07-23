@@ -13,7 +13,7 @@ public class Zeros extends Function {
   public AbstractVariable compile_func
     ( Variable[] args, 
       Statement owner ) throws CompileException {
-    if( args[0].getData().is_constant() ){
+    if( !args[0].getData().is_constant() ){
       throw owner.error(NAME+" operation requires size of array be known at compile time");
     }
     int num = ((IntTypeData)args[0].getData()).value();

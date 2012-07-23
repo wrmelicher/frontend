@@ -1,6 +1,8 @@
 package frontend;
 import java.util.Scanner;
 import java.math.BigInteger;
+import java.util.Random;
+
 public abstract class TypeData {
   // must be immutable
   private Type type;
@@ -20,5 +22,12 @@ public abstract class TypeData {
 
   public abstract TypeData conditional( TypeData other );
   public abstract BigInteger user_input( String debug_name, int party, Scanner in );
+
+
+  private static Random rnd = new Random();
+  
+  public BigInteger user_input(){
+    return new BigInteger( bit_count(), rnd );
+  }
 
 }

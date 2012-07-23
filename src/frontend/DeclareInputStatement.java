@@ -18,8 +18,12 @@ public class DeclareInputStatement extends Statement {
   public void request_val( PrintStream ps, Scanner in ){
     String out_name = var.cur_name();
     ps.println( out_name + " " + var.getData().user_input( var.debug_name(), party, in ) );
-    
   }
+  public void request_val( PrintStream ps ){
+    String out_name = var.cur_name();
+    ps.println( out_name + " " + var.getData().user_input() );
+  }
+  
   public int party(){
     return party;
   }

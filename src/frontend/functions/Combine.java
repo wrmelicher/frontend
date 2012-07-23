@@ -11,8 +11,8 @@ public class Combine extends Function {
   public Variable compile_func
     ( Variable[] args,
       Statement owner ) throws CompileException {
-    IntTypeData ans = IntTypeData.concat( (IntTypeData)(args[1].getData()),
-					  (IntTypeData)(args[0].getData()) );
+    IntTypeData ans = IntTypeData.concat( (IntTypeData)(args[0].getData()),
+					  (IntTypeData)(args[1].getData()) );
     Variable out = new Variable( ans );
     if( !ans.is_constant() ){
       ProgramTree.output.println( out.new_name() +

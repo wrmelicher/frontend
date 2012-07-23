@@ -76,7 +76,7 @@ public class IntTypeData extends TypeData {
       return new IntTypeData( a.magnitude.and( b.magnitude ) );
     } else {
       int len = Math.min( a.bit_count(), b.bit_count() );
-      return new IntTypeData( BigInteger.ONE.shiftLeft( len ).subtract( BigInteger.ONE ), a.signed || b.signed );
+      return new IntTypeData( ones(len), a.signed || b.signed );
     }
   }
   public static IntTypeData shift_left( IntTypeData a, int by ){
@@ -98,7 +98,7 @@ public class IntTypeData extends TypeData {
       return new IntTypeData( a.magnitude.or( b.magnitude ) );
     } else {
       int len = Math.max( a.bit_count(), b.bit_count() );
-      return new IntTypeData( BigInteger.ONE.shiftLeft( len ).subtract( BigInteger.ONE ), a.signed || b.signed );
+      return new IntTypeData( ones(len), a.signed || b.signed );
     }
   }
   public static IntTypeData xor( IntTypeData a, IntTypeData b ){
@@ -106,13 +106,26 @@ public class IntTypeData extends TypeData {
       return new IntTypeData( a.magnitude.xor( b.magnitude ) );
     } else {
       int len = Math.max( a.bit_count(), b.bit_count() );
-      return new IntTypeData( BigInteger.ONE.shiftLeft( len ).subtract( BigInteger.ONE ), a.signed||b.signed );
+      return new IntTypeData( ones(len), a.signed||b.signed );
+    }
+  }
+
+  private static BigInteger ones( int i ){
+    return BigInteger.ONE.shiftLeft( i ).subtract( BigInteger.ONE );
+  }
+
+  public static IntTypeData not( IntTypeData a ) {
+    if( a.is_constant() ){
+      return new IntTypeData( a.magnitude.xor( ones(a.bit_count()) ) );
+    } else {
+      int len = a.bit_count();
+      return new IntTypeData( ones(len), a.signed );
     }
   }
 
   public static IntTypeData concat( IntTypeData a, IntTypeData b ){
     if( a.is_constant() && b.is_constant() ){
-      return new IntTypeData( a.magnitude.shiftLeft( b.bit_count() ).or(b.magnitude) );
+      return new IntTypeData( a.magnitude.shiftLeft( b.bit_count() ).add(b.magnitude) );
     } else {
       return new IntTypeData( a.magnitude.shiftLeft( b.bit_count() ).add(b.magnitude), false );
     }
@@ -123,13 +136,9 @@ public class IntTypeData extends TypeData {
       return new IntTypeData( BigInteger.ZERO );
     }
     if( a.is_constant() ){
-      return new IntTypeData
-	( a.magnitude.and
-	  ( BigInteger.ONE.shiftLeft
-	    (to-from).subtract(BigInteger.ONE).shiftLeft(from) ).shiftRight(from) );
+      return new IntTypeData( a.magnitude.and(ones(to-from).shiftLeft(from)).shiftRight(from) );
     } else {
-      BigInteger range = BigInteger.ONE.shiftLeft( to - from ).subtract( BigInteger.ONE );
-      
+      BigInteger range = ones( to - from );
       return new IntTypeData( range, false );
     }
   }
