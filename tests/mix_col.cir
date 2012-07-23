@@ -5,7 +5,7 @@ defun gf_mult( int a, int b ):
   b_copy = b;
   p = 0;
   loop i from 0 to bit_width(b_copy):
-    if select( b_copy, 0, 1 ) equals 0:
+    if select( b_copy, 0, 1 ) equals 1:
       p = p ^ a_copy;
     end
     b_copy = b_copy >> 1;
@@ -27,9 +27,11 @@ mix_cols =
 defun mix_cols( Array a ):
   out = [ 0, 0, 0, 0 ];
   loop row from 0 to 4:
+    temp = 0;
     loop col from 0 to 4:
-      out[row] = out[row] ^ gf_mult( a[col], mix_cols[ (row << 2) + col ] );
+      temp = temp ^ gf_mult( a[col], mix_cols[ (row << 2) + col ] );
     end
+    out[row] = temp;
   end
   return out;
 end

@@ -150,6 +150,9 @@ public abstract class Function
     new Truncate();
     new Select();
     new NotFunction();
+    new Zeros();
+    new BoolNot();
+    new Combine();
   }
   
 }

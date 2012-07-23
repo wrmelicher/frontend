@@ -110,6 +110,14 @@ public class IntTypeData extends TypeData {
     }
   }
 
+  public static IntTypeData concat( IntTypeData a, IntTypeData b ){
+    if( a.is_constant() && b.is_constant() ){
+      return new IntTypeData( a.magnitude.shiftLeft( b.bit_count() ).or(b.magnitude) );
+    } else {
+      return new IntTypeData( a.magnitude.shiftLeft( b.bit_count() ).add(b.magnitude), false );
+    }
+  }
+
   public static IntTypeData select( IntTypeData a, int from, int to ){
     if( a.bit_count() <= from ){
       return new IntTypeData( BigInteger.ZERO );

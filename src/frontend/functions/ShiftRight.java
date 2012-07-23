@@ -19,6 +19,6 @@ public class ShiftRight extends BinaryInt {
       throw own.error(NAME+" operation requires shift amount be known at run time");
     }
     int by = b.value();
-    return IntTypeData.shift_left( a, by );
+    return IntTypeData.shift_right( a, by );
   }
 }

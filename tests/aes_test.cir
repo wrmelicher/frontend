@@ -1,53 +1,198 @@
-definput party 1 key: array[16] int magnitude = 255;
-definput party 2 text: array[16] int magnitude = 255;
+//definput party 1 key: array[16] int magnitude = 255;
+//definput party 2 text: array[16] int magnitude = 255;
+definput party 1 a_in: int magnitude = 255;
+definput party 2 b_in: int magnitude = 255;
 
-// might be better to evaluate instead of indexing an array
-
-defun rotate_left_x_arr( Array arr, int start, int end, int rot ):
+defun rotate_left_one_arr( Array arr, int start, int stop ):
   var temp = arr[start];
-  loop i from start to end:
-    var ind = i + rot;
-    if ind > end:
-      ind = ind - ( end - start );
-    arr[i] = arr[ind];
+  loop i from start to stop:
+    arr[i] = arr[ i + 1 ];
   end
-  arr[end] = temp;
-end
-
-defun do_mult( int a ):
-  carry = select( a, 7, 8 );
-  a = trunc( a << 1, 8 );
-  if carry equals 1:
-    a = a ^ 0x1b;
-  end
+  arr[stop] = temp;
 end
 
 defun gf_mult( int a, int b ):
+  a_copy = a;
+  b_copy = b;
   p = 0;
-  loop i from 0 to 7:
-    if (b & 1) equals 0:
-      p = p ^ a;
+  loop i from 0 to bit_width(b_copy):
+    if select( b_copy, 0, 1 ) equals 1:
+      p = p ^ a_copy;
     end
-    b = b >> 1;
-    do_mult( a );
+    b_copy = b_copy >> 1;
+    carry = select( a_copy, 7, 8 );
+    a_copy = trunc( a_copy << 1, 8 );
+    if carry equals 1:
+       a_copy = a_copy ^ 0x1b;
+    end
   end
-  do_mult(a);
   return p;
 end    
 
 mix_cols =
-[ [2, 3, 1, 1],
-  [1, 2, 3, 1],
-  [1, 1, 2, 3],
-  [3, 1, 1, 2] ];
+[ 2, 3, 1, 1,
+  1, 2, 3, 1,
+  1, 1, 2, 3,
+  3, 1, 1, 2 ];
 
-defun mix_cols( Array a ):
-  out = [0,0,0,0];
+defun mix_cols( Array a ): // a must be of size 4
+  out = zeros(4);
   loop row from 0 to 4:
-    row_vec = mix_cols[row];
+    temp = 0;
     loop col from 0 to 4:
-      out[row] = out[row] + gf_mult( row_vec[col], a[col] );
+      temp = temp ^ gf_mult( a[col], mix_cols[ (row << 2) + col ] );
     end
+    out[row] = temp;
   end
   return out;
 end
+
+defun add_round_key( Array subkey, Array state ):
+  out = zeros( length(subkey) );
+  loop i from 0 to length(subkey):
+    out[i] = subkey[i] ^ state[i];
+  end
+  return out;
+end
+
+defun at( int i, int bit ):
+  return select( i, bit, bit + 1 );
+end
+
+defun s_box( int x ):
+  y14 = at( x, 3 ) ^ at( x, 5 );
+  y8 = at( x, 0 ) ^ at( x, 5 );
+  t0 = at( x, 1 ) ^ at( x, 2 );
+  y1 = t0 ^ at( x, 7 );
+  y4 = y1 ^ at( x, 3 );
+  y5 = y1 ^ at( x, 6 );
+  y13 = at( x, 0 ) ^ at( x, 6 );
+  y12 = y13 ^ y14;
+  t1 = at( x, 4 ) ^ y12;
+  y15 = t1 ^ at( x, 5 );
+  y10 = y15 ^ t0;
+  y20 = t1 ^ at( x, 1 );
+  y9 = at( x, 0 ) ^ at( x, 3 );
+  y11 = y20 ^ y9;
+  y17 = y10 ^ y11;
+  y16 = t0 ^ y11;
+  y21 = y13 ^ y16;
+  y3 = y5 ^ y8;
+  y19 = y10 ^ y8;
+  y18 = at( x, 0 ) ^ y16;
+  y2 = y1 ^ at( x, 0 );
+  y6 = y15 ^ at( x, 7 );
+  y7 = at( x, 7 ) ^ y11;
+
+  t2 = y12 & y15;
+  t3 = y3 & y6;
+  t4 = t3 ^ t2;
+  t5 = y4 & at( x, 7 );
+  t6 = t5 ^ t2;
+  t7 = y13 & y16;
+  t8 = y5 & y1;
+  t9 = t8 ^ t7;
+  t10 = y2 & y7;
+  t11 = t10 ^ t7;
+  t12 = y9 & y11;
+  t13 = y14 & y17;
+  t14 = t13 ^ t12;
+  t15 = y8 & y10;
+  t16 = t15 ^ t12;
+  t17 = t4 ^ t14;
+  t18 = t6 ^ t16;
+  t19 = t9 ^ t14;
+  t20 = t11 ^ t16;
+  t21 = t17 ^ y20;
+  t22 = t18 ^ y19;
+  t23 = t19 ^ y21;
+  t24 = t20 ^ y18;
+
+  t25 = t21 ^ t22;
+  t26 = t21 & t23;
+  t27 = t24 ^ t26;
+  t28 = t25 & t27;
+  t29 = t28 ^ t22;
+  t30 = t23 ^ t24;
+  t31 = t22 ^ t26;
+  t32 = t31 & t30;
+  t33 = t32 ^ t24;
+  t34 = t23 ^ t33;
+  t35 = t27 ^ t33;
+  t36 = t24 & t35;
+  t37 = t36 ^ t34;
+  t38 = t27 ^ t36;
+  t39 = t29 & t38;
+  t40 = t25 ^ t39;
+
+  t41 = t40 ^ t37;
+  t42 = t29 ^ t33;
+  t43 = t29 ^ t40;
+  t44 = t33 ^ t37;
+  t45 = t42 ^ t41;
+  z0 = t44 & y15;
+  z1 = t37 & y6;
+  z2 = t33 & at( x, 7 );
+  z3 = t43 & y16;
+  z4 = t40 & y1;
+  z5 = t29 & y7;
+  z6 = t42 & y11;
+  z7 = t45 & y17;
+  z8 = t41 & y10;
+  z9 = t44 & y12;
+  z10 = t37 & y3;
+  z11 = t33 & y4;
+  z12 = t43 & y13;
+  z13 = t40 & y5;
+  z14 = t29 & y2;
+  z15 = t42 & y9;
+  z16 = t45 & y14;
+  z17 = t41 & y8;
+
+  t46 = z15 ^ z16;
+  t47 = z10 ^ z11;
+  t48 = z5 ^ z13;
+  t49 = z9 ^ z10;
+  t50 = z2 ^ z12;
+  t51 = z2 ^ z5;
+  t52 = z7 ^ z8;
+  t53 = z0 ^ z3;
+  t54 = z6 ^ z7;
+  t55 = z16 ^ z17;
+  t56 = z12 ^ t48;
+  t57 = t50 ^ t53;
+  t58 = z4 ^ t46;
+  t59 = z3 ^ t54;
+  t60 = t46 ^ t57;
+  t61 = z14 ^ t57;
+  t62 = t52 ^ t58;
+  t63 = t49 ^ t58;
+  t64 = z4 ^ t59;
+  t65 = t61 ^ t62;
+  t66 = z1 ^ t63;
+  s0 = t59 ^ t63;
+  s6 = ~( t56 ^ t62 );
+  s7 = ~( t48 ^ t60 );
+  t67 = t64 ^ t65;
+  s3 = t53 ^ t66;
+  s4 = t51 ^ t66;
+  s5 = t47 ^ t65;
+  s1 = ~( t64 ^ s3 );
+  s2 = ~( t55 ^ t67 );
+
+  return s7 cat s6 cat s5 cat s4 cat s3 cat s2 cat s1 cat s0;
+end
+
+defun subbytes( Array state ):
+  loop i from 0 to length( state ):
+    state[i] = s_box( state[i] );
+  end
+end
+
+out = s_box( a_in );
+out_2 = s_box( b_in );
+out_cons = s_box( 0x9a );
+
+defoutput out_2;
+defoutput out;
+defoutput out_cons;

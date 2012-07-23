@@ -16,7 +16,7 @@ public class ShiftLeft extends BinaryInt {
   }
   public TypeData data_type( IntTypeData a, IntTypeData b ) throws CompileException {
     if( !b.is_constant() ){
-      throw own.error(NAME+" operation requires shift amount be known at run time");
+      throw own.error(NAME+" operation requires shift amount be known at compile time");
     }
     int by = b.value();
     return IntTypeData.shift_left( a, by );
