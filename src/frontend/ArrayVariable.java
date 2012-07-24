@@ -73,6 +73,7 @@ public class ArrayVariable extends Variable<ArrayData> implements Changer {
   }
   
   public void state_index( int i, String name ){
+
     ArrayData parentData = getData();
     
     ProgramTree.output.println( name + " select " + cur_name() + " " + (i) * parentData.getElementData().bit_count() + " " + (i+1) * parentData.getElementData().bit_count() );
@@ -180,6 +181,14 @@ public class ArrayVariable extends Variable<ArrayData> implements Changer {
 	if( a.is_changed() )
 	  return false;
       }
+      return ans;
+    }
+    @Override
+    public Variable copy(){
+      owner_at();
+      ArrayVariable ans = new ArrayVariable( (ArrayData)owner().getData() );
+      ans.starting_name = owner().cur_name();
+      reset_owner();
       return ans;
     }
   }

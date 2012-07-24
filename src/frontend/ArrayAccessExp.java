@@ -43,7 +43,7 @@ public class ArrayAccessExp extends Expression implements Changer {
       throw error("Cannot index variable with non-integer type" );
     ArrayPosition out_pos = arr_real.at( ind_var, this );
     if( !side_effects ){
-      out_pos.read_value();
+      out_pos.read_val();
     }
     set_ret( out_pos );
   }

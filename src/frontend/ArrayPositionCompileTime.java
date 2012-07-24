@@ -10,7 +10,7 @@ public class ArrayPositionCompileTime extends ArrayPosition {
   public void read_value(){
     changed = false;
     validate();
-    
+      
     getParent().state_index( pos, new_name() );
     setData( getParent().getData().getElementData() );
   }

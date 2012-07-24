@@ -15,7 +15,7 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
   private List<Changer> notifiers =
     new LinkedList<Changer>();
 
-  private String starting_name = null;
+  protected String starting_name = null;
   private int call_depth;
 
   private boolean allows_assignemnt = true;

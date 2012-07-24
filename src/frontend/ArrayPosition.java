@@ -16,7 +16,6 @@ public abstract class ArrayPosition extends Variable {
     }
     return super.cur_name();
     }*/
-  
   public boolean is_valid(){
     return is_valid;
   }
@@ -29,6 +28,10 @@ public abstract class ArrayPosition extends Variable {
     is_valid = true;
   }
 
+  public void read_val(){
+    if( !is_valid() ) 
+      read_value();
+  }
   public abstract void read_value();
   public ArrayVariable getParent() {
     return parent;
