@@ -207,10 +207,8 @@ defun subbytes( Array state ):
 end
 
 defun key_schedule_core( Array word, int i ):
-  rotate_left_one_arr( word, 0, 3 );
-  loop index from 0 to 4:
-    word[index] = s_box( word[index] );
-  end
+  rotate_left_one_arr( word, 0, length(word) - 1 );
+  subbytes( word );
   word[0] = word[0] ^ rcon( i );
 end
 
@@ -219,7 +217,7 @@ expanded_key = zeros(176);
 
 defun add_to_key( Array new ):
   loop ind from 0 to length(new):
-    expanded_key[filled + ind] = new[ind];
+    expanded_key[filled] = new[ind];
     filled = filled + 1;
   end
 end
@@ -258,7 +256,7 @@ loop i from 0 to 10:
   iteration = iteration + 16;
   subbytes( state );
   loop row from 0 to 4:
-    rotate_left_one_arr( state, row << 2, (row << 2) + 3 );
+    rotate_left_one_arr( state, row << 2, (row << 2) + 3 ); // this isn't right
   end
   mix_cols( state );
   add_round_key( round_key, state );

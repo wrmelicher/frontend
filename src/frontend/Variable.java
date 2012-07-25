@@ -317,6 +317,10 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
     }
   }
 
+  public String toString(){
+    return getType().name()+" "+debug_name() + " value: " + getData().toString();
+  }
+
   public int call_depth(){
     return call_depth;
   }

@@ -170,5 +170,13 @@ public class IntTypeData extends TypeData {
     System.out.print( getType().name() + " " + debug_name + " of party " + party + " value (between "+ ( signed() ? magnitude.negate() : BigInteger.ZERO ) + " and " + magnitude + "): ");
     System.out.println();
     return in.nextBigInteger();
-   }
+  }
+
+  public String toString(){
+    if( is_constant() ){
+      return magnitude.toString();
+    } else {
+      return "mag = " + magnitude + " signed: "+signed;
+    }
+  }
 }

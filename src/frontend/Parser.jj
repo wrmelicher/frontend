@@ -105,6 +105,7 @@ TOKEN: {
     | < ARRAY : "array" >
     | < DEFUN : "defun" >
     | < PARTY : "party" >
+    | < DEBUG : "DEBUG" >
     | < RETURN : "return" >
     | < SIGNED : "signed" >
     | < DEFINPUT : "definput" >
@@ -259,9 +260,22 @@ Statement statement() throws CompileException:
   ( s = if_exp() ) |
   ( s = for_loop() ) |
   ( s = defvar() <SEMICOLON> ) |
-  ( s = return_statement() <SEMICOLON> )
+  ( s = return_statement() <SEMICOLON> ) |
+  ( s = debug_statement() <SEMICOLON> )
    )
     { return s; }
+}
+
+DebugStatement debug_statement() throws CompileException:
+{
+  Expression e;
+}
+{
+  <DEBUG>
+  e = expression()
+  {
+    return new DebugStatement( line, e );
+  }
 }
 
 UserFunction.ReturnExpression return_statement() throws CompileException:

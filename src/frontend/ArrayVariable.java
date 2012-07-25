@@ -27,9 +27,13 @@ public class ArrayVariable extends Variable<ArrayData> implements Changer {
     int len = cons_vars.size();
     Variable first = cons_vars.get(0).var();
     Type t = first.getType();
+    boolean is_const = true;
     for( AbstractVariable v : cons_vars ){
       if( t != v.var().getType() ){
 	throw owner.error( "All elements of array must have the same type" );
+      }
+      if( !v.var().getData().is_constant() ){
+	is_const = false;
       }
     }
     ArrayVariable ans = new ArrayVariable( new ArrayData( first.getData(), len ) );
@@ -59,7 +63,9 @@ public class ArrayVariable extends Variable<ArrayData> implements Changer {
   
   @Override
     public void compile_assignment( Variable other, Statement owner ) throws CompileException {
-    join_indices();
+    if( other.getType() != Type.ArrayType ){
+      throw owner.error("Cannot assign "+other.getType().name() +" to array variable");
+    }
     ((ArrayVariable) other).join_indices();
     super.compile_assignment( other, owner );
     invalidate_indices();
@@ -76,17 +82,23 @@ public class ArrayVariable extends Variable<ArrayData> implements Changer {
 
     ArrayData parentData = getData();
     
-    ProgramTree.output.println( name + " select " + cur_name() + " " + (i) * parentData.getElementData().bit_count() + " " + (i+1) * parentData.getElementData().bit_count() );
+    ProgramTree.output.println( name + " select " +
+				cur_name() + " " +
+				(i) * parentData.getElementData().bit_count() + " "
+				+ (i+1) * parentData.getElementData().bit_count() );
   }
   
-  public ArrayPosition at( AbstractVariable<IntTypeData> v, Statement owner ) throws CompileException {
+  public ArrayPosition at
+    ( AbstractVariable<IntTypeData> v,
+      Statement owner ) throws CompileException {
     IntTypeData d = v.var().getData();
     ArrayData parentData = getData();
     ArrayPosition ans; 
     if( d.is_constant() ){
       int i = d.value();
       if( i >= parentData.getSize() || i < 0){
-	throw owner.error("Array reference out of bounds. Array index: "+i+" Array size: "+parentData.getSize());
+	throw owner.error("Array reference out of bounds. "+
+			  "Array index: "+i+" Array size: "+parentData.getSize());
       }
       ans = at( i );
     } else {
@@ -126,30 +138,23 @@ public class ArrayVariable extends Variable<ArrayData> implements Changer {
     ArrayList<String> args = new ArrayList<String>();
     int prev = 0;
     TypeData new_elem_data = getData().getElementData();
-    for( ArrayPositionCompileTime p : given_compile ){
-      new_elem_data = new_elem_data.conditional( p.getData() );
-    }
-    setData( getData().new_elem_data( new_elem_data ) );
     boolean any_changed = false;
-    for( int i = 0; i < getData().getSize(); i++ ){
-      if( given_compile[i].is_changed() && given_compile[i].is_valid() ){
-	if( prev != i ) {
-	  String temp = Variable.temp_var_name();
-	  ProgramTree.output.println(temp+" select "+ cur_name() + " " + ( prev * element_size() ) + " " + ( i * element_size() ) );
-	  args.add( temp );
-	}
-	prev = i + 1;
-	String changed_add = given_compile[i].padTo( new_elem_data.bit_count() );
-	given_compile[i].setData( new_elem_data );
-	args.add( changed_add );
+    for( ArrayPositionCompileTime p : given_compile ){
+      if( p.is_changed() ){
+	new_elem_data = new_elem_data.conditional( p.getData() );
 	any_changed = true;
       }
     }
+
+    
     if( any_changed ){
-      if( prev != getData().getSize() ){
-	String temp = Variable.temp_var_name();
-	ProgramTree.output.println(temp+" select "+ cur_name() + " " + ( prev * element_size() ) + " " + ( getData().getSize() * element_size() ) );
-	args.add( temp );
+      for( int i = 0; i < getData().getSize(); i++ ){
+	if( !given_compile[i].getData().is_constant() ){
+	  given_compile[i].setData( new_elem_data );
+	  given_compile[i].read_val();
+	}
+	String pos_add = given_compile[i].padTo( new_elem_data.bit_count() );
+	args.add( pos_add );
       }
       ProgramTree.output.print( new_name() + " concatls" );
       for( String s : args ){
@@ -157,6 +162,11 @@ public class ArrayVariable extends Variable<ArrayData> implements Changer {
       }
       ProgramTree.output.println();
     }
+
+
+    
+    setData( getData().new_elem_data( new_elem_data ) );
+
     if( ProgramTree.DEBUG >= 2 )
       ProgramTree.output.println("//ending join indices\n");
     if( invalidate )

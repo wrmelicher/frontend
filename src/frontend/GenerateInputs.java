@@ -29,20 +29,6 @@ public class GenerateInputs {
       File client_file = new File( input_file.getParent(), input_file.getName()+"_client.priv" );
       File server_file = new File( input_file.getParent(), input_file.getName()+"_server.priv" );
       Scanner in = new Scanner( System.in );
-      if( client_file.exists() && server_file.exists() ){
-	System.out.println("Input files already exist, overwrite? (y/n):");
-	String yes_no = in.nextLine();
-	Pattern p = Pattern.compile("^yes|no|y|n$", Pattern.CASE_INSENSITIVE);
-	Matcher m = p.matcher( yes_no );
-	while( !m.matches() ){
-	  System.out.println("Input files already exist, overwrite? (y/n):");
-	  yes_no = in.nextLine();
-	  m = p.matcher( yes_no );
-	}
-	if( yes_no.startsWith( "n" ) || yes_no.startsWith( "N" ) ){
-	  return;
-	}
-      }
       PrintStream client_inputs = new PrintStream( client_file );
       PrintStream server_inputs = new PrintStream( server_file );
 

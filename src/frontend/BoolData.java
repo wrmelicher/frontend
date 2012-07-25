@@ -65,5 +65,14 @@ public class BoolData extends TypeData {
     System.out.println();
     return b ? BigInteger.ONE :  BigInteger.ZERO;
   }
-
+  public String toString(){
+    if( possible_values == BoolData.FALSE ){
+      return "false";
+    } else if( possible_values == BoolData.TRUE ){
+      return "true";
+    } else {
+      return "unknown";
+    }
+    
+  }
 }

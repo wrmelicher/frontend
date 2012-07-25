@@ -49,4 +49,7 @@ public class ArrayData extends TypeData {
    
     return ret;
   }
+  public String toString(){
+    return "array["+getSize()+"] " + getElementData().toString();
+  }
 }
