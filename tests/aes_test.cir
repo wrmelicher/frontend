@@ -1,7 +1,5 @@
 definput party 1 key: array[16] int magnitude = 255;
 definput party 2 text: array[16] int magnitude = 255;
-//definput party 1 a_in: int magnitude = 255;
-//definput party 2 b_in: int magnitude = 255;
 
 defun rotate_left_one_arr( Array arr, int start, int stop ):
   var temp = arr[start];
@@ -61,11 +59,9 @@ defun mix_cols( Array state ):
 end
     
 defun add_round_key( Array subkey, Array state ):
-  out = zeros( length(subkey) );
   loop i from 0 to length(subkey):
-    out[i] = subkey[i] ^ state[i];
+    state[i] = subkey[i] ^ state[i];
   end
-  return out;
 end
 
 defun rcon( int i ):
@@ -202,7 +198,6 @@ defun s_box( int x ):
   s2 = ~( t55 ^ t67 );
 
   return s7 cat s6 cat s5 cat s4 cat s3 cat s2 cat s1 cat s0;
-//  return s0 cat s1 cat s2 cat s3 cat s4 cat s5 cat s6 cat s7;
 end
 
 defun subbytes( Array state ):
@@ -212,24 +207,61 @@ defun subbytes( Array state ):
 end
 
 defun key_schedule_core( Array word, int i ):
-  out = word;
-  rotate_left_one_arr( out, 0, 3 );
+  rotate_left_one_arr( word, 0, 3 );
   loop index from 0 to 4:
-    out[index] = s_box( out[index] );
+    word[index] = s_box( word[index] );
   end
-  out[0] = out[0] ^ rcon( i );
-  return out;
+  word[0] = word[0] ^ rcon( i );
 end
 
-text = add_round_key( key, text );
+filled = 0;
+expanded_key = zeros(176);
+
+defun add_to_key( Array new ):
+  loop ind from 0 to length(new):
+    expanded_key[filled + ind] = new[ind];
+    filled = filled + 1;
+  end
+end
+
+defun key_schedule():
+  add_to_key( key );
+  rcon_it = 1;
+  loop i from 0 to 10:
+    temp = slice( expanded_key, filled - 4, filled );
+    key_schedule_core( temp, rcon_it );
+    rcon_it = rcon_it + 1;
+    before = slice( expanded_key, filled - 16, filled - 12 );
+    add_round_key( before, temp );
+
+    add_to_key( temp );
+    
+    loop j from 0 to 3:
+      temp = slice( expanded_key, filled - 4, filled );
+      before = slice( expanded_key, filled - 16, filled - 12 );
+      add_round_key( before, temp );
+      add_to_key( temp );
+    end
+  end
+end
+
+key_schedule();
+
+iteration = 0;
+round_key = slice( expanded_key, iteration, iteration + 16 );
+state = text;
+add_round_key( round_key, state );
+iteration = iteration + 16;
 
 loop i from 0 to 10:
-  subbytes( text );
+  round_key = slice( expanded_key, iteration, iteration + 16 );
+  iteration = iteration + 16;
+  subbytes( state );
   loop row from 0 to 4:
-    rotate_left_one_arr( text, row << 2, (row << 2) + 3 );
+    rotate_left_one_arr( state, row << 2, (row << 2) + 3 );
   end
-  mix_cols( text );
-  add_round_key( key, text );
+  mix_cols( state );
+  add_round_key( round_key, state );
 end
 
 defoutput text;

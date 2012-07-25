@@ -153,6 +153,7 @@ public abstract class Function
     new Zeros();
     new BoolNot();
     new Combine();
+    new Slice();
   }
   
 }
