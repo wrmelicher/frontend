@@ -42,9 +42,6 @@ public class ArrayAccessExp extends Expression implements Changer {
     if( ind_var.getType() != Type.IntType )
       throw error("Cannot index variable with non-integer type" );
     ArrayPosition out_pos = arr_real.at( ind_var, this );
-    if( !side_effects ){
-      out_pos.read_val();
-    }
     set_ret( out_pos );
   }
   public boolean has_side_effects(){

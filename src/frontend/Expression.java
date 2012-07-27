@@ -63,7 +63,7 @@ public abstract class Expression extends Statement {
 
   protected abstract ExpSignature.ExpressionType type();
   protected abstract void compile_exp() throws CompileException;
-  public abstract boolean has_side_effects() throws CompileException;
+  public abstract boolean has_side_effects();
   
   public AbstractVariable returnVar(){
     return out;

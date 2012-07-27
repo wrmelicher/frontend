@@ -7,7 +7,7 @@ import frontend.functions.IntEqualsFunction;
 public class ArrayPositionRunTime extends ArrayPosition {
   private Variable<IntTypeData> index;
   public ArrayPositionRunTime( ArrayVariable par, Variable<IntTypeData> ind ){
-    super( par );
+    super( par.getData().any_elem() );
     index = ind;
   }
   public void read_value(){
@@ -16,10 +16,9 @@ public class ArrayPositionRunTime extends ArrayPosition {
       ProgramTree.output.println("// begin read secure index of "+getParent().debug_name() );
     
     getParent().join_indices();
-    validate();
     String input = getParent().cur_name();
     int num_elements = getParent().getData().getSize();
-    int element_size = getParent().getData().getElementData().bit_count();
+    int element_size = getParent().getData().any_elem().bit_count();
 
     PrintStream ps = ProgramTree.output;
     
@@ -59,7 +58,7 @@ public class ArrayPositionRunTime extends ArrayPosition {
   
   private void read_helper( String cur_in, String cur_control, int control_bit_position, int num_elements ){
     PrintStream ps = ProgramTree.output;
-    int element_size = getParent().getData().getElementData().bit_count();
+    int element_size = getParent().getData().any_elem().bit_count();
     String control_bit = Variable.temp_var_name();
     ps.println( control_bit + " select "+ cur_control +" "+control_bit_position+" "+(control_bit_position + 1 ) );
 
@@ -89,7 +88,7 @@ public class ArrayPositionRunTime extends ArrayPosition {
     String[] mux_out_names = new String[ parentData.getSize() ];
     AbstractVariable[] args = new AbstractVariable[2];
     args[0] = index;
-    String other_name = other.padTo( getParent().element_size() );
+    String other_name = other.padTo( parentData.any_elem().bit_count() );
     for( int i = 0; i < parentData.getSize(); i++){
       String select_name = getParent().state_index( i );
 

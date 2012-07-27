@@ -4,17 +4,20 @@ import java.util.List;
 import java.util.LinkedList;
 
 public class LiteralArrayExp extends Expression {
+  private boolean side_effects = false;
   public LiteralArrayExp
     ( int line,
       List<Expression> vals ){
     super( line );
     for( Expression e : vals ){
       add_child( e );
+      if( e.has_side_effects() )
+	side_effects = true;
     }
   }
 
   public boolean has_side_effects(){
-    return false;
+    return side_effects;
   }
 
   protected ExpSignature.ExpressionType type(){

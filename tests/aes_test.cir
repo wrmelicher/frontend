@@ -1,6 +1,14 @@
 definput party 1 key: array[16] int magnitude = 255;
 definput party 2 text: array[16] int magnitude = 255;
 
+defun slice( Array arr, int start, int stop ):
+  ans = zeros(stop - start);
+  loop i from 0 to stop - start:
+    ans[i] = arr[start + i];
+  end
+  return ans;
+end
+
 defun rotate_left_one_arr( Array arr, int start, int stop ):
   var temp = arr[start];
   loop i from start to stop:
@@ -262,4 +270,4 @@ loop i from 0 to 10:
   add_round_key( round_key, state );
 end
 
-defoutput text;
+defoutput state;

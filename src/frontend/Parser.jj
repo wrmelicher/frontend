@@ -233,7 +233,7 @@ TypeData type_data() throws CompileException:
 	 if( size <= 0 ){
 	   throw new CompileException( "Cannot create array with size less than or equal to 0", line );
 	 }
-	 return new ArrayData( other, size );
+	 return ArrayData.all_same(other, size);
        }
      )
 }
