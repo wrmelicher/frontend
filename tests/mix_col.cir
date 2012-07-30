@@ -42,9 +42,6 @@ out_b = out[1];
 out_c = out[2];
 out_d = out[3];
 
-gf_test = gf_mult(255,2);
-
-defoutput gf_test;
 defoutput out;
 defoutput out_a;
 defoutput out_b;

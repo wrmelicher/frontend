@@ -8,6 +8,7 @@ public class IntTypeData extends TypeData {
   private BigInteger magnitude;
   private boolean signed;
   private boolean is_const;
+  private int defined_width = -1;
 
   private static final BigInteger TWO = BigInteger.ONE.add( BigInteger.ONE );
 
@@ -30,6 +31,8 @@ public class IntTypeData extends TypeData {
     this( new BigInteger( mag+"" ), sign );
   }
   public int bit_count(){
+    if( defined_width != -1 )
+      return defined_width;
     if( magnitude.equals(BigInteger.ZERO) ){
       return 1;
     }
@@ -125,7 +128,9 @@ public class IntTypeData extends TypeData {
 
   public static IntTypeData concat( IntTypeData a, IntTypeData b ){
     if( a.is_constant() && b.is_constant() ){
-      return new IntTypeData( a.magnitude.shiftLeft( b.bit_count() ).add(b.magnitude) );
+      IntTypeData ans = new IntTypeData( a.magnitude.shiftLeft( b.bit_count() ).add(b.magnitude) );
+      ans.defined_width = a.bit_count() + b.bit_count();
+      return ans;
     } else {
       return new IntTypeData( a.magnitude.shiftLeft( b.bit_count() ).add(b.magnitude), false );
     }

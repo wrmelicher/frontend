@@ -75,7 +75,7 @@ end
 defun rcon( int i ):
   accum = 0x8d;
   loop index from 0 to i:
-    accum = gf_mult( 2, accum );
+    accum = gf_mult( accum, 2 );
   end
   return accum;
 end
@@ -264,7 +264,9 @@ loop i from 0 to 10:
   iteration = iteration + 16;
   subbytes( state );
   loop row from 0 to 4:
-    rotate_left_one_arr( state, row << 2, (row << 2) + 3 ); // this isn't right
+    loop time from 0 to row:
+      rotate_left_one_arr( state, row << 2, (row << 2) + 3 ); 
+    end
   end
   mix_cols( state );
   add_round_key( round_key, state );

@@ -11,6 +11,10 @@ public class DeclareInputStatement extends Statement {
     var.mark_as_input();
   }
 
+  public Variable var(){
+    return var;
+  }
+
   public void compile() throws CompileException {
     ProgramTree.output.println(".input "+var.cur_name()+" "+party+" "+var.getData().bit_count() );
   }

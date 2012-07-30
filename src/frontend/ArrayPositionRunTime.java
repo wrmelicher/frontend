@@ -80,6 +80,7 @@ public class ArrayPositionRunTime extends ArrayPosition {
     if( Expression.cond_scope != null ){
       Expression.cond_scope.register_assignment( getParent() );
     }
+    // TODO: this doesn't work
     notify_all();
     PrintStream ps = ProgramTree.output;
     

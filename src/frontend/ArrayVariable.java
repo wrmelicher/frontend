@@ -72,6 +72,12 @@ public class ArrayVariable extends Variable<ArrayData> implements Changer {
 				(i) * block_size + " "
 				+ (i+1) * block_size );
   }
+
+  public void init(){
+    for( ArrayPositionCompileTime a : getData().elems() ){
+      a.read_value();
+    }
+  }
   
   public ArrayPosition at
     ( AbstractVariable<IntTypeData> v,

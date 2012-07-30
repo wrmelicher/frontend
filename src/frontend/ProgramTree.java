@@ -25,6 +25,11 @@ public class ProgramTree {
   public void compile() throws CompileException{
     // inputs and stuff
     compile_list( inputs );
+    for( DeclareInputStatement dec : inputs() ){
+      if( dec.var() instanceof ArrayVariable ){
+	((ArrayVariable)dec.var()).init();
+      }
+    }
     compile_list( statements );
     compile_list( outputs );
   }

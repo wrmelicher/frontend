@@ -31,6 +31,10 @@ public class ArrayData extends TypeData {
     return new ArrayData( new_data );
   }
 
+  public List<ArrayPositionCompileTime> elems(){
+    return indices;
+  }
+
   public int getSize(){
     return indices.size();
   }
