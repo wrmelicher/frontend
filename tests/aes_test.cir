@@ -93,27 +93,27 @@ defun s_box( int a ):
        (at( a, 2 ) & (at( a, 1 )));
   
   q2 = (at( a, 7 ) & (at( a, 6 ) ^ at( a, 5 ) ^ at( a, 3 ) ^ at( a, 2 ) ^ at( a, 0 ))) ^
-        (at( a, 6 ) & (at( a, 5 ) ^ at( a, 3 ) ^ at( a, 2 ) ^ at( a, 1 ) ^ at( a, 0 ))) ^
-        (at( a, 5 ) & (at( a, 3 ) ^ at( a, 2 ))) ^
-        (at( a, 4 ) & (at( a, 3 ) ^ at( a, 2 ) ^ at( a, 0 ))) ^
-        (at( a, 3 ) & (at( a, 2 ) ^ at( a, 0 ))) ^
-        ((at( a, 2 ) ^ at( a, 1 )) & at( a, 0 ));
+       (at( a, 6 ) & (at( a, 5 ) ^ at( a, 3 ) ^ at( a, 2 ) ^ at( a, 1 ) ^ at( a, 0 ))) ^
+       (at( a, 5 ) & (at( a, 3 ) ^ at( a, 2 ))) ^
+       (at( a, 4 ) & (at( a, 3 ) ^ at( a, 2 ) ^ at( a, 0 ))) ^
+       (at( a, 3 ) & (at( a, 2 ) ^ at( a, 0 ))) ^
+       ((at( a, 2 ) ^ at( a, 1 )) & at( a, 0 ));
 
   q1 = (at( a, 7 ) & (at( a, 5 ) ^ at( a, 2 ) ^ at( a, 0 ) ^ 1)) ^
-        (at( a, 6 ) & (at( a, 5 ) ^ at( a, 3 ))) ^
-        (at( a, 5 ) & (at( a, 4 ) ^ at( a, 3 ) ^ at( a, 2 ) ^ at( a, 0 ) ^ 1)) ^
-        (at( a, 4 ) & (at( a, 2 ) ^ 1)) ^
-        (at( a, 3 ) & (at( a, 2 ) ^ at( a, 0 ))) ^
-        (at( a, 2 ) & (at( a, 1 ) ^ at( a, 0 ) ^ 1)) ^
-        (at( a, 1 ));
+       (at( a, 6 ) & (at( a, 5 ) ^ at( a, 3 ))) ^
+       (at( a, 5 ) & (at( a, 4 ) ^ at( a, 3 ) ^ at( a, 2 ) ^ at( a, 0 ) ^ 1)) ^
+       (at( a, 4 ) & (at( a, 2 ) ^ 1)) ^
+       (at( a, 3 ) & (at( a, 2 ) ^ at( a, 0 ))) ^
+       (at( a, 2 ) & (at( a, 1 ) ^ at( a, 0 ) ^ 1)) ^
+       (at( a, 1 ));
 
   q0 = (at( a, 7 ) & (at( a, 6 ) ^ at( a, 4 ) ^ at( a, 0 ))) ^
-        (at( a, 6 ) & (at( a, 5 ) ^ at( a, 4 ) ^ at( a, 3 ) ^ at( a, 1 ) ^ 1)) ^
-        (at( a, 5 ) & (at( a, 3 ) ^ at( a, 0 ) ^ 1)) ^
-        (at( a, 4 ) & (at( a, 3 ) ^ at( a, 1 ))) ^
-        (at( a, 3 ) & (at( a, 2 ) ^ at( a, 1 ) ^ at( a, 0 ) ^ 1)) ^
-        ((at( a, 2 ) ^ at( a, 1 )) & at( a, 0 )) ^
-        (at( a, 0 ) ^ at( a, 2 ));
+       (at( a, 6 ) & (at( a, 5 ) ^ at( a, 4 ) ^ at( a, 3 ) ^ at( a, 1 ) ^ 1)) ^
+       (at( a, 5 ) & (at( a, 3 ) ^ at( a, 0 ) ^ 1)) ^
+       (at( a, 4 ) & (at( a, 3 ) ^ at( a, 1 ))) ^
+       (at( a, 3 ) & (at( a, 2 ) ^ at( a, 1 ) ^ at( a, 0 ) ^ 1)) ^
+       ((at( a, 2 ) ^ at( a, 1 )) & at( a, 0 )) ^
+       (at( a, 0 ) ^ at( a, 2 ));
 
   y3 = q3 ^ (q3 & q2 & q1) ^ (q3 & q0) ^ q2;
   y2 = (q3 & q2 & q1) ^ (q3 & q2 & q0) ^ (q3 & q0) ^ 
@@ -125,41 +125,40 @@ defun s_box( int a ):
         (q2 & q1 & q0) ^ q1 ^ q0;
 
   t7 = (y3 & (at( a, 7 ) ^ at( a, 6 ) ^ at( a, 4 ) ^ at( a, 0 ))) ^
-        (y2 & (at( a, 5 ) ^ at( a, 4 ) ^ at( a, 3 ) ^ at( a, 0 ))) ^
-        (y1 & (at( a, 5 ) ^ at( a, 4 ) ^ at( a, 3 ) ^ at( a, 2 ) ^ at( a, 1 ))) ^
-        (y0 & (at( a, 7 ) ^ at( a, 2 ) ^ at( a, 1 )));
+       (y2 & (at( a, 5 ) ^ at( a, 4 ) ^ at( a, 3 ) ^ at( a, 0 ))) ^
+       (y1 & (at( a, 5 ) ^ at( a, 4 ) ^ at( a, 3 ) ^ at( a, 2 ) ^ at( a, 1 ))) ^
+       (y0 & (at( a, 7 ) ^ at( a, 2 ) ^ at( a, 1 )));
   t6 = (y3 & (at( a, 7 ) ^ at( a, 6 ) ^ at( a, 4 ))) ^
-        (y2 & (at( a, 7 ) ^ at( a, 5 ) ^ at( a, 1 ))) ^
-        (y1 & (at( a, 6 ) ^ at( a, 5 ) ^ at( a, 4 ))) ^
-        (y0 & (at( a, 6 ) ^ at( a, 5 ) ^ at( a, 4 ) ^ at( a, 3 ) ^ at( a, 2 )));	   
+       (y2 & (at( a, 7 ) ^ at( a, 5 ) ^ at( a, 1 ))) ^
+       (y1 & (at( a, 6 ) ^ at( a, 5 ) ^ at( a, 4 ))) ^
+       (y0 & (at( a, 6 ) ^ at( a, 5 ) ^ at( a, 4 ) ^ at( a, 3 ) ^ at( a, 2 )));	   
   t5 = (y3 & (at( a, 7 ) ^ at( a, 6 ) ^ at( a, 5 ) ^ at( a, 2 ))) ^
-        (y2 & (at( a, 7 ) ^ at( a, 5 ) ^ at( a, 0 ))) ^
-        (y1 & (at( a, 4 ) ^ at( a, 3 ))) ^
-        (y0 & (at( a, 7 ) ^ at( a, 6 ) ^ at( a, 5 )));	   
+       (y2 & (at( a, 7 ) ^ at( a, 5 ) ^ at( a, 0 ))) ^
+       (y1 & (at( a, 4 ) ^ at( a, 3 ))) ^
+       (y0 & (at( a, 7 ) ^ at( a, 6 ) ^ at( a, 5 )));	   
   t4 = (y3 & (at( a, 6 ) ^ at( a, 5 ) ^ at( a, 2 ))) ^
-        (y2 & (at( a, 7 ) ^ at( a, 6 ) ^ at( a, 5 ) ^ at( a, 3 ) ^ at( a, 2 ))) ^
-        (y1 & (at( a, 5 ) ^ at( a, 4 ) ^ at( a, 3 ) ^ at( a, 2 ) ^ at( a, 1 ) ^ at( a, 0 ))) ^
-        (y0 & (at( a, 4 ) ^ at( a, 3 ) ^ at( a, 2 ) ^ at( a, 0 )));
+       (y2 & (at( a, 7 ) ^ at( a, 6 ) ^ at( a, 5 ) ^ at( a, 3 ) ^ at( a, 2 ))) ^
+       (y1 & (at( a, 5 ) ^ at( a, 4 ) ^ at( a, 3 ) ^ at( a, 2 ) ^ at( a, 1 ) ^ at( a, 0 ))) ^
+       (y0 & (at( a, 4 ) ^ at( a, 3 ) ^ at( a, 2 ) ^ at( a, 0 )));
   t3 = (y3 & (at( a, 7 ) ^ at( a, 6 ) ^ at( a, 5 ) ^ at( a, 4 ) ^ at( a, 3 ) ^ at( a, 2 ) ^ at( a, 1 ))) ^
-        (y2 & (at( a, 7 ) ^ at( a, 6 ) ^ at( a, 5 ) ^ at( a, 3 ) ^ at( a, 2 ) ^ at( a, 0 ))) ^
-        (y1 & (at( a, 7 ) ^ at( a, 3 ) ^ at( a, 1 ) ^ at( a, 0 ))) ^
-        (y0 & (at( a, 6 ) ^ at( a, 4 ) ^ at( a, 1 ) ^ at( a, 0 )));
+       (y2 & (at( a, 7 ) ^ at( a, 6 ) ^ at( a, 5 ) ^ at( a, 3 ) ^ at( a, 2 ) ^ at( a, 0 ))) ^
+       (y1 & (at( a, 7 ) ^ at( a, 3 ) ^ at( a, 1 ) ^ at( a, 0 ))) ^
+       (y0 & (at( a, 6 ) ^ at( a, 4 ) ^ at( a, 1 ) ^ at( a, 0 )));
   t2 = (y3 & (at( a, 5 ) ^ at( a, 2 ) ^ at( a, 1 ) ^ at( a, 0 ))) ^
-        (y2 & (at( a, 7 ) ^ at( a, 6 ) ^ at( a, 5 ) ^ at( a, 4 ) ^ at( a, 3 ) ^ at( a, 2 ) ^ at( a, 0 ))) ^
-        (y1 & (at( a, 7 ) ^ at( a, 5 ) ^ at( a, 4 ))) ^
-        (y0 & (at( a, 4 ) ^ at( a, 2 ) ^ at( a, 1 ) ^ at( a, 0 )));
+       (y2 & (at( a, 7 ) ^ at( a, 6 ) ^ at( a, 5 ) ^ at( a, 4 ) ^ at( a, 3 ) ^ at( a, 2 ) ^ at( a, 0 ))) ^
+       (y1 & (at( a, 7 ) ^ at( a, 5 ) ^ at( a, 4 ))) ^
+       (y0 & (at( a, 4 ) ^ at( a, 2 ) ^ at( a, 1 ) ^ at( a, 0 )));
   t1 = (y3 & (at( a, 6 ) ^ at( a, 4 ) ^ at( a, 3 ) ^ at( a, 1 ))) ^
-        (y2 & (at( a, 6 ) ^ at( a, 5 ) ^ at( a, 3 ) ^ at( a, 1 ))) ^
-        (y1 & (at( a, 7 ))) ^
-        (y0 & (at( a, 6 ) ^ at( a, 3 ) ^ at( a, 2 ) ^ at( a, 0 )));
+       (y2 & (at( a, 6 ) ^ at( a, 5 ) ^ at( a, 3 ) ^ at( a, 1 ))) ^
+       (y1 & (at( a, 7 ))) ^
+       (y0 & (at( a, 6 ) ^ at( a, 3 ) ^ at( a, 2 ) ^ at( a, 0 )));
   t0 = (y3 & (at( a, 7 ) ^ at( a, 3 ) ^ at( a, 2 ) ^ at( a, 1 ))) ^
-        (y2 & (at( a, 7 ) ^ at( a, 4 ) ^ at( a, 0 ))) ^
-        (y1 & (at( a, 6 ) ^ at( a, 4 ) ^ at( a, 2 ) ^ at( a, 0 ))) ^
-        (y0 & (at( a, 5 ) ^ at( a, 3 ) ^ at( a, 2 ) ^ at( a, 0 )));
+       (y2 & (at( a, 7 ) ^ at( a, 4 ) ^ at( a, 0 ))) ^
+       (y1 & (at( a, 6 ) ^ at( a, 4 ) ^ at( a, 2 ) ^ at( a, 0 ))) ^
+       (y0 & (at( a, 5 ) ^ at( a, 3 ) ^ at( a, 2 ) ^ at( a, 0 )));
 
   return (t7 cat t6 cat t5 cat t4 cat t3 cat t2 cat t1 cat t0) ^ 99;
 end
-
 
 defun subbytes( Array state ):
   loop i from 0 to length( state ):
