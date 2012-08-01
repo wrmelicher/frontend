@@ -22,7 +22,7 @@ public class LessThanFunction extends Function {
       int len = Variable.maxArgLength( args );
       String[] actual_args = Variable.padArgsToLength( args, len );
       ps.print( out.new_name() + " " + op + " ");
-      ps.print( actual_args[1] + " " + actual_args[0] );
+      ps.print( actual_args[0] + " " + actual_args[1] );
       ps.println();
     }
     return out;
