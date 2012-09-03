@@ -227,27 +227,20 @@ defun key_schedule():
 end
 
 key_schedule();
-DEBUG expanded_key;
 round_key = create_round_key();
 state = transpose(text);
-DEBUG state;
 add_round_key( round_key, state );
-DEBUG state;
 
 loop i from 0 to 9:
   round_key = create_round_key();
   subbytes( state );
-  DEBUG state;
   loop row from 0 to 4:
     loop time from 0 to row:
       rotate_left_one_arr( state, row << 2, (row << 2) + 3 );
     end
   end
-  DEBUG state;
   mix_cols( state );
-  DEBUG state;
   add_round_key( round_key, state );
-  DEBUG state;
 end
 
 subbytes(state);
