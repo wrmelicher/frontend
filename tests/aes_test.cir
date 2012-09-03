@@ -1,5 +1,9 @@
 definput party 1 key: array[16] int magnitude = 255;
+// entered in reverse byte order
+// eg : 2b7e151628aed2a6abf7158809cf4f3c -> 3c4fcf098815f7aba6d2ae2816157e2b
 definput party 2 text: array[16] int magnitude = 255;
+// entered in reverse byte order
+// eg : 6bc1bee22e409f96e93d7e117393172a -> 2a179373117e3de9969f402ee2bec16b
 
 defun slice( Array arr, int start, int stop ):
   ans = zeros(stop - start);
@@ -223,20 +227,27 @@ defun key_schedule():
 end
 
 key_schedule();
+DEBUG expanded_key;
 round_key = create_round_key();
 state = transpose(text);
+DEBUG state;
 add_round_key( round_key, state );
+DEBUG state;
 
 loop i from 0 to 9:
   round_key = create_round_key();
   subbytes( state );
+  DEBUG state;
   loop row from 0 to 4:
     loop time from 0 to row:
       rotate_left_one_arr( state, row << 2, (row << 2) + 3 );
     end
   end
+  DEBUG state;
   mix_cols( state );
+  DEBUG state;
   add_round_key( round_key, state );
+  DEBUG state;
 end
 
 subbytes(state);
