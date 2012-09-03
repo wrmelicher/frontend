@@ -29,11 +29,11 @@ defun gf_mult( int a, int b ):
     carry = select( a_copy, 7, 8 );
     a_copy = trunc( a_copy << 1, 8 );
     if carry equals 1:
-       a_copy = a_copy ^ 0x1b;
+      a_copy = a_copy ^ 0x1b;
     end
   end
   return p;
-end    
+end
 
 mix_cols =
 [ 2, 3, 1, 1,
@@ -182,6 +182,25 @@ defun add_to_key( Array new ):
   end
 end
 
+defun transpose( Array arr ):
+  ans = zeros(16);
+  loop i from 0 to 4:
+    loop j from 0 to 4:
+      ans[ (i << 2) + j ] = arr[i + (j << 2)];
+    end
+  end
+  return ans;
+end
+
+iteration = 0;
+
+defun create_round_key():
+  ans = slice( expanded_key, iteration << 4, (iteration + 1) << 4);
+  ans = transpose(ans);
+  iteration = iteration + 1;
+  return ans;
+end
+
 defun key_schedule():
   add_to_key( key );
   rcon_it = 1;
@@ -204,24 +223,30 @@ defun key_schedule():
 end
 
 key_schedule();
-
-iteration = 0;
-round_key = slice( expanded_key, iteration, iteration + 16 );
-state = text;
+round_key = create_round_key();
+state = transpose(text);
 add_round_key( round_key, state );
-iteration = iteration + 16;
 
-loop i from 0 to 10:
-  round_key = slice( expanded_key, iteration, iteration + 16 );
-  iteration = iteration + 16;
+loop i from 0 to 9:
+  round_key = create_round_key();
   subbytes( state );
   loop row from 0 to 4:
     loop time from 0 to row:
-      rotate_left_one_arr( state, row << 2, (row << 2) + 3 ); 
+      rotate_left_one_arr( state, row << 2, (row << 2) + 3 );
     end
   end
   mix_cols( state );
   add_round_key( round_key, state );
 end
+
+subbytes(state);
+loop row from 0 to 4:
+  loop time from 0 to row:
+    rotate_left_one_arr( state, row << 2, (row << 2) + 3 );
+  end
+end
+add_round_key( create_round_key(), state );
+
+state = transpose(state);
 
 defoutput state;
