@@ -175,6 +175,21 @@ end
 filled = 0;
 expanded_key = zeros(176);
 
+defun transpose( Array arr ):
+  ans = zeros( 16 );
+  loop i from 0 to 4:
+    loop j from 0 to 4:
+      ans[ (i << 2) + j ] = arr[ (j << 2) + i ];
+    end
+  end
+  return ans;
+end
+
+defun create_round_key( int round ):
+  ans = slice( expanded_key, round << 4, (round << 4) + 16 );
+  return transpose( ans );
+end
+
 defun add_to_key( Array new ):
   loop ind from 0 to length(new):
     expanded_key[filled] = new[ind];
@@ -206,22 +221,25 @@ end
 key_schedule();
 
 iteration = 0;
-round_key = slice( expanded_key, iteration, iteration + 16 );
-state = text;
+round_key = create_round_key( iteration );
+state = transpose( text );
 add_round_key( round_key, state );
-iteration = iteration + 16;
+iteration = iteration + 1;
 
 loop i from 0 to 10:
-  round_key = slice( expanded_key, iteration, iteration + 16 );
-  iteration = iteration + 16;
+  round_key = create_round_key( iteration );
+  iteration = iteration + 1;
   subbytes( state );
   loop row from 0 to 4:
     loop time from 0 to row:
       rotate_left_one_arr( state, row << 2, (row << 2) + 3 ); 
     end
   end
-  mix_cols( state );
+  if !(i equals 9):
+    mix_cols( state );
+  end
   add_round_key( round_key, state );
 end
 
+state = transpose( state );
 defoutput state;
