@@ -25,7 +25,7 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
 
   private static long id_counter = 0;
   private static Map<String, UnionSet > equivalent_names
-    = new HashMap<String, UnionSet >();
+    = new TreeMap<String, UnionSet >();
   
   public Variable( T atype ){
     this( unused_name(), atype );
@@ -133,6 +133,7 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
   }
   
   public String new_name(){
+    equivalent_names.remove( cur_name() );
     inc_name();
     lengths.clear();
     String ans = cur_name();
@@ -325,11 +326,11 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
     return call_depth;
   }
 
-  public void compile_assignment( Variable other, Statement owner ) throws CompileException {
+  public void compile_assignment( Variable other, Statement owner, boolean override_cond ) throws CompileException {
     if( ProgramTree.DEBUG >= 2 ){
       ProgramTree.output.println("// begin assignment of "+debug_name());
     }
-    if( Expression.cond_scope != null ){
+    if( Expression.cond_scope != null && !override_cond ){
       Expression.cond_scope.register_assignment( this );
     }
     if( type != null && other.getType() != getType() ){
@@ -346,6 +347,9 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
     if( ProgramTree.DEBUG >= 2 ){
       ProgramTree.output.println("// end assignment of "+debug_name() );
     }
+  }
+  public void compile_assignment( Variable other, Statement owner ) throws CompileException {
+    compile_assignment( other, owner, false );
   }
 
   private static class DebugNameRecord {

@@ -8,7 +8,7 @@ public class OrFunction extends BinaryInt {
   public OrFunction(){
     super( NAME );
   }
-  public String op(){
+  public String op( IntTypeData a, IntTypeData b ){
     return "or";
   }
   public TypeData data_type( IntTypeData a, IntTypeData b ){

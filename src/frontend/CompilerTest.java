@@ -99,6 +99,7 @@ public class CompilerTest {
   
   public static void compile( ProgramTree tree, PrintStream out ) {
     ProgramTree.output = out;
+    frontend.Function.InitFunctions();
     try {
       tree.compile();
     } catch ( CompileException e ){

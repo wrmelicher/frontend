@@ -101,6 +101,7 @@ TOKEN: {
     | < LOOP : "loop" >
     | < FROM : "from" >
     | < TRUE : "true" >
+    | < STEP : "step" >
     | < FALSE : "false" >
     | < ARRAY : "array" >
     | < DEFUN : "defun" >
@@ -522,6 +523,8 @@ ForStatement for_loop()  throws CompileException:
   String loop_var_name;
   Expression from;
   Expression to;
+  Expression step = new VariableExp( line,
+				     frontend.functions.IncFunction.ONE );
   ForStatement s;
 }
 {
@@ -531,9 +534,11 @@ ForStatement for_loop()  throws CompileException:
     from = expression()
     <TO>
     to = expression()
+    ( <STEP>
+      step = expression() )?
     <COLON>
   {
-    s = new ForStatement( line, from, to, loop_var_name );
+    s = new ForStatement( line, from, to, loop_var_name, step );
     push_scope();
     bind_variable( loop_var_name, s.getLoopVar() );
   }

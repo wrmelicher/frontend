@@ -8,7 +8,7 @@ public class XorFunction extends BinaryInt {
   public XorFunction(){
     super( NAME );
   }
-  public String op(){
+  public String op( IntTypeData a, IntTypeData b ){
     return "xor";
   }
   public TypeData data_type( IntTypeData a, IntTypeData b ){

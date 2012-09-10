@@ -23,8 +23,19 @@ public class ArrayVariable extends Variable<ArrayData> implements Changer {
   public static ArrayVariable literal
     ( List<AbstractVariable> cons_vars,
       Statement owner ) throws CompileException {
-    Variable first = cons_vars.get(0).var();
-    Type t = first.getType();
+    /*    if( cons_vars.size() == 0 ){
+      throw owner.error("cannot make size 0 array");
+      }*/
+    
+    Variable first;
+    Type t;
+    if( cons_vars.size() != 0 ){
+      first = cons_vars.get(0).var();
+      t = first.getType();
+    } else {
+      t = Type.ANYTYPE;
+    }
+
     for( AbstractVariable v : cons_vars ){
       if( t != v.var().getType() ){
 	throw owner.error( "All elements of array must have the same type" );

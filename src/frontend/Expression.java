@@ -9,6 +9,7 @@ public abstract class Expression extends Statement {
   
   private boolean has_side_effects = false;
   private ExpSignature sig = null;
+  private static boolean cse_opts = true;
   
   public Expression( int line ){
     super( line );
@@ -28,7 +29,7 @@ public abstract class Expression extends Statement {
   
   public void compile() throws CompileException {
     ExpSignature s = null;
-    if( !has_side_effects() ){
+    if( !has_side_effects() && cse_opts ){
       s = signature();
       Variable.Snapshot ret_val = get_sig(s);
       if( ret_val != null ){
@@ -40,7 +41,7 @@ public abstract class Expression extends Statement {
     if( s == null ){
       s = signature();
     }
-    if( !has_side_effects() )
+    if( !has_side_effects() && cse_opts )
       put_sig( s, out.var().snapshot() );
   }
 

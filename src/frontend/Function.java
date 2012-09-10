@@ -112,6 +112,10 @@ public abstract class Function
       Statement owner ) throws CompileException {
     return compile_func( args, owner );
   }
+
+  public String name(){
+    return name;
+  }
   
   public abstract AbstractVariable compile_func
     ( Variable[] args,
@@ -129,7 +133,7 @@ public abstract class Function
     
   }
 
-  static {
+  public static void InitFunctions() {
     new AddFunction();
     new IntEqualsFunction();
     new BoolEqualsFunction();
@@ -153,6 +157,8 @@ public abstract class Function
     new Zeros();
     new BoolNot();
     new Combine();
+    new GreaterThanEquals();
+    new LessThanEquals();
   }
   
 }

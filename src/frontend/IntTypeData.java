@@ -74,6 +74,13 @@ public class IntTypeData extends TypeData {
       return new BoolData( BoolData.MAYBE );
     }
   }
+  public static BoolData lessthanEqual( IntTypeData a, IntTypeData b ) {
+    if( a.is_constant() && b.is_constant() ){
+      return new BoolData( a.magnitude.compareTo( b.magnitude ) <= 0 ? BoolData.TRUE : BoolData.FALSE );
+    } else {
+      return new BoolData( BoolData.MAYBE );
+    }
+  }
   public static IntTypeData and( IntTypeData a, IntTypeData b ){
     if( a.is_constant() && b. is_constant() ){
       return new IntTypeData( a.magnitude.and( b.magnitude ) );

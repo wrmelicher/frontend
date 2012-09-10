@@ -8,7 +8,7 @@ public class Truncate extends BinaryInt {
   public Truncate(){
     super( NAME );
   }
-  public String op(){
+  public String op( IntTypeData a, IntTypeData b ){
     return "trunc";
   }
   public boolean pad_to(){

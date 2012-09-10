@@ -8,7 +8,7 @@ public class IntEqualsFunction extends BinaryInt {
   public IntEqualsFunction(){
     super(NAME);
   }
-  public String op(){
+  public String op( IntTypeData a, IntTypeData b ){
     return "equ";
   }
   public TypeData data_type( IntTypeData a, IntTypeData b ){

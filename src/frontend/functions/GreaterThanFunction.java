@@ -2,16 +2,20 @@ package frontend.functions;
 
 import frontend.*;
 
-public class GreaterThanFunction extends Function {
+public class GreaterThanFunction extends BinaryInt {
   public static final String NAME = ">";
   public GreaterThanFunction(){
-    super( NAME, new Type[] { Type.IntType, Type.IntType } );
+    super(NAME);
   }
-  public AbstractVariable compile_func
-    ( Variable[] args,
-      Statement owner ) throws CompileException{
-    return Function.call( LessThanFunction.NAME,
-			  new Variable[] { args[1], args[0] },
-			  owner );
+  public String op( IntTypeData a, IntTypeData b ){
+    if( a.signed() || b.signed() ){
+      return "gts";
+    } else {
+      return "gtu";
+    }
   }
+  public TypeData data_type( IntTypeData a, IntTypeData b ){
+    return IntTypeData.lessthan( b, a );
+  }
+  
 }

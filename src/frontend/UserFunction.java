@@ -2,6 +2,7 @@ package frontend;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Stack;
 
 public class UserFunction extends Function {
   private ExpressionContainer exps;
@@ -13,8 +14,13 @@ public class UserFunction extends Function {
   private List<DummyVariable> declared =
     new LinkedList<DummyVariable>();
   
-  private static UserFunction caller = null;
+  private static LinkedList< UserFunction > call_stack =
+    new LinkedList< UserFunction >();
   private static int call_depth = 0;
+
+  private static UserFunction current(){
+    return call_stack.peek();
+  }
   
   public UserFunction
     ( String name,
@@ -68,13 +74,14 @@ public class UserFunction extends Function {
   }
 
   public static int call_depth(){
-    return call_depth;
+    return call_stack.size();
   }
   
   public AbstractVariable compile_func
     ( Variable[] args,
       Statement owner ) throws CompileException {
-
+    if( ProgramTree.DEBUG >= 2 )
+      ProgramTree.output.println(".profile "+name() );
     UserFunction.call_depth++;
     
     boolean prev_ret = ret_assigned;
@@ -88,10 +95,9 @@ public class UserFunction extends Function {
       v.start_func();
     }
     
-    UserFunction prev = caller;
-    caller = this;
+    call_stack.push( this );
     exps.compile();
-    caller = prev;
+    call_stack.pop();
 
     for( int i = 0; i < func_args.length; i++ ){
       func_args[i].pop_var();
@@ -106,8 +112,8 @@ public class UserFunction extends Function {
 
     ret_assigned = prev_ret;
 
-    UserFunction.call_depth--;
-    
+    if( ProgramTree.DEBUG >= 2 )
+      ProgramTree.output.println(".profile" );    
     return ans;
   }
 
@@ -126,16 +132,16 @@ public class UserFunction extends Function {
       val = aval;
     }
     public void compile() throws CompileException {
-      if( caller == null ){
+      if( current() == null ){
 	throw error( "Cannot return when not in a function" );
       }
       val.compile();
       Variable ret_var = val.returnVar().var();
-      if( !caller.ret_assigned ){
-	caller.ret_assigned = true;
-	caller.returning_var().push_var( ret_var );
+      if( !current().ret_assigned ){
+	current().ret_assigned = true;
+	current().returning_var().push_var( ret_var );
       }
-      caller.returning_var().var().compile_assignment( ret_var, this );
+      current().returning_var().var().compile_assignment( ret_var, this );
     }
   }
 }

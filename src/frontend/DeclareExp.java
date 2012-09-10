@@ -25,7 +25,7 @@ public class DeclareExp extends Expression {
     Variable var = first.copy( dest.debug_name() );
     dest.set_call_depth( UserFunction.call_depth() );
     dest.push_var( var );
-    var.compile_assignment( first, this );
+    var.compile_assignment( first, this, true );
     set_ret(dest);
   }
 }

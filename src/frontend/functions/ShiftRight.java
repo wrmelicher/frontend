@@ -8,7 +8,7 @@ public class ShiftRight extends BinaryInt {
   public ShiftRight(){
     super( NAME );
   }
-  public String op(){
+  public String op( IntTypeData a, IntTypeData b ){
     return "shiftr";
   }
   public boolean pad_to(){

@@ -8,7 +8,7 @@ public class ShiftLeft extends BinaryInt {
   public ShiftLeft(){
     super( NAME );
   }
-  public String op(){
+  public String op( IntTypeData a, IntTypeData b ){
     return "shiftl";
   }
   public boolean pad_to(){

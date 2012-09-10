@@ -7,7 +7,8 @@ public class DummyVariable<T extends TypeData>
   implements AbstractVariable<T>, Changer {
   private String debug;
 
-  private boolean assigned = false;
+  private LinkedList<Boolean> assigned =
+    new LinkedList<Boolean>();
   private String other_debug;
 
   private LinkedList<Variable<T> > values
@@ -36,13 +37,12 @@ public class DummyVariable<T extends TypeData>
     Variable v = values.pop();
     v.remove_notifier( this );
     set_changed();
-    v.set_debug_name( other_debug
- );
+    v.set_debug_name( other_debug );
     return v;
   }
 
   public void start_func(){
-    assigned = false;
+    assigned.push( false );
   }
 
   public void set_changed(){
@@ -64,12 +64,14 @@ public class DummyVariable<T extends TypeData>
   }
   
   public void exit_func(){
-    if( assigned )
+    if( assigned.peek() )
       pop_var();
+    assigned.pop();
   }
 
   public void push_var( AbstractVariable<T> a ){
-    assigned = true;
+    if( assigned.size() > 0 )
+      assigned.set( 0, true );
     values.push( a.var() );
     a.var().notify_changes( this );
     other_debug = a.var().debug_name();
