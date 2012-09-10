@@ -1,0 +1,72 @@
+definput party 1 a_set: array[256] int magnitude = 511;
+definput party 2 b_set: array[256] int magnitude = 511;
+
+defun compare_and_swap( Array arr, int a, int b ):
+  if arr[a] > arr[b]:
+    temp = arr[a];
+    arr[a] = arr[b];
+    arr[b] = temp;
+  end
+end
+
+defun oddeven_merge( Array arr, int lo, int hi, int r ):
+  step_size = r << 1;
+  if step_size < ( hi - lo ):
+    oddeven_merge( arr, lo, hi, step_size );
+    oddeven_merge( arr, lo + r, hi, step_size );
+    loop i from lo + r to hi - r step step_size:
+      compare_and_swap( arr, i, i + r );
+    end
+  else:
+    compare_and_swap( arr, lo, lo + r );
+  end
+end
+
+defun oddeven_sort_range( Array arr, int lo, int hi ):
+  if ( hi - lo ) >= 1:
+    mid = lo + ( ( hi - lo ) >> 1 );
+    oddeven_sort_range( arr, lo, mid );
+    oddeven_sort_range( arr, mid + 1, hi );
+    oddeven_merge( arr, lo, hi, 1 );
+  end
+end
+
+defun oddeven_sort( Array arr ):
+  oddeven_sort_range( arr, 0, length( arr ) - 1 );
+end
+
+together = zeros( length( a_set ) + length( b_set ) );
+loop i from 0 to length( together ):
+  if i < length(a_set):
+    together[i] = a_set[i];
+  else:
+    together[i] = b_set[ i - length(a_set) ];
+  end
+end
+
+oddeven_sort( together );
+
+defun dupSelect( int i ):
+  if (i + 2) >= length( together ):
+    if( together[i] equals together[i + 1] ):
+      return together[i];
+    else:
+      return 0;
+    end
+  else:
+    if ( together[i + 1] equals together[i] ) or
+       ( together[i + 2] equals together[i + 1] ):
+      return together[i + 1];
+    else:
+      return 0;
+    end
+  end
+end
+
+ans = zeros( length(together) >> 1 );
+loop i from 0 to length( together ) >> 1:
+  ans[i] = dupSelect(i);
+end
+oddeven_sort( ans );
+
+defoutput ans;
