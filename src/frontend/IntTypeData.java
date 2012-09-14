@@ -19,7 +19,7 @@ public class IntTypeData extends TypeData {
     super( Type.IntType );
     is_const = true;
     signed = val.compareTo( BigInteger.ZERO ) < 0 ? true : false;
-    magnitude = val;
+    magnitude = val.abs();
   }
   public IntTypeData( BigInteger mag, boolean sign ) {
     super( Type.IntType );
