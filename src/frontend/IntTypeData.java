@@ -58,7 +58,10 @@ public class IntTypeData extends TypeData {
     if( a.is_constant() && b.is_constant() ){
       return new IntTypeData( a.magnitude.subtract( b.magnitude ) );
     }
-    return new IntTypeData( a.magnitude.add( b.magnitude ), true );
+    if( !a.signed && !b.signed )
+      return new IntTypeData( a.magnitude.max( b.magnitude ), true );
+    else
+      return new IntTypeData( a.magnitude.add( b.magnitude ), true );
   }
   public static BoolData equals_op( IntTypeData a, IntTypeData b ){
     if( a.is_constant() && b.is_constant() ){

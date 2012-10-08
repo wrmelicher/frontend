@@ -4,7 +4,7 @@ import java.io.PrintStream;
 import frontend.*;
 
 public class IntEqualsFunction extends BinaryInt {
-  public static final String NAME = "equals";
+  public static final String NAME = "==";
   public IntEqualsFunction(){
     super(NAME);
   }

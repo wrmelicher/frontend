@@ -16,7 +16,7 @@ public class Truncate extends BinaryInt {
   }
 
   public String[] actual_args( Variable<IntTypeData>[] args, int size ){
-    return new String[] { args[0].cur_name(), size+"" };
+    return new String[] { args[0].cur_name(), args[1].cur_name()+"" };
   }
   
   public TypeData data_type( IntTypeData a, IntTypeData b ) throws CompileException{

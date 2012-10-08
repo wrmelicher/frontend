@@ -54,8 +54,8 @@ defun dupSelect( int i ):
       return 0;
     end
   else:
-    if ( together[i + 1] equals together[i] ) or
-       ( together[i + 2] equals together[i + 1] ):
+    if ( together[i + 1] == together[i] ) or
+       ( together[i + 2] == together[i + 1] ):
       return together[i + 1];
     else:
       return 0;

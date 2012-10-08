@@ -1,18 +1,10 @@
-define(`SIZE',12)
-
-/* defines array variables a and b of size 4 which holds integers up to 7 */
-definput party 1 a: array[SIZE] int magnitude = 15;
-definput party 2 b: array[SIZE] int magnitude = 15;
-
-/* defines a function to add two positions in each array */
-defun sum_index( int i ):
-  return +( a[i], b[i] );
-end
+definput party 1 a: array[10] int magnitude = 15;
+definput party 2 b: array[10] int magnitude = 15;
 
 var max = 0;
 loop i from 0 to length(a):
-  var temp = sum_index( i );
-  if <( max, temp ):
+  var temp = a[i] + b[i];
+  if max < temp:
     max = temp;
   end
 end
