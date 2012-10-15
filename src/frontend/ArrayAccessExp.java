@@ -25,7 +25,7 @@ public class ArrayAccessExp extends Expression implements Changer {
   }
 
   public void set_side_effects(){
-    side_effects = true;
+    side_effects = false;
   }
 
   public AbstractVariable arr_var(){
@@ -42,6 +42,9 @@ public class ArrayAccessExp extends Expression implements Changer {
     if( ind_var.getType() != Type.IntType )
       throw error("Cannot index variable with non-integer type" );
     ArrayPosition out_pos = arr_real.at( ind_var, this );
+    if( out_pos instanceof ArrayPositionRunTime ){
+      out_pos.read_value();
+    }
     set_ret( out_pos );
   }
   public boolean has_side_effects(){

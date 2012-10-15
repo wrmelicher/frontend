@@ -159,6 +159,7 @@ public abstract class Function
     new Combine();
     new GreaterThanEquals();
     new LessThanEquals();
+    new Decoder();
   }
   
 }

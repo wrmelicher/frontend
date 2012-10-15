@@ -1,11 +1,11 @@
 package frontend;
 
 import java.io.PrintStream;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.*;
+
 
 public class ArrayVariable extends Variable<ArrayData> implements Changer {
-  
+
   public ArrayVariable(String name, ArrayData elem){
     super( name, elem );
     for( int i = 0; i < elem.getSize(); i++ ){
@@ -18,6 +18,7 @@ public class ArrayVariable extends Variable<ArrayData> implements Changer {
 
   public void set_changed(){
     notify_all();
+    init();
   }
 
   public static ArrayVariable literal
@@ -66,7 +67,7 @@ public class ArrayVariable extends Variable<ArrayData> implements Changer {
       throw owner.error("Cannot assign "+other.getType().name() +" to array variable");
     }
     ArrayData other_data = (ArrayData) other.getData();
-    setData( other_data.copy(owner) );
+    setData( other_data.copy(this,owner) );
   }
   
   public String state_index( int i ) {
@@ -105,6 +106,7 @@ public class ArrayVariable extends Variable<ArrayData> implements Changer {
       ans = getData().at( i );
     } else {
       ans = new ArrayPositionRunTime( this, v.var() );
+      ans.setParent( this );
       ans.notify_changes( this );
     }
     return ans;

@@ -2,7 +2,7 @@ package frontend;
 import java.io.PrintStream;
 
 import java.lang.Math;
-import frontend.functions.IntEqualsFunction;
+import frontend.functions.*;
 
 public class ArrayPositionRunTime extends ArrayPosition {
   private Variable<IntTypeData> index;
@@ -81,29 +81,37 @@ public class ArrayPositionRunTime extends ArrayPosition {
       Expression.cond_scope.register_assignment( getParent() );
     }
     // TODO: this doesn't work
-    notify_all();
+
     PrintStream ps = ProgramTree.output;
     
     // assume that all size adjustments have already been made
     ArrayData parentData = getParent().getData();
     String[] mux_out_names = new String[ parentData.getSize() ];
-    AbstractVariable[] args = new AbstractVariable[2];
-    args[0] = index;
     String other_name = other.padTo( parentData.any_elem().bit_count() );
-    for( int i = 0; i < parentData.getSize(); i++){
+
+    Variable<IntTypeData> decoder_out = (Variable<IntTypeData>)Function.call
+      ( Decoder.NAME, new AbstractVariable[] {index}, owner );
+    AbstractVariable[] sel_args = new AbstractVariable[3];
+    sel_args[0] = decoder_out;
+    int i;
+    for( i = 0; i < parentData.getSize() && i < decoder_out.getData().bit_count() ; i++){
       String select_name = getParent().state_index( i );
 
-      args[1] = new Variable( new IntTypeData( i ) ); 
-      Variable mux_choice = Function.call( IntEqualsFunction.NAME, args, owner ).var();
+      sel_args[1] = new Variable( new IntTypeData( i ) );
+      sel_args[2] = new Variable( new IntTypeData( i + 1 ) );
+      Variable mux_choice = Function.call( Select.NAME, sel_args, owner ).var();
       
       mux_out_names[i] = Variable.temp_var_name();
       ps.println( mux_out_names[i]+" chose "+mux_choice.cur_name()+" "+select_name+" " + other_name );
     }
+    for( ; i < parentData.getSize(); i++ ){
+      mux_out_names[i] = getParent().state_index( i );
+    }
     ps.print( getParent().new_name() + " concatls");
-    for( int i = 0; i < parentData.getSize(); i++){
+    for( i = 0; i < parentData.getSize(); i++){
       ps.print( " "+mux_out_names[i] );
     }
     ps.println();
-
+    notify_all();
   }
 }

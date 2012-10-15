@@ -157,6 +157,23 @@ public class IntTypeData extends TypeData {
       return new IntTypeData( range, false );
     }
   }
+  
+  public static IntTypeData decode( IntTypeData a ) {
+    int i = a.magnitude.intValue();
+    if( a.is_constant() ){
+      BigInteger out = BigInteger.ZERO;
+      if( i < 0 ){
+	// throw error somewhere
+	return null;
+      }
+      out = out.setBit( i );
+      return new IntTypeData( out );
+    } else {
+      BigInteger outrange = TWO.pow( i );
+      return new IntTypeData( outrange, false );
+    }
+  }
+
   public String extend_operation(){
     if( signed() ){
       return "sextend";

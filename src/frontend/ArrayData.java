@@ -19,7 +19,7 @@ public class ArrayData extends TypeData {
     return new ArrayData( new_data );
   }
 
-  public ArrayData copy( Statement owner ) throws CompileException {
+  public ArrayData copy( ArrayVariable newParent, Statement owner ) throws CompileException {
     ArrayList<ArrayPositionCompileTime> new_data =
       new ArrayList<ArrayPositionCompileTime>();
     for( int i = 0; i < indices.size(); i++ ){
@@ -27,6 +27,7 @@ public class ArrayData extends TypeData {
 	new ArrayPositionCompileTime( indices.get(i).getData(), i );
       add.compile_assignment( indices.get(i), owner );
       new_data.add(add);
+      add.setParent( newParent );
     }
     return new ArrayData( new_data );
   }
