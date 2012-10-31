@@ -84,80 +84,132 @@ defun at( int i, int bit ):
   return select( i, bit, bit + 1 );
 end
 
+defun affine( int a ):
+  t1 = at(a,0) ^ at(a,1);
+  t2 = at(a,2) ^ at(a,3);
+  t3 = at(a,4) ^ at(a,5);
+  t4 = at(a,6) ^ at(a,7);
+
+  out0 = ~(at(a,0)) ^ t3 ^ t4;
+  out1 = ~(at(a,5)) ^ t1 ^ t4;
+  out2 = at(a,2) ^ t1 ^ t4;
+  out3 = at(a,7) ^ t1 ^ t2;
+  out4 = at(a,4) ^ t1 ^ t2;
+  out5 = ~(at(a,1)) ^ t2 ^ t3;
+  out6 = ~(at(a,6)) ^ t2 ^ t3;
+  out7 = at(a,3) ^ t3 ^ t4;
+  return out7 cat out6 cat out5 cat out4 cat out3 cat out2 cat out1 cat out0;
+end
+
+defun map( int a ):
+  A = at(a,1) ^ at(a,7);
+  B = at(a,5) ^ at(a,7);
+  C = at(a,4) ^ at(a,6);
+  L0 = C ^ at(a,0) ^ at(a,5);
+  L1 = at(a,1) ^ at(a,2);
+  L2 = at(a,2) ^ at(a,4);
+  H0 = C ^ at(a,5);
+  H1 = A ^ C;
+  H2 = B ^ at(a,2) ^ at(a,3);
+  return (B cat H2 cat H1 cat H0 cat L2 cat A cat L1 cat L0);
+end
+
+defun square( int a ):
+  t1 = at(a,0) ^ at(a,2);
+  t2 = at(a,2) ^ 0;
+  t3 = at(a,1) ^ at(a,3);
+  t4 = at(a,3) ^ 0;
+  return (t4 cat t3 cat t2 cat t1);
+end
+
+defun mult( int a, int b ):
+  A = at(a,0) ^ at(a,3);
+  B = at(a,2) ^ at(a,3);
+  C = at(a,1) ^ at(a,2);
+  and00 = at(a,0) & at(b,0);
+  and31 = at(a,3) & at(b,1);
+  and22 = at(a,2) & at(b,2);
+  and13 = at(a,1) & at(b,3);
+  q0 = and00 ^ and31 ^ and22 ^ and13;
+  and10 = at(a,1) & at(b,0);
+  andA1 = A & at(b,1);
+  andB2 = B & at(b,2);
+  andC3 = C & at(b,3);
+  q1 = and10 ^ andA1 ^ andB2 ^ andC3;
+  and20 = at(a,2) & at(b,0);
+  and11 = at(a,1) & at(b,1);
+  andA2 = A & at(b,2);
+  andB3 = B & at(b,3);
+  q2 = and20 ^ and11 ^ andA2 ^ andB3;
+  and30 = at(a,3) & at(b,0);
+  and21 = at(a,2) & at(b,1);
+  and12 = at(a,1) & at(b,2);
+  andA3 = A & at(b,3);
+  q3 = and30 ^ and21 ^ and12 ^ andA3;
+  return (q3 cat q2 cat q1 cat q0);
+end
+
+defun multe( int a ):
+  A = at(a,0) ^ at(a,1);
+  B = at(a,2) ^ at(a,3);
+  q0 = at(a,1) ^ B;
+  q2 = A ^ at(a,2);
+  q3 = A ^ B;
+  return (q3 cat q2 cat A cat q0);
+end
+
+defun invt( int a ):
+  and01 = at(a,0) & at(a,1);
+  and02 = at(a,0) & at(a,2);
+  and03 = at(a,0) & at(a,3);
+  and12 = at(a,1) & at(a,2);
+  and13 = at(a,1) & at(a,3);
+  and23 = at(a,2) & at(a,3);
+  and012 = and01 & at(a,2);
+  and123 = and12 & at(a,3);
+  and023 = and02 & at(a,3);
+  and013 = and01 & at(a,3);
+  A = at(a,1) ^ at(a,2) ^ at(a,3) ^ and123;
+  q0 = A ^ at(a,0) ^ and02 ^ and12 ^ and012;
+  q1 = and01 ^ and02 ^ and12 ^ at(a,3) ^ and13 ^ and013;
+  q2 = and01 ^ at(a,2) ^ and02 ^ at(a,3) ^ and03 ^ and023;
+  q3 = A ^ and03 ^ and13 ^ and23;
+  return (q3 cat q2 cat q1 cat q0);
+end
+
+defun invmap( int a ):
+  A = at(a,1) ^ at(a,7);
+  B = at(a,4) ^ at(a,5);
+  a0 = at(a,0) ^ at(a,4);
+  a1 = B ^ at(a, 7);
+  a2 = A ^ B;
+  a3 = B ^ at(a,1) ^ at(a,6);
+  a4 = A ^ B ^ at(a,3);
+  a5 = B ^ at(a,2);
+  a6 = A ^ at(a,2) ^ at(a,3) ^ at(a,4);
+  a7 = B ^ at(a,2) ^ at(a,7);
+  return (a7 cat a6 cat a5 cat a4 cat a3 cat a2 cat a1 cat a0);
+end
+
+defun inverse( int a ):
+  map_a = map(a);
+  map_low = select( map_a, 0, 4 );
+  map_high = select( map_a, 4, 8 );
+  square0 = square( map_high );
+  square1 = square( map_low );
+  mult0 = mult( map_high, map_low );
+  xor0 = map_low ^ map_high;
+  multe = multe( square0 );
+  xor1 = square1 ^ multe;
+  xor2 = mult0 ^ xor1;
+  invt = invt( xor2 );
+  mult1 = mult( map_high, invt );
+  mult2 = mult( xor0, invt );
+  return invmap( mult1 cat mult2 );
+end
+
 defun s_box( int a ):
-  q3 = (at( a, 7 ) & (at( a, 5 ) ^ at( a, 4 ) ^ at( a, 1 ) ^ at( a, 0 ))) ^
-       (at( a, 6 ) & (at( a, 5 ) ^ at( a, 4 ) ^ at( a, 2 ) ^ at( a, 1 ))) ^
-       (at( a, 5 ) & (at( a, 4 ) ^ at( a, 2 ) ^ at( a, 1 ) ^ at( a, 0 ))) ^
-       (at( a, 4 ) & (at( a, 2 ) ^ at( a, 1 ))) ^
-       (at( a, 3 ) & (at( a, 2 ) ^ at( a, 1 ))) ^
-       (at( a, 2 ) & (at( a, 1 )));
-  
-  q2 = (at( a, 7 ) & (at( a, 6 ) ^ at( a, 5 ) ^ at( a, 3 ) ^ at( a, 2 ) ^ at( a, 0 ))) ^
-       (at( a, 6 ) & (at( a, 5 ) ^ at( a, 3 ) ^ at( a, 2 ) ^ at( a, 1 ) ^ at( a, 0 ))) ^
-       (at( a, 5 ) & (at( a, 3 ) ^ at( a, 2 ))) ^
-       (at( a, 4 ) & (at( a, 3 ) ^ at( a, 2 ) ^ at( a, 0 ))) ^
-       (at( a, 3 ) & (at( a, 2 ) ^ at( a, 0 ))) ^
-       ((at( a, 2 ) ^ at( a, 1 )) & at( a, 0 ));
-
-  q1 = (at( a, 7 ) & (at( a, 5 ) ^ at( a, 2 ) ^ at( a, 0 ) ^ 1)) ^
-       (at( a, 6 ) & (at( a, 5 ) ^ at( a, 3 ))) ^
-       (at( a, 5 ) & (at( a, 4 ) ^ at( a, 3 ) ^ at( a, 2 ) ^ at( a, 0 ) ^ 1)) ^
-       (at( a, 4 ) & (at( a, 2 ) ^ 1)) ^
-       (at( a, 3 ) & (at( a, 2 ) ^ at( a, 0 ))) ^
-       (at( a, 2 ) & (at( a, 1 ) ^ at( a, 0 ) ^ 1)) ^
-       (at( a, 1 ));
-
-  q0 = (at( a, 7 ) & (at( a, 6 ) ^ at( a, 4 ) ^ at( a, 0 ))) ^
-       (at( a, 6 ) & (at( a, 5 ) ^ at( a, 4 ) ^ at( a, 3 ) ^ at( a, 1 ) ^ 1)) ^
-       (at( a, 5 ) & (at( a, 3 ) ^ at( a, 0 ) ^ 1)) ^
-       (at( a, 4 ) & (at( a, 3 ) ^ at( a, 1 ))) ^
-       (at( a, 3 ) & (at( a, 2 ) ^ at( a, 1 ) ^ at( a, 0 ) ^ 1)) ^
-       ((at( a, 2 ) ^ at( a, 1 )) & at( a, 0 )) ^
-       (at( a, 0 ) ^ at( a, 2 ));
-
-  y3 = q3 ^ (q3 & q2 & q1) ^ (q3 & q0) ^ q2;
-  y2 = (q3 & q2 & q1) ^ (q3 & q2 & q0) ^ (q3 & q0) ^ 
-        q2 ^ (q2 & q1);
-  y1 = q3 ^ (q3 & q2 & q1) ^ (q3 & q1 & q0) ^ q2 ^ 
-        (q2 & q0) ^ q1;
-  y0 = (q3 & q2 & q1) ^ (q3 & q2 & q0) ^ (q3 & q1) ^ 
-        (q3 & q1 & q0) ^ (q3 & q0) ^ q2 ^ (q2 & q1) ^ 
-        (q2 & q1 & q0) ^ q1 ^ q0;
-
-  t7 = (y3 & (at( a, 7 ) ^ at( a, 6 ) ^ at( a, 4 ) ^ at( a, 0 ))) ^
-       (y2 & (at( a, 5 ) ^ at( a, 4 ) ^ at( a, 3 ) ^ at( a, 0 ))) ^
-       (y1 & (at( a, 5 ) ^ at( a, 4 ) ^ at( a, 3 ) ^ at( a, 2 ) ^ at( a, 1 ))) ^
-       (y0 & (at( a, 7 ) ^ at( a, 2 ) ^ at( a, 1 )));
-  t6 = (y3 & (at( a, 7 ) ^ at( a, 6 ) ^ at( a, 4 ))) ^
-       (y2 & (at( a, 7 ) ^ at( a, 5 ) ^ at( a, 1 ))) ^
-       (y1 & (at( a, 6 ) ^ at( a, 5 ) ^ at( a, 4 ))) ^
-       (y0 & (at( a, 6 ) ^ at( a, 5 ) ^ at( a, 4 ) ^ at( a, 3 ) ^ at( a, 2 )));	   
-  t5 = (y3 & (at( a, 7 ) ^ at( a, 6 ) ^ at( a, 5 ) ^ at( a, 2 ))) ^
-       (y2 & (at( a, 7 ) ^ at( a, 5 ) ^ at( a, 0 ))) ^
-       (y1 & (at( a, 4 ) ^ at( a, 3 ))) ^
-       (y0 & (at( a, 7 ) ^ at( a, 6 ) ^ at( a, 5 )));	   
-  t4 = (y3 & (at( a, 6 ) ^ at( a, 5 ) ^ at( a, 2 ))) ^
-       (y2 & (at( a, 7 ) ^ at( a, 6 ) ^ at( a, 5 ) ^ at( a, 3 ) ^ at( a, 2 ))) ^
-       (y1 & (at( a, 5 ) ^ at( a, 4 ) ^ at( a, 3 ) ^ at( a, 2 ) ^ at( a, 1 ) ^ at( a, 0 ))) ^
-       (y0 & (at( a, 4 ) ^ at( a, 3 ) ^ at( a, 2 ) ^ at( a, 0 )));
-  t3 = (y3 & (at( a, 7 ) ^ at( a, 6 ) ^ at( a, 5 ) ^ at( a, 4 ) ^ at( a, 3 ) ^ at( a, 2 ) ^ at( a, 1 ))) ^
-       (y2 & (at( a, 7 ) ^ at( a, 6 ) ^ at( a, 5 ) ^ at( a, 3 ) ^ at( a, 2 ) ^ at( a, 0 ))) ^
-       (y1 & (at( a, 7 ) ^ at( a, 3 ) ^ at( a, 1 ) ^ at( a, 0 ))) ^
-       (y0 & (at( a, 6 ) ^ at( a, 4 ) ^ at( a, 1 ) ^ at( a, 0 )));
-  t2 = (y3 & (at( a, 5 ) ^ at( a, 2 ) ^ at( a, 1 ) ^ at( a, 0 ))) ^
-       (y2 & (at( a, 7 ) ^ at( a, 6 ) ^ at( a, 5 ) ^ at( a, 4 ) ^ at( a, 3 ) ^ at( a, 2 ) ^ at( a, 0 ))) ^
-       (y1 & (at( a, 7 ) ^ at( a, 5 ) ^ at( a, 4 ))) ^
-       (y0 & (at( a, 4 ) ^ at( a, 2 ) ^ at( a, 1 ) ^ at( a, 0 )));
-  t1 = (y3 & (at( a, 6 ) ^ at( a, 4 ) ^ at( a, 3 ) ^ at( a, 1 ))) ^
-       (y2 & (at( a, 6 ) ^ at( a, 5 ) ^ at( a, 3 ) ^ at( a, 1 ))) ^
-       (y1 & (at( a, 7 ))) ^
-       (y0 & (at( a, 6 ) ^ at( a, 3 ) ^ at( a, 2 ) ^ at( a, 0 )));
-  t0 = (y3 & (at( a, 7 ) ^ at( a, 3 ) ^ at( a, 2 ) ^ at( a, 1 ))) ^
-       (y2 & (at( a, 7 ) ^ at( a, 4 ) ^ at( a, 0 ))) ^
-       (y1 & (at( a, 6 ) ^ at( a, 4 ) ^ at( a, 2 ) ^ at( a, 0 ))) ^
-       (y0 & (at( a, 5 ) ^ at( a, 3 ) ^ at( a, 2 ) ^ at( a, 0 )));
-
-  return (t7 cat t6 cat t5 cat t4 cat t3 cat t2 cat t1 cat t0) ^ 99;
+  return affine( inverse(a) );
 end
 
 defun subbytes( Array state ):
