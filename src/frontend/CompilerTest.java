@@ -23,6 +23,15 @@ public class CompilerTest {
     OptionBuilder.hasOptionalArg();
     return OptionBuilder.create();
   }
+  private static final String CSE_OPTS = "c";
+  public static Option cse_option(){
+    OptionBuilder.withLongOpt("c");
+
+    OptionBuilder.isRequired(false);
+    OptionBuilder.withDescription("will not use common subexpression optimizations to save memory");
+    OptionBuilder.hasOptionalArg();
+    return OptionBuilder.create();
+  }
 
   private static Options opts = new Options();
 
@@ -34,6 +43,7 @@ public class CompilerTest {
   public static void main( String[] args ) {
     opts.addOption(debug_level_option());
     opts.addOption(input_level_option());
+    opts.addOption(cse_option());
     CommandLineParser cmd = new PosixParser();
     CommandLine line;
     boolean rnd = false;
@@ -41,8 +51,13 @@ public class CompilerTest {
       line = cmd.parse(opts,args,false);
       String d = line.getOptionValue(DEBUG_STR,"0");
       String r = line.getOptionValue(INPUT_STR,"");
+      String c = line.getOptionValue(CSE_OPTS,"some");
       if( r.equals("random") ){
 	rnd = true;
+      }
+      if( c.equals("some") ){
+	Expression.cse_opts = false;
+	System.out.println("poop");
       }
       ProgramTree.DEBUG = Integer.parseInt(d);
     } catch( org.apache.commons.cli.ParseException e ){
