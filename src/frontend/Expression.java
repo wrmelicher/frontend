@@ -9,7 +9,7 @@ public abstract class Expression extends Statement {
   
   private boolean has_side_effects = false;
   private ExpSignature sig = null;
-  private static boolean cse_opts = true;
+  public static boolean cse_opts = true;
   
   public Expression( int line ){
     super( line );
@@ -73,4 +73,5 @@ public abstract class Expression extends Statement {
   public void set_ret( AbstractVariable o ){
     out = o;
   }
+
 }
