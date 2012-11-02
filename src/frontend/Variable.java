@@ -286,6 +286,8 @@ public class Variable<T extends TypeData> implements AbstractVariable<T> {
   }
 
   private static void add_equivalent_name( String one, String two ){
+    if( !Expression.cse_opts )
+      return;
     UnionSet eq_one = Variable.equivalent_names.get(one);
     UnionSet eq_two = Variable.equivalent_names.get(two);
     if( eq_one == null && eq_two == null ){

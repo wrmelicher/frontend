@@ -1,5 +1,5 @@
-definput party 1 a_arr: array[200] int magnitude = 3;
-definput party 2 b_arr: array[200] int magnitude = 3;
+definput party 1 a_arr: array[400] int magnitude = 3;
+definput party 2 b_arr: array[400] int magnitude = 3;
 
 defun min( int a, int b ):
   if a < b:
@@ -45,7 +45,7 @@ end
 loop i from 1 to length(a_arr) + 1:
   loop j from 1 to length(b_arr) + 1:
     char_equals = 0;
-    if !(a_arr[ i - 1 ] equals b_arr[ j - 1 ]):
+    if !(a_arr[ i - 1 ] == b_arr[ j - 1 ]):
       char_equals = 1;
     end
     min_cal = min( ans_at( i - 1, j ),
