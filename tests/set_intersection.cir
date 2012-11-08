@@ -2,11 +2,18 @@ definput party 1 a_set: array[256] int magnitude = 511;
 definput party 2 b_set: array[256] int magnitude = 511;
 
 defun compare_and_swap( Array arr, int a, int b ):
+  s = 0;
   if arr[a] > arr[b]:
-    temp = arr[a];
-    arr[a] = arr[b];
-    arr[b] = temp;
+    s = 1;
   end
+  outs = s;
+  loop i from 0 to bit_width( arr[a] ) - 1:
+    outs = outs cat s;
+  end
+  tempsum = arr[a] ^ arr[b];
+  tempand = tempsum & outs;
+  arr[a] = arr[a] ^ tempand;
+  arr[b] = arr[b] ^ tempand;
 end
 
 defun oddeven_merge( Array arr, int lo, int hi, int r ):
@@ -48,7 +55,7 @@ oddeven_sort( together );
 
 defun dupSelect( int i ):
   if (i + 2) >= length( together ):
-    if( together[i] equals together[i + 1] ):
+    if( together[i] == together[i + 1] ):
       return together[i];
     else:
       return 0;
@@ -65,7 +72,7 @@ end
 
 ans = zeros( length(together) >> 1 );
 loop i from 0 to length( together ) >> 1:
-  ans[i] = dupSelect(i);
+  ans[i] = dupSelect(i << 1);
 end
 oddeven_sort( ans );
 

@@ -55,7 +55,7 @@ public class CompilerTest {
       if( r.equals("random") ){
 	rnd = true;
       }
-      if( c.equals("some") ){
+      if( !c.equals("some") ){
 	Expression.cse_opts = false;
 	System.out.println("poop");
       }
@@ -107,8 +107,9 @@ public class CompilerTest {
     if(input){
       GenerateInputs g = new GenerateInputs( t, input_file, rnd );
       g.inputs();
+    } else {
+      compile( t, out );
     }
-    compile( t, out );
 
   }
   

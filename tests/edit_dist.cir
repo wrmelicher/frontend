@@ -1,14 +1,6 @@
 definput party 1 a_arr: array[400] int magnitude = 3;
 definput party 2 b_arr: array[400] int magnitude = 3;
 
-defun min( int a, int b ):
-  if a < b:
-    return a;
-  else:
-    return b;
-  end
-end
-
 defun mult( int a, int b ):
   accum = 0;
   loop i from 0 to a:
@@ -48,10 +40,22 @@ loop i from 1 to length(a_arr) + 1:
     if !(a_arr[ i - 1 ] == b_arr[ j - 1 ]):
       char_equals = 1;
     end
-    min_cal = min( ans_at( i - 1, j ),
-		   ans_at( i, j - 1 ) ) + 1;
-    set_ans_at( i, j, min( min_cal,
-			   ans_at( i - 1, j - 1 ) + char_equals ) );
+    min_cal = 0;
+    if ans_at( i - 1, j ) < ans_at( i, j - 1 ):
+      min_cal = ans_at( i - 1, j );
+    else:
+      min_cal = ans_at( j, i - 1 );
+    end
+    set_ans = 0;
+    add_to = 0;
+    if ans_at( i - 1, j - 1 ) < min_cal:
+      set_ans = ans_at( i - 1, j - 1 );
+      add_to = char_equals;
+    else:
+      set_ans = min_cal;
+      add_to = 1;
+    end
+    set_ans_at( i, j, set_ans + add_to );
   end
 end
 
