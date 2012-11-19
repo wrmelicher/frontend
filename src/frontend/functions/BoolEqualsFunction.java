@@ -3,11 +3,9 @@ import frontend.*;
 public class BoolEqualsFunction extends BinaryBool {
   public static final String NAME = "equals";
   public BoolEqualsFunction(){
-    super(NAME);
+    super(NAME, "equ");
   }
-  protected String op(){
-    return "equ";
-  }
+
   protected BoolData data_out( BoolData a, BoolData b ){
     return BoolData.equals_op( a, b );
   }

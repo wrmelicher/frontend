@@ -156,10 +156,9 @@ public abstract class Function
     new NotFunction();
     new Zeros();
     new BoolNot();
-    new Combine();
+    // new Combine();
     new GreaterThanEquals();
     new LessThanEquals();
     new Decoder();
   }
-  
 }

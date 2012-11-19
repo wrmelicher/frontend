@@ -15,12 +15,15 @@ public class BoolData extends TypeData {
     super( Type.BoolType );
     possible_values = possible;
   }
-  public int bit_count(){
+
+  public int input_bit_width() {
     return 1;
   }
+
   public int poss_value(){
     return possible_values;
   }
+
   public static BoolData and( BoolData a, BoolData b ){
     if( a.possible_values == BoolData.FALSE || b.possible_values == BoolData.FALSE ){
       return new BoolData( BoolData.FALSE );
@@ -54,7 +57,7 @@ public class BoolData extends TypeData {
     return possible_values != BoolData.MAYBE;
   }
   public String constant_name(){
-    return possible_values == BoolData.FALSE ? "0:1" : "1:1";
+    return possible_values == BoolData.FALSE ? "0" : "1";
   }
   public TypeData conditional( TypeData other ){
     return new BoolData( BoolData.MAYBE );     

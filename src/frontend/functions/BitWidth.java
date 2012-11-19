@@ -8,8 +8,8 @@ public class BitWidth extends Function {
     super(NAME,new Type[] {Type.ANYTYPE} );
   }
   public Variable compile_func( Variable[] args, Statement owner ) throws CompileException {
-    Variable ans = new Variable
-      ( new IntTypeData( args[0].getData().bit_count() ) );
-    return ans;
+    //Variable ans = new Variable
+    //( new IntTypeData( args[0].getData().bit_count() ) );
+    return null;
   }
 }

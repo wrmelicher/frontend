@@ -6,9 +6,9 @@ import java.lang.Math;
 
 public class IntTypeData extends TypeData {
   private BigInteger magnitude;
-  private boolean signed;
   private boolean is_const;
-  private int defined_width = -1;
+  private boolean is_input;
+  private boolean is_signed;
 
   private static final BigInteger TWO = BigInteger.ONE.add( BigInteger.ONE );
 
@@ -18,50 +18,44 @@ public class IntTypeData extends TypeData {
   public IntTypeData( BigInteger val ){
     super( Type.IntType );
     is_const = true;
-    signed = val.compareTo( BigInteger.ZERO ) < 0 ? true : false;
     magnitude = val.abs();
   }
-  public IntTypeData( BigInteger mag, boolean sign ) {
+  public IntTypeData(){
+    is_const = false;
+    magnitude = BigInteger.ZERO;
+    is_input = false;
+    is_signed = false;
+  }
+  public IntTypeData( boolean input, BigInteger mag, boolean signed ) {
     super( Type.IntType );
     magnitude = mag;
-    signed = sign;
     is_const = false;
+    is_input = input;
+    is_signed = signed;
   }
-  public IntTypeData( int mag, boolean sign ){
-    this( new BigInteger( mag+"" ), sign );
+
+  public int input_bit_width() {
+    return magnitude.bitLength() + ( is_signed ? 1 : 0 );
   }
-  public int bit_count(){
-    if( defined_width != -1 )
-      return defined_width;
-    if( magnitude.equals(BigInteger.ZERO) ){
-      return 1;
-    }
-    return signed ? magnitude.bitLength()+1 :  magnitude.bitLength();
-  }
-  public boolean signed(){
-    return signed;
-  }
+
   public static IntTypeData add( IntTypeData a, IntTypeData b ){
     if( a.is_constant() && b.is_constant() ){
       return new IntTypeData( a.magnitude.add(b.magnitude) );
     } else {
-      return new IntTypeData( a.magnitude.add( b.magnitude ), a.signed || b.signed );
+      return new IntTypeData();
     }
   }
   public static IntTypeData negate( IntTypeData a ) {
     if( a.is_constant() ){
       return new IntTypeData( a.magnitude.negate() );
     }
-    return new IntTypeData( a.magnitude, true );
+    return new IntTypeData();
   }
   public static IntTypeData subtraction( IntTypeData a, IntTypeData b ){
     if( a.is_constant() && b.is_constant() ){
       return new IntTypeData( a.magnitude.subtract( b.magnitude ) );
     }
-    if( !a.signed && !b.signed )
-      return new IntTypeData( a.magnitude.max( b.magnitude ), true );
-    else
-      return new IntTypeData( a.magnitude.add( b.magnitude ), true );
+    return new IntTypeData();
   }
   public static BoolData equals_op( IntTypeData a, IntTypeData b ){
     if( a.is_constant() && b.is_constant() ){
@@ -88,38 +82,35 @@ public class IntTypeData extends TypeData {
     if( a.is_constant() && b. is_constant() ){
       return new IntTypeData( a.magnitude.and( b.magnitude ) );
     } else {
-      int len = Math.min( a.bit_count(), b.bit_count() );
-      return new IntTypeData( ones(len), a.signed || b.signed );
+      return new IntTypeData();
     }
   }
   public static IntTypeData shift_left( IntTypeData a, int by ){
     if(a.is_constant()){
       return new IntTypeData(a.magnitude.shiftLeft(by));
     } else {
-      return new IntTypeData(a.magnitude.shiftLeft(by), a.signed );
+      return new IntTypeData();
     }
   }
   public static IntTypeData shift_right( IntTypeData a, int by ){
     if(a.is_constant()){
       return new IntTypeData(a.magnitude.shiftRight(by));
     } else {
-      return new IntTypeData(a.magnitude.shiftRight(by), a.signed );
+      return new IntTypeData();
     }
   }
   public static IntTypeData or( IntTypeData a, IntTypeData b ){
     if( a.is_constant() && b. is_constant() ){
       return new IntTypeData( a.magnitude.or( b.magnitude ) );
     } else {
-      int len = Math.max( a.bit_count(), b.bit_count() );
-      return new IntTypeData( ones(len), a.signed || b.signed );
+      return new IntTypeData();
     }
   }
   public static IntTypeData xor( IntTypeData a, IntTypeData b ){
     if( a.is_constant() && b. is_constant() ){
       return new IntTypeData( a.magnitude.xor( b.magnitude ) );
     } else {
-      int len = Math.max( a.bit_count(), b.bit_count() );
-      return new IntTypeData( ones(len), a.signed||b.signed );
+      return new IntTypeData();
     }
   }
 
@@ -131,30 +122,24 @@ public class IntTypeData extends TypeData {
     if( a.is_constant() ){
       return new IntTypeData( a.magnitude.xor( ones(a.bit_count()) ) );
     } else {
-      int len = a.bit_count();
-      return new IntTypeData( ones(len), a.signed );
+      return new IntTypeData();
     }
   }
 
   public static IntTypeData concat( IntTypeData a, IntTypeData b ){
     if( a.is_constant() && b.is_constant() ){
       IntTypeData ans = new IntTypeData( a.magnitude.shiftLeft( b.bit_count() ).add(b.magnitude) );
-      ans.defined_width = a.bit_count() + b.bit_count();
       return ans;
     } else {
-      return new IntTypeData( a.magnitude.shiftLeft( b.bit_count() ).add(b.magnitude), false );
+      return new IntTypeData();
     }
   }
 
   public static IntTypeData select( IntTypeData a, int from, int to ){
-    if( a.bit_count() <= from ){
-      return new IntTypeData( BigInteger.ZERO );
-    }
     if( a.is_constant() ){
       return new IntTypeData( a.magnitude.and(ones(to-from).shiftLeft(from)).shiftRight(from) );
     } else {
-      BigInteger range = ones( to - from );
-      return new IntTypeData( range, false );
+      return new IntTypeData();
     }
   }
   
@@ -169,33 +154,27 @@ public class IntTypeData extends TypeData {
       out = out.setBit( i );
       return new IntTypeData( out );
     } else {
-      BigInteger outrange = TWO.pow( i );
-      return new IntTypeData( outrange, false );
+      return new IntTypeData();
     }
   }
 
-  public String extend_operation(){
-    if( signed() ){
-      return "sextend";
-    } else {
-      return "zextend";
-    }
-  }
- 
   public boolean is_constant() {
     return is_const;
   }
+
   public String constant_name(){
-    return magnitude+":"+bit_count();
+    return magnitude;
   }
+
   public int value(){
     return magnitude.intValue();
   }
+
   public TypeData conditional( TypeData other ){
     // TODO: allow conditionals of varying types
     assert (other instanceof IntTypeData) : "conditional return types do not match";
     IntTypeData intother = (IntTypeData) other;
-    return new IntTypeData( magnitude.max( intother.magnitude ), signed || intother.signed );     
+    return new IntTypeData();     
   }
   
   public BigInteger user_input( String debug_name, int party, Scanner in ) {
@@ -208,7 +187,7 @@ public class IntTypeData extends TypeData {
     if( is_constant() ){
       return magnitude.toString();
     } else {
-      return "mag = " + magnitude + " signed: "+signed;
+      return "Int";
     }
   }
 }

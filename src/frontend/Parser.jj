@@ -221,7 +221,7 @@ TypeData type_data() throws CompileException:
        if( t == Type.BoolType )
 	 return new BoolData();
        else if ( t == Type.IntType )
-	 return new IntTypeData(width,signed);
+	 return new IntTypeData(true, width, signed);
      }
    ) |
     (

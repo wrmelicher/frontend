@@ -39,10 +39,6 @@ public class ArrayData extends TypeData {
   public int getSize(){
     return indices.size();
   }
-
-  public int bit_count(){
-    return getSize() * any_elem().bit_count();
-  }
   
   public boolean is_constant() {
     return false;

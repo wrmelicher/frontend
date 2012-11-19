@@ -17,7 +17,7 @@ public class Decoder extends Function {
     Variable<IntTypeData> out_var = new Variable( out );
     if( !out.is_constant() ){
       PrintStream ps = ProgramTree.output;
-      ps.println( out_var.new_name() + " decode " + args[0].cur_name() + " 1:1" );
+      ps.println( out_var.new_name() + " decode " + args[0].cur_name() + " 1" );
     }
     return out_var;
   }

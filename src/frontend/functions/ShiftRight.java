@@ -6,13 +6,7 @@ import frontend.*;
 public class ShiftRight extends BinaryInt {
   public static final String NAME = ">>";
   public ShiftRight(){
-    super( NAME );
-  }
-  public String op( IntTypeData a, IntTypeData b ){
-    return "shiftr";
-  }
-  public boolean pad_to(){
-    return false;
+    super( NAME, "shiftr" );
   }
   public TypeData data_type( IntTypeData a, IntTypeData b ) throws CompileException {
     if( !b.is_constant() ){

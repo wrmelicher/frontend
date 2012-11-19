@@ -1,0 +1,45 @@
+PARSER_BEGIN( WidthStageParser )
+  package bitWidthStage;
+
+public class WidthStageParser {
+  public PrintStream out;
+}
+
+PARSER_END( WidthStageParser )
+
+SKIP: { " " | "\t" | "\r" }
+TOKEN: {
+  < PARTY : "party" >
+    | < SIGNED : "signed" >
+    | < DEFINPUT : "definput" >
+    | < DEFOUTPUT : "defoutput" >
+    | < INTEGER : ("-")? ( [ "0"-"9" ] )+ >
+    | < HEX_INT : ("-")? "0x" ( [ "0"-"9","a"-"f","A"-"F"] )+ >
+    | < IDENTIFIER : ( ["a"-"z","A"-"Z","0"-"9","_"] )+ >
+}
+
+SPECIAL_TOKEN :
+{
+  <SINGLE_LINE_COMMENT: "//" (~["\n","\r"])* >
+}
+
+SPECIAL_TOKEN :
+{
+  <NEWLINE : "\r\n" | "\r" | "\n" > { Parser.line++; }
+}
+
+SKIP :
+{
+  "/*" : WithinComment
+}
+
+<WithinComment> SKIP :
+{
+  "*/" : DEFAULT
+}
+
+<WithinComment> MORE :
+{
+  <~[]>
+}
+
