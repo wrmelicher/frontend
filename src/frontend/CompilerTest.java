@@ -94,8 +94,9 @@ public class CompilerTest {
     
     Parser comp = new Parser( in );
     ProgramTree t = comp.tree();
+    String[] tokens = input_file.getName().split("\\.(?=[^\\.]+$)");
     File output_file = new File( input_file.getParent(),
-				 input_file.getName()+".gcil" );
+				 tokens[0]+".gcil" );
     PrintStream out;
     try {
       out = new PrintStream( output_file );
