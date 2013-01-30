@@ -199,11 +199,11 @@ TypeData type_data() throws CompileException:
 {
   (
    t = type()
-   ( ( <MAG> ) | 
+   ( (( <MAG> ) | 
      ( <BITS> 
    {
      uses_mag = false;
-   })
+   }))
      <EQUALS>
      width = big_integer()
      (
