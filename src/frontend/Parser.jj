@@ -112,6 +112,7 @@ TOKEN: {
     | < DEFINPUT : "definput" >
     | < DEFOUTPUT : "defoutput" >
     | < MAG : "magnitude" >
+    | < BITS : "bits" >
     | < INTEGER : ("-")? ( [ "0"-"9" ] )+ >
     | < HEX_INT : ("-")? "0x" ( [ "0"-"9","a"-"f","A"-"F"] )+ >
     | < IDENTIFIER : ( ["a"-"z","A"-"Z","0"-"9","_","+","-","*","<",">","=","&","|","^","!","~"] )+ >
@@ -187,19 +188,24 @@ DeclareInputStatement input() throws CompileException:
 
 TypeData type_data() throws CompileException:
 {
-  int width = -1;
+  BigInteger width = BigInteger.ZERO;
   int size = -1;
   TypeData other = null;
   boolean signed = false;
   boolean specified_width = false;
+  boolean uses_mag = true;
   Type t;
 }
 {
   (
    t = type()
-   ( <MAG>
+   ( ( <MAG> ) | 
+     ( <BITS> 
+   {
+     uses_mag = false;
+   })
      <EQUALS>
-     width = integer()
+     width = big_integer()
      (
       <SIGNED>
    { signed = true; }
@@ -215,13 +221,17 @@ TypeData type_data() throws CompileException:
        if( t == Type.IntType && !specified_width ){
 	 throw new CompileException( "Must specify magnitude of integer", line);
        }
-       if( width <= 0 ){
+       if( width.compareTo(BigInteger.ZERO) <= 0 ){
 	 throw new CompileException( "Cannot have integer with bit width less thanor equal to 0", line );
        }
        if( t == Type.BoolType )
 	 return new BoolData();
-       else if ( t == Type.IntType )
+       else if ( t == Type.IntType ){
+	 if( !uses_mag ){
+	   width = BigInteger.ONE.shiftLeft(width.intValue()).subtract(BigInteger.ONE);
+	 }
 	 return new IntTypeData(width,signed);
+       }
      }
    ) |
     (
