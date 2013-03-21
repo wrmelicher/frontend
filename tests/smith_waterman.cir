@@ -1,5 +1,5 @@
-definput party 1 a_arr: array[400] int magnitude = 3;
-definput party 2 b_arr: array[400] int magnitude = 3;
+definput party 1 a_arr: array[10] int magnitude = 3;
+definput party 2 b_arr: array[10] int magnitude = 3;
 
 defun mult( int a, int b ):
   accum = 0;
@@ -27,6 +27,10 @@ defun set_ans_at( int row, int col, int val ):
   ans[ mult( row, length( a_arr ) + 1 ) + col ] = val;
 end
 
+defun gap( int o ):
+  return mult(o, -12) - 7;
+end
+
 loop i from 0 to length(a_arr) + 1:
   set_ans_at( i, 0, i );
 end
@@ -40,13 +44,24 @@ loop i from 1 to length(a_arr) + 1:
     if !(a_arr[ i - 1 ] == b_arr[ j - 1 ]):
       char_equals = 2;
     end
+    rMax = 0;
+    cMax = 0;
     min_cal = 0;
-    if ans_at( i - 1, j ) > ans_at( i, j - 1 ):
-      min_cal = ans_at( i - 1, j );
-    else:
-      min_cal = ans_at( j, i - 1 );
+    loop o from 1 to i:
+      rTest = ans_at( i - o, j ) + gap(o);
+      cTest = ans_at( i, j - o ) + gap(o);
+      if rTest > rMax:
+        rMax = rTest;
+      end
+      if cTest > cMax:
+        cMax = cTest;
+      end
     end
-    min_cal = min_cal - 1;
+    if rMax > cMax:
+      min_cal = rMax;
+    else:
+      min_cal = cMax;
+    end
     set_ans = ans_at( i - 1, j - 1 ) + char_equals;
     if set_ans < min_cal:
       set_ans = min_cal;
