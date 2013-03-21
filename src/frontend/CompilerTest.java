@@ -108,6 +108,7 @@ public class CompilerTest {
     if(input){
       GenerateInputs g = new GenerateInputs( t, input_file, rnd );
       g.inputs();
+      compile( t, out );
     } else {
       compile( t, out );
     }
