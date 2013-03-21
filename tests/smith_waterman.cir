@@ -1,0 +1,60 @@
+definput party 1 a_arr: array[400] int magnitude = 3;
+definput party 2 b_arr: array[400] int magnitude = 3;
+
+defun mult( int a, int b ):
+  accum = 0;
+  loop i from 0 to a:
+    accum = accum + b;
+  end
+  return accum;
+end
+
+defun slice( Array arr, int start, int stop ):
+  ans = zeros(stop - start);
+  loop i from 0 to stop - start:
+    ans[i] = arr[start + i];
+  end
+  return ans;
+end
+
+ans = zeros( mult( length(a_arr) + 1, length(b_arr) + 1 ) );
+
+defun ans_at( int row, int col ):
+  return ans[ mult( row, length( a_arr ) + 1 ) + col ];
+end
+
+defun set_ans_at( int row, int col, int val ):
+  ans[ mult( row, length( a_arr ) + 1 ) + col ] = val;
+end
+
+loop i from 0 to length(a_arr) + 1:
+  set_ans_at( i, 0, i );
+end
+loop j from 0 to length(b_arr) + 1:
+  set_ans_at( 0, j, j );
+end
+
+loop i from 1 to length(a_arr) + 1:
+  loop j from 1 to length(b_arr) + 1:
+    char_equals = -1;
+    if !(a_arr[ i - 1 ] == b_arr[ j - 1 ]):
+      char_equals = 2;
+    end
+    min_cal = 0;
+    if ans_at( i - 1, j ) > ans_at( i, j - 1 ):
+      min_cal = ans_at( i - 1, j );
+    else:
+      min_cal = ans_at( j, i - 1 );
+    end
+    min_cal = min_cal - 1;
+    set_ans = ans_at( i - 1, j - 1 ) + char_equals;
+    if set_ans < min_cal:
+      set_ans = min_cal;
+    end
+    set_ans_at( i, j, set_ans );
+  end
+end
+
+out = ans_at( length( a_arr ), length( b_arr ) );
+
+defoutput out;
